@@ -1,5 +1,6 @@
 import os
 import json
+import re
 from crewai import Agent, Task, Crew, Process
 from langchain_openai import ChatOpenAI
 from decouple import config
@@ -19,21 +20,169 @@ class SocialMediaPostCreator:
         self.user_prompt = user_prompt
         self.platform = platform
     
-    def save_json_output(self, data, filename=None):
+    def create_unique_output_folder(self):
+        """Create a unique folder for this post's outputs"""
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        # Create a descriptive folder name from the prompt
+        prompt_slug = re.sub(r'[^\w\s-]', '', self.user_prompt.lower())
+        prompt_slug = re.sub(r'[\s]+', '_', prompt_slug)[:30]  # Limit length
+        
+        folder_name = f"{self.platform}_{prompt_slug}_{timestamp}"
+        post_folder = os.path.join(os.getcwd(), "output", folder_name)
+        os.makedirs(post_folder, exist_ok=True)
+        
+        return post_folder, timestamp
+
+    def save_json_output(self, data, post_folder, timestamp):
         """Save the output as JSON file"""
-        if not filename:
-            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            filename = f"social_media_post_{timestamp}.json"
-        
-        output_dir = os.path.join(os.getcwd(), "output")
-        os.makedirs(output_dir, exist_ok=True)
-        
-        filepath = os.path.join(output_dir, filename)
+        filename = f"{self.platform}_post_{timestamp}.json"
+        filepath = os.path.join(post_folder, filename)
         
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         
         return filepath
+
+    def save_markdown_output(self, data, post_folder, timestamp):
+        """Generate and save Markdown file"""
+        filename = f"{self.platform}_post_{timestamp}.md"
+        filepath = os.path.join(post_folder, filename)
+        
+        # Extract hashtags
+        hashtags = ""
+        if data.get("hashtags_and_timing"):
+            content = data["hashtags_and_timing"]
+            if "HASHTAGS:" in content:
+                hashtags_line = content.split("HASHTAGS:")[1].split("\n")[0].strip()
+                hashtags = hashtags_line
+            else:
+                hashtag_matches = re.findall(r'#\w+', content)
+                if hashtag_matches:
+                    hashtags = " ".join(hashtag_matches)
+        
+        # Create markdown content
+        markdown_content = f"""# {self.platform.title()} Post
+
+## Original Prompt
+{data.get('original_prompt', '')}
+
+## Selected Option
+{data.get('selected_option', '')}
+
+## Caption
+{data.get('caption', '')}
+
+## Hashtags
+{hashtags}
+
+## Image Details
+"""
+        
+        if data.get('image'):
+            image_data = data['image']
+            markdown_content += f"""- **Local Path**: {image_data.get('filename', 'N/A')}
+- **Original URL**: {image_data.get('image_url', 'N/A')}
+- **Prompt**: {image_data.get('prompt', 'N/A')}
+"""
+        else:
+            markdown_content += "No image generated\n"
+        
+        markdown_content += f"""
+## Timing & Strategy
+{data.get('hashtags_and_timing', '')}
+
+## Metadata
+- **Platform**: {data.get('platform', '')}
+- **Generated**: {data.get('timestamp', '')}
+- **Status**: {data.get('status', '')}
+"""
+        
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(markdown_content)
+        
+        return filepath
+
+    def generate_html_preview(self, data, platform, post_folder, timestamp):
+        """Generate HTML preview for the social media post"""
+        try:
+            template_path = os.path.join(os.getcwd(), "templates", f"{platform}.html")
+            
+            if not os.path.exists(template_path):
+                return None
+            
+            with open(template_path, 'r', encoding='utf-8') as f:
+                template = f.read()
+            
+            # Extract hashtags from hashtags_and_timing
+            hashtags = ""
+            timing_info = "2 hours ago"
+            
+            if data.get("hashtags_and_timing"):
+                content = data["hashtags_and_timing"]
+                
+                # Look for HASHTAGS: prefix first
+                if "HASHTAGS:" in content:
+                    hashtags_line = content.split("HASHTAGS:")[1].split("\n")[0].strip()
+                    hashtags = hashtags_line
+                else:
+                    # Fallback: Extract hashtags using regex
+                    hashtag_matches = re.findall(r'#\w+', content)
+                    if hashtag_matches:
+                        hashtags = " ".join(hashtag_matches)
+                
+                # Extract timing info
+                if "Best Posting Times" in content:
+                    timing_info = "Optimal posting time"
+            
+            # Prepare template variables
+            template_vars = {
+                "timestamp": data.get("timestamp", ""),
+                "original_prompt": data.get("original_prompt", ""),
+                "caption": data.get("caption", ""),
+                "hashtags": hashtags,
+                "timing_info": timing_info,
+                "image_path": ""
+            }
+            
+            # Handle image path - use the filename directly since image is in same folder
+            if data.get("image") and data["image"].get("filename"):
+                template_vars["image_path"] = data["image"]["filename"]
+            
+            # Simple template replacement (Mustache-like)
+            html_content = template
+            for key, value in template_vars.items():
+                # Handle conditional sections
+                if value:
+                    # Show sections with content
+                    html_content = re.sub(rf'{{\#{key}}}.*?{{\/{key}}}', 
+                                        lambda m: m.group(0).replace(f'{{{{{key}}}}}', str(value)), 
+                                        html_content, flags=re.DOTALL)
+                    # Remove inverted sections
+                    html_content = re.sub(rf'{{\^{key}}}.*?{{\/{key}}}', '', html_content, flags=re.DOTALL)
+                else:
+                    # Remove sections without content
+                    html_content = re.sub(rf'{{\#{key}}}.*?{{\/{key}}}', '', html_content, flags=re.DOTALL)
+                    # Show inverted sections
+                    html_content = re.sub(rf'{{\^{key}}}(.*?){{\/{key}}}', r'\1', html_content, flags=re.DOTALL)
+                
+                # Replace simple variables
+                html_content = html_content.replace(f'{{{{{key}}}}}', str(value))
+            
+            # Clean up any remaining template syntax
+            html_content = re.sub(r'\{\{[^}]+\}\}', '', html_content)
+            
+            # Save HTML file
+            html_filename = f"{platform}_post_preview_{timestamp}.html"
+            html_filepath = os.path.join(post_folder, html_filename)
+            
+            with open(html_filepath, 'w', encoding='utf-8') as f:
+                f.write(html_content)
+            
+            return html_filepath
+            
+        except Exception as e:
+            print(f"Error generating HTML preview: {str(e)}")
+            return None
 
     def run(self):
         print(f"\n🎯 Creating social media post for: '{self.user_prompt}'")
@@ -52,7 +201,7 @@ class SocialMediaPostCreator:
         ideation_crew = Crew(
             agents=[script_agent],
             tasks=[ideation_task],
-            verbose=False,
+            verbose=True,
         )
         
         ideas_result = ideation_crew.kickoff()
@@ -77,12 +226,16 @@ class SocialMediaPostCreator:
         
         print(f"\n✅ Great choice! Creating your post based on {selected_option}...")
         
+        # Create unique output folder for this post
+        post_folder, timestamp = self.create_unique_output_folder()
+        print(f"\n📁 Created output folder: {os.path.basename(post_folder)}")
+        
         # Step 3: Generate the complete post
         print("\n🚀 STEP 2: Creating your complete social media post...")
         
         # Initialize all remaining agents
         copywriter = agents.copywriter_agent()
-        creative = agents.creative_agent()
+        creative = agents.creative_agent(post_folder)  # Pass folder to creative agent
         hashtag_agent = agents.hashtag_agent()
         timing_agent = agents.timing_agent()
         
@@ -93,7 +246,7 @@ class SocialMediaPostCreator:
         copy_crew = Crew(
             agents=[copywriter],
             tasks=[copywriting_task],
-            verbose=False,
+            verbose=True,
         )
         
         caption_result = copy_crew.kickoff()
@@ -107,7 +260,7 @@ class SocialMediaPostCreator:
         final_crew = Crew(
             agents=[creative, hashtag_agent, timing_agent],
             tasks=[image_task, hashtag_task, timing_task],
-            verbose=False,
+            verbose=True,
         )
         
         final_results = final_crew.kickoff()
@@ -160,8 +313,10 @@ class SocialMediaPostCreator:
             "status": "completed"
         }
         
-        # Save JSON output
-        json_filepath = self.save_json_output(complete_result)
+        # Save all outputs to the unique folder
+        json_filepath = self.save_json_output(complete_result, post_folder, timestamp)
+        markdown_filepath = self.save_markdown_output(complete_result, post_folder, timestamp)
+        html_filepath = self.generate_html_preview(complete_result, self.platform, post_folder, timestamp)
         
         # Format and display final output
         print("\n" + "="*60)
@@ -185,12 +340,22 @@ class SocialMediaPostCreator:
         print("-" * 30)
         print(complete_result["hashtags_and_timing"])
         
-        print(f"\n💾 JSON OUTPUT SAVED:")
+        print(f"\n💾 OUTPUT FILES SAVED:")
         print("-" * 30)
-        print(f"📄 File: {json_filepath}")
+        print(f"📁 Folder: {os.path.basename(post_folder)}")
+        print(f"📄 JSON: {os.path.basename(json_filepath)}")
+        print(f"📝 Markdown: {os.path.basename(markdown_filepath)}")
+        if html_filepath:
+            print(f"🌐 HTML Preview: {os.path.basename(html_filepath)}")
+            if complete_result["image"].get("filename"):
+                print(f"🖼️  Image: {complete_result['image']['filename']}")
+            print(f"👁️  Open the HTML file in your browser to see the {self.platform.title()} UI preview!")
+        else:
+            print("❌ HTML preview generation failed")
         
+        print(f"\n📂 Complete folder path: {post_folder}")
         print("\n" + "="*60)
-        print("✨ Ready to post! Check the JSON file and image folder for all content.")
+        print("✨ Everything organized in one folder! Check the HTML preview for platform-specific UI!")
         print("="*60)
         
         return complete_result

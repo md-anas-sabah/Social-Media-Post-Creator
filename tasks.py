@@ -77,14 +77,27 @@ class SocialMediaTasks:
             
             Create a detailed, creative prompt for AI image generation that will result in a stunning visual for this social media post.
             
+            IMPORTANT CULTURAL CONSIDERATIONS:
+            - If the content is about Father's Day, Christmas, general celebrations, or everyday topics, create images with INDIAN/SOUTH ASIAN cultural context
+            - Use Indian clothing (kurta, casual Indian wear), Indian settings, Indian families
+            - Only use Arabic/Islamic styling for explicitly religious Islamic content (Eid, Ramadan, Islamic holidays)
+            - For general business/lifestyle content, default to Indian cultural representation
+            - Include diverse Indian family representations, modern Indian lifestyle, contemporary Indian settings
+            
             Then generate the image using the generate_image tool.
             
             The image should:
             - Be visually striking and social media ready
             - Complement the caption perfectly
-            - Be appropriate for the brand/topic
+            - Be culturally appropriate and representative of the target Indian audience
             - Follow current design trends
             - Be optimized for social media dimensions
+            - Include relevant Indian cultural elements when appropriate
+            
+            Example prompts:
+            - Father's Day: "Indian father and child, modern Indian family, kurta or casual Indian clothing, warm family moment"
+            - General business: "Modern Indian lifestyle, contemporary Indian setting, diverse Indian representation"
+            - Only use "traditional Arabic clothing, Middle Eastern setting" for Eid/Islamic content
             
             {self.__tip_section()}
             
@@ -103,20 +116,28 @@ class SocialMediaTasks:
             Original user prompt: "{user_prompt}"
             Platform: {platform}
             
-            Research and provide relevant hashtags that will maximize reach and engagement.
+            Generate ACTUAL HASHTAGS (not just strategy advice) that will maximize reach and engagement.
             
-            Provide:
-            - 5-10 highly relevant hashtags
-            - Mix of popular and niche hashtags
-            - Platform-appropriate hashtag strategy
-            - Trending hashtags if relevant
+            REQUIRED OUTPUT FORMAT:
+            HASHTAGS: #hashtag1 #hashtag2 #hashtag3 #hashtag4 #hashtag5 #hashtag6 #hashtag7 #hashtag8
+            
+            Requirements:
+            - Provide exactly 8-12 relevant hashtags
+            - Mix of popular (high volume) and niche (targeted) hashtags
+            - Include trending hashtags if relevant to the topic
+            - Make hashtags specific to the content theme
+            - Optimize for {platform} platform
+            
+            Examples:
+            - For Father's Day: #FathersDay #Dad #Family #FatherLove #DadAndMe #FathersDay2024 #FamilyTime #DadStories
+            - For Eid: #EidMubarak #Eid2024 #EidCelebration #MuslimFestival #EidJoy #Blessed #Ramadan #EidWithFamily
             
             {self.__tip_section()}
             
-            Focus on hashtags that will drive real engagement and reach.
+            IMPORTANT: Start your response with "HASHTAGS:" followed by the actual hashtags separated by spaces.
         """
             ),
-            expected_output="A strategic list of relevant hashtags for the post",
+            expected_output="A list of 8-12 relevant hashtags starting with 'HASHTAGS:' prefix",
             agent=agent,
         )
 

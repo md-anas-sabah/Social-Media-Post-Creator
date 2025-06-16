@@ -20,6 +20,11 @@ class ImageGeneratorTool(BaseTool):
     name: str = "generate_image"
     description: str = "Generate an image using DALL-E based on the provided prompt."
     args_schema: Type[BaseModel] = ImageGeneratorArgs
+    output_folder: str = None
+
+    def __init__(self, output_folder=None):
+        super().__init__()
+        self.output_folder = output_folder
 
     def _run(self, prompt: str) -> str:
         try:
@@ -42,12 +47,15 @@ class ImageGeneratorTool(BaseTool):
                 unique_id = str(uuid.uuid4())[:8]
                 filename = f"generated_image_{timestamp}_{unique_id}.png"
                 
-                # Get the current working directory and create the path
-                current_dir = os.getcwd()
-                images_dir = os.path.join(current_dir, "generated_images")
-                os.makedirs(images_dir, exist_ok=True)
-                
-                local_path = os.path.join(images_dir, filename)
+                # Use the specific output folder if provided, otherwise use default
+                if self.output_folder:
+                    local_path = os.path.join(self.output_folder, filename)
+                else:
+                    # Fallback to default generated_images folder
+                    current_dir = os.getcwd()
+                    images_dir = os.path.join(current_dir, "generated_images")
+                    os.makedirs(images_dir, exist_ok=True)
+                    local_path = os.path.join(images_dir, filename)
                 
                 with open(local_path, 'wb') as f:
                     f.write(image_response.content)
@@ -127,7 +135,7 @@ class SocialMediaAgents:
             llm=self.OpenAIGPT4,
         )
 
-    def creative_agent(self):
+    def creative_agent(self, output_folder=None):
         return Agent(
             role="Visual Content Creator",
             backstory=dedent("""You are a creative visual artist and prompt engineer who specializes 
@@ -135,7 +143,7 @@ class SocialMediaAgents:
                             composition, and what makes images perform well on social platforms."""),
             goal=dedent("""Generate detailed, creative prompts for AI image generation that will result 
                        in visually striking images perfectly suited for social media posts."""),
-            tools=[ImageGeneratorTool()],
+            tools=[ImageGeneratorTool(output_folder)],
             allow_delegation=False,
             verbose=True,
             llm=self.creative_llm,

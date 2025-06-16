@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter Post Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #15202b;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .twitter-post {
+            background: #192734;
+            border: 1px solid #38444d;
+            border-radius: 16px;
+            max-width: 598px;
+            width: 100%;
+            padding: 16px;
+        }
+        
+        .post-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #1da1f2, #0d8bd9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .post-content {
+            flex: 1;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 4px;
+        }
+        
+        .display-name {
+            font-weight: 700;
+            font-size: 15px;
+            color: #ffffff;
+        }
+        
+        .username {
+            color: #8b98a5;
+            font-size: 15px;
+        }
+        
+        .verified {
+            color: #1d9bf0;
+            font-size: 14px;
+        }
+        
+        .tweet-text {
+            font-size: 23px;
+            line-height: 1.3;
+            color: #ffffff;
+            margin-bottom: 12px;
+            word-break: break-word;
+        }
+        
+        .hashtag {
+            color: #1d9bf0;
+        }
+        
+        .post-image {
+            width: 100%;
+            max-height: 510px;
+            border-radius: 16px;
+            object-fit: cover;
+            margin-bottom: 12px;
+            background: #2f3336;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #71767b;
+            min-height: 200px;
+        }
+        
+        .tweet-actions {
+            display: flex;
+            justify-content: space-between;
+            max-width: 425px;
+            margin-top: 12px;
+            color: #71767b;
+        }
+        
+        .action-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 20px;
+            transition: background-color 0.2s;
+        }
+        
+        .action-group:hover {
+            background: rgba(29, 155, 240, 0.1);
+        }
+        
+        .timestamp {
+            color: #71767b;
+            font-size: 15px;
+            margin-top: 8px;
+        }
+        
+        .preview-info {
+            background: #1e3a5f;
+            padding: 16px;
+            margin: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #1d9bf0;
+        }
+        
+        .preview-info h3 {
+            color: #1d9bf0;
+            margin-bottom: 8px;
+        }
+        
+        .preview-info p {
+            color: #ffffff;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="preview-info">
+            <h3>🐦 Twitter Post Preview</h3>
+            <p><strong>Generated:</strong> {{timestamp}}</p>
+            <p><strong>Original Prompt:</strong> {{original_prompt}}</p>
+            {{#image_path}}<p><strong>Image:</strong> {{image_path}}</p>{{/image_path}}
+        </div>
+        
+        <div class="twitter-post">
+            <div class="post-header">
+                <div class="avatar">AI</div>
+                <div class="post-content">
+                    <div class="user-info">
+                        <span class="display-name">Your Brand</span>
+                        <span class="verified">✓</span>
+                        <span class="username">@yourbrand</span>
+                    </div>
+                    
+                    <div class="tweet-text">{{caption}}</div>
+                    
+                    {{#image_path}}
+                    <img src="{{image_path}}" alt="Generated post image" class="post-image">
+                    {{/image_path}}
+                    {{^image_path}}
+                    <div class="post-image">Image will appear here</div>
+                    {{/image_path}}
+                    
+                    <div class="tweet-actions">
+                        <div class="action-group">
+                            <span>💬</span>
+                            <span>42</span>
+                        </div>
+                        <div class="action-group">
+                            <span>🔄</span>
+                            <span>128</span>
+                        </div>
+                        <div class="action-group">
+                            <span>❤️</span>
+                            <span>1.2K</span>
+                        </div>
+                        <div class="action-group">
+                            <span>📤</span>
+                        </div>
+                    </div>
+                    
+                    <div class="timestamp">{{timing_info}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
