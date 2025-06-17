@@ -75,7 +75,16 @@ class SocialMediaTasks:
             Based on the caption content: "{caption_content}"
             Original user prompt: "{user_prompt}"
             
-            FIRST, analyze the content to determine if this should be a SINGLE IMAGE or CAROUSEL POST:
+            STEP 1: TEXT MESSAGE SIMPLIFICATION
+            Before creating any image, extract the main message and SIMPLIFY it:
+            - If the message is longer than 3 words, break it into 1-3 word phrases
+            - Use ONLY simple, common words that DALL-E can spell accurately
+            - Examples: "Light up your world" becomes "LIGHT UP" or just "BRIGHT"
+            - "Happy Diwali celebration" becomes "HAPPY DIWALI"
+            - "Thank you for choosing us" becomes "THANK YOU"
+            - "Eid Mubarak to all" becomes "EID MUBARAK"
+            
+            STEP 2: Analyze the content to determine if this should be a SINGLE IMAGE or CAROUSEL POST:
             
             CREATE CAROUSEL if content includes:
             - Lists (e.g., "5 ways to...", "10 tips for...", "7 steps to...")
@@ -101,9 +110,17 @@ class SocialMediaTasks:
             - Professional, polished appearance that looks authentic
             - High-resolution, crisp imagery suitable for social media
             - Natural lighting and realistic textures when using photographic elements
-            - Clean images WITHOUT any text or typography overlays
+            - Include CRYSTAL CLEAR, SHARP text overlays with perfect typography
+            - Use BOLD, LARGE, sans-serif fonts (like Helvetica, Arial, or Montserrat)
+            - Text must be PERFECTLY READABLE with razor-sharp edges
+            - HIGH CONTRAST text: white text on dark backgrounds or dark text on light backgrounds
+            - Text size should be LARGE and PROMINENT for easy mobile reading
             - Vibrant, engaging colors that perform well on social platforms
-            - Premium aesthetic that attracts social media users - let the visuals speak for themselves
+            - Premium aesthetic that attracts social media users
+            - Text positioning should be centered and well-spaced for maximum clarity
+            - CRITICAL: Text must be spelled CORRECTLY with NO word repetition or duplication
+            - Each word should appear only ONCE in the text overlay
+            - Text should be grammatically correct and professionally written
             
             CULTURAL CONSIDERATIONS:
             - If the content is about Father's Day, Christmas, general celebrations, or everyday topics, create images with INDIAN/SOUTH ASIAN cultural context
@@ -113,7 +130,11 @@ class SocialMediaTasks:
             - Include diverse Indian family representations, modern Indian lifestyle, contemporary Indian settings
             
             FOR SINGLE IMAGES:
-            Use the generate_image tool with a premium-quality prompt.
+            Use the generate_image tool with a premium-quality prompt that includes appropriate text overlay.
+            For greetings (like "Eid Mubarak"), promotional content, or announcements, always include the main message as text on the image.
+            
+            SINGLE IMAGE PROMPT TEMPLATE:
+            "High-resolution photo, showing [relevant scene/subject for the content] in [appropriate setting], in the style of professional social media photography, captured with professional camera, using natural lighting, with clean and centered text saying '[MAIN_MESSAGE]' in elegant, bold typography. No distortions, no artifacts, realistic proportions, highly detailed, ultra sharp, suitable for print and digital use. Format: 1080x1080px for Instagram post. PRIORITY: Perfect text spelling and clarity."
             
             FOR CAROUSEL POSTS:
             1. Extract the list items/tips from the content
@@ -121,29 +142,46 @@ class SocialMediaTasks:
             3. Ensure consistent photographic style across all slides (same lighting, color tone, quality)
             4. Use the generate_carousel_images tool with the list of prompts
             
-            IMPORTANT: Create clean, text-free images that visually represent each tip/concept.
-            The numbering and text content will be handled in the caption, not on the image itself.
-            Focus on creating visually compelling images that support each tip conceptually.
+            IMPORTANT: Create images with relevant text overlays that enhance the visual message.
+            
+            TEXT SIMPLIFICATION STRATEGY:
+            - For messages longer than 3 words, break them into simpler, shorter phrases
+            - Use ONLY common, simple words that DALL-E can spell correctly
+            - Avoid complex phrases, stick to 1-3 word combinations
+            - Examples of SAFE phrases: "EID MUBARAK", "THANK YOU", "HAPPY DIWALI", "NEW YEAR", "SALE NOW"
+            - Avoid longer phrases like "Light up your world with..." - break them down
+            
+            CHARACTER-LEVEL ACCURACY:
+            - Always specify the EXACT letters to be displayed (E-I-D M-U-B-A-R-A-K)
+            - Count the letters and include the count in the prompt
+            - Use only Arial font for maximum accuracy
+            - Prioritize spelling accuracy over visual complexity
             
             CAROUSEL PROMPT TEMPLATE:
-            "Clean, high-quality photograph representing: [SPECIFIC_TIP_CONTENT]. Realistic, professional photography style. No text or typography on the image. Vibrant colors, natural lighting, Instagram-ready format. Focus on visual storytelling that conceptually represents the tip."
+            "High-resolution photo, showing [scene relevant to the tip/content] in [appropriate setting], in the style of professional social media photography, captured with professional camera, using natural lighting, with clean and centered text saying '[RELEVANT_TEXT]' in elegant, bold typography. No distortions, no artifacts, realistic proportions, highly detailed, ultra sharp, suitable for print and digital use. Format: 1080x1080px for Instagram carousel. PRIORITY: Perfect text spelling and clarity."
             
-            EXAMPLE PROMPTS FOR "5 Ways to Improve Focus":
-            Prompt 1: "Clean, high-quality photograph of an organized, minimalist workspace with no distractions. Realistic, professional photography style. No text on the image. Vibrant colors, natural lighting, Instagram-ready format."
-            Prompt 2: "Clean, high-quality photograph of a person taking a peaceful break in a modern office or home setting. Realistic, professional photography style. No text on the image. Vibrant colors, natural lighting, Instagram-ready format."
-            Prompt 3: "Clean, high-quality photograph of a person in a calm, meditative pose doing breathing exercises. Realistic, professional photography style. No text on the image. Vibrant colors, natural lighting, Instagram-ready format."
+            EXAMPLE PROMPTS USING NEW TEMPLATE:
+            For "EID MUBARAK": "High-resolution photo, showing festive Islamic celebration scene with decorative lights and ornaments in elegant indoor setting, in the style of professional social media photography, captured with professional camera, using warm golden lighting, with clean and centered text saying 'EID MUBARAK' in elegant, bold typography. No distortions, no artifacts, realistic proportions, highly detailed, ultra sharp, suitable for print and digital use. Format: 1080x1080px for Instagram post."
             
-            CRITICAL: Never include any text, numbers, or typography on the images. Keep them clean and purely visual.
+            For "HAPPY DIWALI": "High-resolution photo, showing beautiful Diwali celebration with traditional diyas and rangoli patterns in modern Indian home setting, in the style of professional social media photography, captured with professional camera, using warm golden lighting, with clean and centered text saying 'HAPPY DIWALI' in elegant, bold typography. No distortions, no artifacts, realistic proportions, highly detailed, ultra sharp, suitable for print and digital use. Format: 1080x1080px for Instagram post."
             
-            The images should:
-            - Look realistic and professional, like high-quality photography
-            - Feature real-looking people, objects, and environments when relevant
-            - Be completely clean with NO text, numbers, or typography whatsoever
-            - Use natural lighting and authentic-looking settings
-            - Have consistent photographic quality and styling across all carousel slides
-            - Visually represent the concept/tip through imagery alone
-            - Look engaging and authentic to attract social media users
-            - Let the visual tell the story - text will be in the caption
+            For "THANK YOU": "High-resolution photo, showing professional business setting with modern office or service environment in clean contemporary space, in the style of professional social media photography, captured with professional camera, using natural lighting, with clean and centered text saying 'THANK YOU' in elegant, bold typography. No distortions, no artifacts, realistic proportions, highly detailed, ultra sharp, suitable for print and digital use. Format: 1080x1080px for Instagram post."
+            
+            CRITICAL: Include clear, professional text overlays that enhance the visual message and improve user engagement.
+            
+            The images should follow the professional template structure:
+            - HIGH-RESOLUTION: Professional quality suitable for print and digital
+            - REALISTIC PROPORTIONS: No distortions or artifacts
+            - PROFESSIONAL PHOTOGRAPHY STYLE: Authentic, high-quality appearance
+            - APPROPRIATE LIGHTING: Natural or warm lighting as specified
+            - CLEAN CENTERED TEXT: Elegant, bold typography that's perfectly readable
+            - PERFECT SPELLING: Text must be spelled correctly with no errors
+            - ULTRA SHARP: Highly detailed and crisp imagery
+            - PROPER FORMAT: 1080x1080px for posts, 1080x1920px for stories
+            - RELEVANT SCENES: Images that match the content and message
+            - PROFESSIONAL COMPOSITION: Clean, uncluttered design that highlights the text
+            - CONTEXTUAL SETTINGS: Appropriate environments that enhance the message
+            - TEXT PRIORITY: Message clarity and spelling accuracy above all else
             
             {self.__tip_section()}
             
@@ -248,7 +286,7 @@ class SocialMediaTasks:
             - Clean, modern aesthetic suitable for Stories
             - Vibrant colors that perform well in Story format
             - Professional photography style or clean graphics
-            - NO text overlays on images (text will be added separately)
+            - Include clear, mobile-optimized text overlays with excellent readability
             
             CULTURAL CONSIDERATIONS:
             - For general content: Use INDIAN/SOUTH ASIAN cultural context
@@ -266,23 +304,29 @@ class SocialMediaTasks:
             4. Use the generate_story_series tool with the list of prompts
             
             STORY PROMPT TEMPLATE:
-            "Vertical story format (9:16, 1080x1920px): [SPECIFIC_STORY_CONTENT]. High-quality mobile-optimized photography. Clean, modern aesthetic. No text overlays. Professional lighting, engaging composition. Instagram Story ready format. Focus on [MAIN_SUBJECT/THEME]."
+            "High-resolution photo, showing [relevant scene/subject for story content] in [appropriate setting], in the style of professional social media photography, captured with professional camera, using natural lighting, with clean and centered text saying '[STORY_TEXT]' in elegant, bold typography. Vertical format (9:16 aspect ratio), no distortions, no artifacts, realistic proportions, highly detailed, ultra sharp, suitable for Instagram Stories. Format: 1080x1920px for Instagram Story. PRIORITY: Perfect text spelling and mobile-optimized clarity."
             
-            EXAMPLE STORY PROMPTS:
-            Single Story: "Vertical story format (9:16, 1080x1920px): Professional woman in modern Indian casual wear holding coffee, smiling in bright modern office space. High-quality mobile photography, clean aesthetic, no text overlays, natural lighting, Instagram Story ready."
+            EXAMPLE STORY PROMPTS USING NEW TEMPLATE:
+            For "GOOD MORNING": "High-resolution photo, showing peaceful morning scene with coffee and sunrise in modern home setting, in the style of professional social media photography, captured with professional camera, using warm morning lighting, with clean and centered text saying 'GOOD MORNING' in elegant, bold typography. Vertical format (9:16 aspect ratio), no distortions, no artifacts, realistic proportions, highly detailed, ultra sharp, suitable for Instagram Stories. Format: 1080x1920px for Instagram Story."
             
-            Story Series Example (3-part productivity tips):
-            Story 1: "Vertical story format: Clean, organized desk setup with laptop and notebook in modern Indian home office. Mobile-optimized photography, no text, natural lighting."
-            Story 2: "Vertical story format: Person in comfortable Indian casual wear taking a mindful break, sitting by window with plants. Clean aesthetic, professional mobile photography."
-            Story 3: "Vertical story format: Hands holding smartphone with productivity app, modern Indian lifestyle setting. High-quality vertical photography, Instagram Story ready."
+            For "NEW YEAR": "High-resolution photo, showing celebration scene with fireworks and festive decorations in elegant party setting, in the style of professional social media photography, captured with professional camera, using dramatic lighting, with clean and centered text saying 'NEW YEAR' in elegant, bold typography. Vertical format (9:16 aspect ratio), no distortions, no artifacts, realistic proportions, highly detailed, ultra sharp, suitable for Instagram Stories. Format: 1080x1920px for Instagram Story."
+            
+            For "TIP ONE": "High-resolution photo, showing professional workspace with organized desk and modern office environment in clean contemporary setting, in the style of professional social media photography, captured with professional camera, using natural lighting, with clean and centered text saying 'TIP ONE' in elegant, bold typography. Vertical format (9:16 aspect ratio), no distortions, no artifacts, realistic proportions, highly detailed, ultra sharp, suitable for Instagram Stories. Format: 1080x1920px for Instagram Story."
             
             CRITICAL REQUIREMENTS:
-            - Always use 9:16 vertical format
-            - Keep text-safe zones in mind
-            - No text or typography on images
+            - Always use 9:16 vertical format (1080x1920px)
+            - Keep text-safe zones in mind (avoid top/bottom 250px)
+            - Include CRYSTAL CLEAR, RAZOR SHARP text overlays with perfect typography
+            - Use BOLD, LARGE sans-serif fonts (Helvetica/Arial/Montserrat) optimized for mobile viewing
+            - Text must be PERFECTLY READABLE with sharp, crisp edges - NO BLURRINESS
+            - Text must be spelled CORRECTLY with NO word repetition or duplication
+            - Each word should appear only ONCE in the text overlay - no repeated words
+            - Ensure MAXIMUM CONTRAST and perfect visibility
+            - Text should be LARGE, PROMINENT, and the FOCAL POINT
             - High mobile engagement potential
             - Professional story-appropriate quality
             - Consistent visual style if creating series
+            - PRIORITIZE TEXT ACCURACY and SHARPNESS above all other design elements
             
             {self.__tip_section()}
             

@@ -407,15 +407,23 @@ class SocialMediaAgents:
         return Agent(
             role="Visual Content Creator",
             backstory=dedent("""You are a creative visual artist and prompt engineer who specializes 
-                            in creating stunning social media visuals. You understand color theory, 
-                            composition, and what makes images perform well on social platforms. You excel 
-                            at creating single images, cohesive carousel designs, and engaging vertical 
-                            Story content optimized for mobile viewing."""),
-            goal=dedent("""Generate detailed, creative prompts for AI image generation that will result 
-                       in visually striking images perfectly suited for social media posts. For carousel 
-                       posts, create consistent, premium-quality designs across multiple slides. For 
-                       Story content, create mobile-optimized vertical visuals that work perfectly 
-                       in the 9:16 format."""),
+                            in creating stunning social media visuals using professional template structures. You use 
+                            the structured format: "High-resolution [type], showing [subject] in [setting], in the style 
+                            of [style], captured with [camera], using [lighting], with clean and centered text saying 
+                            '[message]' in elegant, bold typography. No distortions, no artifacts, realistic proportions, 
+                            highly detailed, ultra sharp, suitable for print and digital use." You understand DALL-E's 
+                            capabilities and create prompts that produce professional, high-quality results with perfect 
+                            text clarity. You prioritize realistic proportions, appropriate settings, and perfect text 
+                            spelling in every image generation prompt."""),
+            goal=dedent("""Generate detailed, creative prompts using the professional template structure 
+                       that will result in visually striking images with perfect text clarity. Use the format: 
+                       "High-resolution [type], showing [subject] in [setting], in the style of professional 
+                       social media photography, captured with professional camera, using [lighting], with clean 
+                       and centered text saying '[message]' in elegant, bold typography. No distortions, no 
+                       artifacts, realistic proportions, highly detailed, ultra sharp, suitable for print and 
+                       digital use." Simplify complex messages to 1-3 clear words. Create contextually appropriate 
+                       scenes that enhance the message. Prioritize perfect text spelling, realistic proportions, 
+                       and professional quality in every prompt."""),
             tools=[ImageGeneratorTool(output_folder), CarouselImageGeneratorTool(output_folder), 
                    StoryImageGeneratorTool(output_folder), StorySeriesGeneratorTool(output_folder)],
             allow_delegation=False,
