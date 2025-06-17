@@ -80,7 +80,32 @@ class SocialMediaPostCreator:
         
         if data.get('image'):
             image_data = data['image']
-            markdown_content += f"""- **Local Path**: {image_data.get('filename', 'N/A')}
+            if image_data.get('carousel_images'):
+                # Handle carousel images
+                carousel_images = image_data['carousel_images']
+                total_images = image_data.get('total_images', len(carousel_images))
+                successful_images = image_data.get('successful_images', 0)
+                
+                markdown_content += f"""**Carousel Post**: {successful_images}/{total_images} images generated
+
+"""
+                for img in carousel_images:
+                    if "error" not in img:
+                        markdown_content += f"""### Slide {img['slide_number']}
+- **Local Path**: {img.get('filename', 'N/A')}
+- **Original URL**: {img.get('image_url', 'N/A')}
+- **Prompt**: {img.get('prompt', 'N/A')}
+
+"""
+                    else:
+                        markdown_content += f"""### Slide {img['slide_number']}
+- **Status**: Failed - {img.get('error', 'Unknown error')}
+
+"""
+            else:
+                # Handle single image
+                markdown_content += f"""**Single Image**
+- **Local Path**: {image_data.get('filename', 'N/A')}
 - **Original URL**: {image_data.get('image_url', 'N/A')}
 - **Prompt**: {image_data.get('prompt', 'N/A')}
 """
@@ -144,9 +169,15 @@ class SocialMediaPostCreator:
                 "image_path": ""
             }
             
-            # Handle image path - use the filename directly since image is in same folder
-            if data.get("image") and data["image"].get("filename"):
-                template_vars["image_path"] = data["image"]["filename"]
+            # Handle image path - prioritize first carousel image, fallback to single image
+            if data.get("image"):
+                if data["image"].get("carousel_images") and len(data["image"]["carousel_images"]) > 0:
+                    # Use the first carousel image for preview
+                    first_image = data["image"]["carousel_images"][0]
+                    if "error" not in first_image:
+                        template_vars["image_path"] = first_image.get("filename", "")
+                elif data["image"].get("filename"):
+                    template_vars["image_path"] = data["image"]["filename"]
             
             # Simple template replacement (Mustache-like)
             html_content = template
@@ -274,7 +305,7 @@ class SocialMediaPostCreator:
             if hasattr(final_crew, 'tasks_output'):
                 for task_output in final_crew.tasks_output:
                     task_str = str(task_output)
-                    if "image_url" in task_str:
+                    if "image_url" in task_str or "carousel_images" in task_str:
                         try:
                             # Try to extract JSON from the task output
                             if task_str.startswith('{') and task_str.endswith('}'):
@@ -282,11 +313,17 @@ class SocialMediaPostCreator:
                             else:
                                 # If it's not pure JSON, try to find JSON within the string
                                 import re
-                                json_match = re.search(r'\{.*?"image_url".*?\}', task_str, re.DOTALL)
-                                if json_match:
-                                    image_data = json.loads(json_match.group())
+                                # First try to find carousel images JSON
+                                carousel_match = re.search(r'\{.*?"carousel_images".*?\}', task_str, re.DOTALL)
+                                if carousel_match:
+                                    image_data = json.loads(carousel_match.group())
                                 else:
-                                    image_data = {"error": "Could not extract JSON from image output", "raw_output": task_str}
+                                    # Fallback to single image JSON
+                                    json_match = re.search(r'\{.*?"image_url".*?\}', task_str, re.DOTALL)
+                                    if json_match:
+                                        image_data = json.loads(json_match.group())
+                                    else:
+                                        image_data = {"error": "Could not extract JSON from image output", "raw_output": task_str}
                         except json.JSONDecodeError as e:
                             image_data = {"error": f"JSON decode error: {str(e)}", "raw_output": task_str}
                         except Exception as e:
@@ -327,9 +364,23 @@ class SocialMediaPostCreator:
         print("-" * 30)
         print(complete_result["caption"])
         
-        print(f"\n📸 IMAGE:")
+        print(f"\n📸 IMAGES:")
         print("-" * 30)
-        if complete_result["image"].get("local_path"):
+        if complete_result["image"].get("carousel_images"):
+            # Handle carousel images
+            carousel_images = complete_result["image"]["carousel_images"]
+            total_images = complete_result["image"].get("total_images", len(carousel_images))
+            successful_images = complete_result["image"].get("successful_images", 0)
+            
+            print(f"🎠 CAROUSEL POST: {successful_images}/{total_images} images generated successfully")
+            for img in carousel_images:
+                if "error" not in img:
+                    print(f"  📄 Slide {img['slide_number']}: {img['filename']}")
+                else:
+                    print(f"  ❌ Slide {img['slide_number']}: Failed ({img.get('error', 'Unknown error')})")
+        elif complete_result["image"].get("local_path"):
+            # Handle single image
+            print(f"🖼️  SINGLE IMAGE")
             print(f"✅ Image saved to: {complete_result['image']['local_path']}")
             print(f"🌐 Original URL: {complete_result['image'].get('image_url', 'N/A')}")
             print(f"📝 Image prompt: {complete_result['image'].get('prompt', 'N/A')}")
@@ -347,8 +398,17 @@ class SocialMediaPostCreator:
         print(f"📝 Markdown: {os.path.basename(markdown_filepath)}")
         if html_filepath:
             print(f"🌐 HTML Preview: {os.path.basename(html_filepath)}")
-            if complete_result["image"].get("filename"):
+            
+            # List all images in the output folder
+            if complete_result["image"].get("carousel_images"):
+                carousel_images = complete_result["image"]["carousel_images"]
+                successful_images = [img for img in carousel_images if "error" not in img]
+                print(f"🎠 Carousel Images ({len(successful_images)} slides):")
+                for img in successful_images:
+                    print(f"   📄 {img['filename']}")
+            elif complete_result["image"].get("filename"):
                 print(f"🖼️  Image: {complete_result['image']['filename']}")
+                
             print(f"👁️  Open the HTML file in your browser to see the {self.platform.title()} UI preview!")
         else:
             print("❌ HTML preview generation failed")
@@ -367,9 +427,12 @@ if __name__ == "__main__":
     print("💡 Just tell me what kind of post you want, and I'll create:")
     print("   • 3 creative ideas for you to choose from")
     print("   • A polished caption")
-    print("   • A custom generated image")
+    print("   • Premium-quality images (single or carousel)")
     print("   • Strategic hashtags")
     print("   • Optimal posting times")
+    print("")
+    print("🎠 NEW: Automatically creates carousel posts for lists!")
+    print("   (e.g., '5 ways to...', '10 tips for...', step-by-step guides)")
     print("=" * 50)
     
     try:

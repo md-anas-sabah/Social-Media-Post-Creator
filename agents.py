@@ -1,6 +1,9 @@
 from crewai import Agent
 from textwrap import dedent
-from langchain.llms import OpenAI, Ollama
+try:
+    from langchain_community.llms import OpenAI, Ollama
+except ImportError:
+    from langchain.llms import OpenAI, Ollama
 from langchain_openai import ChatOpenAI
 from crewai.tools import BaseTool
 from typing import Any, Type
@@ -84,6 +87,99 @@ class ImageGeneratorTool(BaseTool):
                 "error": f"Error generating image: {str(e)}"
             })
 
+
+class CarouselImageGeneratorArgs(BaseModel):
+    prompts: list = Field(description="List of prompts for carousel image generation")
+    
+class CarouselImageGeneratorTool(BaseTool):
+    name: str = "generate_carousel_images"
+    description: str = "Generate multiple images for carousel posts using DALL-E based on a list of prompts."
+    args_schema: Type[BaseModel] = CarouselImageGeneratorArgs
+    output_folder: str = None
+
+    def __init__(self, output_folder=None):
+        super().__init__()
+        self.output_folder = output_folder
+
+    def _run(self, prompts: list) -> str:
+        try:
+            client = openai.OpenAI()
+            carousel_images = []
+            
+            for i, prompt in enumerate(prompts, 1):
+                try:
+                    response = client.images.generate(
+                        model="dall-e-3",
+                        prompt=prompt,
+                        size="1024x1024",
+                        quality="standard",
+                        n=1,
+                    )
+                    
+                    image_url = response.data[0].url
+                    
+                    # Download and save the image locally
+                    image_response = requests.get(image_url)
+                    if image_response.status_code == 200:
+                        # Create unique filename with carousel index
+                        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                        unique_id = str(uuid.uuid4())[:8]
+                        filename = f"carousel_slide_{i}_{timestamp}_{unique_id}.png"
+                        
+                        # Use the specific output folder if provided, otherwise use default
+                        if self.output_folder:
+                            local_path = os.path.join(self.output_folder, filename)
+                        else:
+                            # Fallback to default generated_images folder
+                            current_dir = os.getcwd()
+                            images_dir = os.path.join(current_dir, "generated_images")
+                            os.makedirs(images_dir, exist_ok=True)
+                            local_path = os.path.join(images_dir, filename)
+                        
+                        with open(local_path, 'wb') as f:
+                            f.write(image_response.content)
+                        
+                        carousel_images.append({
+                            "slide_number": i,
+                            "image_url": image_url,
+                            "local_path": local_path,
+                            "filename": filename,
+                            "prompt": prompt
+                        })
+                    else:
+                        carousel_images.append({
+                            "slide_number": i,
+                            "image_url": image_url,
+                            "local_path": "Failed to download",
+                            "filename": "Failed to download",
+                            "prompt": prompt,
+                            "error": f"Failed to download image: {image_response.status_code}"
+                        })
+                        
+                except Exception as e:
+                    carousel_images.append({
+                        "slide_number": i,
+                        "image_url": "Error",
+                        "local_path": "Error",
+                        "filename": "Error",
+                        "prompt": prompt,
+                        "error": f"Error generating image {i}: {str(e)}"
+                    })
+            
+            return json.dumps({
+                "carousel_images": carousel_images,
+                "total_images": len(carousel_images),
+                "successful_images": len([img for img in carousel_images if "error" not in img])
+            })
+                
+        except Exception as e:
+            return json.dumps({
+                "carousel_images": [],
+                "total_images": 0,
+                "successful_images": 0,
+                "error": f"Error generating carousel images: {str(e)}"
+            })
+
 class TimingArgs(BaseModel):
     platform: str = Field(default="instagram", description="Social media platform")
 
@@ -140,10 +236,12 @@ class SocialMediaAgents:
             role="Visual Content Creator",
             backstory=dedent("""You are a creative visual artist and prompt engineer who specializes 
                             in creating stunning social media visuals. You understand color theory, 
-                            composition, and what makes images perform well on social platforms."""),
+                            composition, and what makes images perform well on social platforms. You excel 
+                            at creating both single images and cohesive carousel designs."""),
             goal=dedent("""Generate detailed, creative prompts for AI image generation that will result 
-                       in visually striking images perfectly suited for social media posts."""),
-            tools=[ImageGeneratorTool(output_folder)],
+                       in visually striking images perfectly suited for social media posts. For carousel 
+                       posts, create consistent, premium-quality designs across multiple slides."""),
+            tools=[ImageGeneratorTool(output_folder), CarouselImageGeneratorTool(output_folder)],
             allow_delegation=False,
             verbose=True,
             llm=self.creative_llm,

@@ -75,36 +75,80 @@ class SocialMediaTasks:
             Based on the caption content: "{caption_content}"
             Original user prompt: "{user_prompt}"
             
-            Create a detailed, creative prompt for AI image generation that will result in a stunning visual for this social media post.
+            FIRST, analyze the content to determine if this should be a SINGLE IMAGE or CAROUSEL POST:
             
-            IMPORTANT CULTURAL CONSIDERATIONS:
+            CREATE CAROUSEL if content includes:
+            - Lists (e.g., "5 ways to...", "10 tips for...", "7 steps to...")
+            - Sequential tips or advice
+            - Multiple points or strategies
+            - Step-by-step guides
+            - Numbered or bulleted lists
+            
+            CREATE SINGLE IMAGE for:
+            - General announcements
+            - Simple quotes or motivational content
+            - Single concept posts
+            - Content without clear list structure
+            
+            CAROUSEL EXTRACTION PROCESS:
+            1. Look for list indicators: numbers, bullets, "ways", "tips", "steps", "methods"
+            2. Extract each individual point/tip as a separate concept
+            3. Count the total number of points to determine carousel size
+            4. Create one focused prompt per point (not mentioning other points)
+            
+            PREMIUM VISUAL STYLE REQUIREMENTS:
+            - Clean, modern, minimalist design with premium aesthetics
+            - Professional typography and layout suitable for top-tier brands
+            - Consistent color palette (choose sophisticated colors like deep blues, elegant grays, warm golds, or modern pastels)
+            - High contrast and readability
+            - Instagram/LinkedIn professional standard quality
+            - Clean white or gradient backgrounds
+            - Professional iconography and visual elements
+            
+            CULTURAL CONSIDERATIONS:
             - If the content is about Father's Day, Christmas, general celebrations, or everyday topics, create images with INDIAN/SOUTH ASIAN cultural context
             - Use Indian clothing (kurta, casual Indian wear), Indian settings, Indian families
             - Only use Arabic/Islamic styling for explicitly religious Islamic content (Eid, Ramadan, Islamic holidays)
             - For general business/lifestyle content, default to Indian cultural representation
             - Include diverse Indian family representations, modern Indian lifestyle, contemporary Indian settings
             
-            Then generate the image using the generate_image tool.
+            FOR SINGLE IMAGES:
+            Use the generate_image tool with a premium-quality prompt.
             
-            The image should:
+            FOR CAROUSEL POSTS:
+            1. Extract the list items/tips from the content
+            2. Create individual premium prompts for each slide
+            3. Ensure consistent style across all slides (same color scheme, typography, layout style)
+            4. Use the generate_carousel_images tool with the list of prompts
+            
+            IMPORTANT: Each carousel prompt should create ONE COMPLETE IMAGE focused on ONE specific tip/point.
+            DO NOT mention "slide X of Y" or "part of series" - each image should be self-contained.
+            
+            PREMIUM PROMPT TEMPLATE FOR CAROUSEL:
+            "Professional social media post design featuring: [SPECIFIC_TIP_CONTENT]. Modern minimalist layout, premium typography, clean [COLOR_SCHEME] color scheme, high-end brand aesthetic, Instagram-ready design, single focused concept, [CULTURAL_CONTEXT]"
+            
+            EXAMPLE GOOD PROMPTS FOR "5 Ways to Improve Focus":
+            Prompt 1: "Professional social media post design featuring: Eliminate distractions from your workspace. Modern minimalist layout, premium typography, clean navy blue and white color scheme, high-end brand aesthetic, Instagram-ready design, single focused concept"
+            Prompt 2: "Professional social media post design featuring: Take regular breaks every 25 minutes. Modern minimalist layout, premium typography, clean navy blue and white color scheme, high-end brand aesthetic, Instagram-ready design, single focused concept"
+            Prompt 3: "Professional social media post design featuring: Practice deep breathing exercises. Modern minimalist layout, premium typography, clean navy blue and white color scheme, high-end brand aesthetic, Instagram-ready design, single focused concept"
+            
+            CRITICAL: Each prompt generates ONE COMPLETE STANDALONE IMAGE. Never reference other slides or use terms like "slide 1 of 5".
+            
+            The images should:
+            - Look like they're created by top-tier design agencies
             - Be visually striking and social media ready
             - Complement the caption perfectly
-            - Be culturally appropriate and representative of the target Indian audience
-            - Follow current design trends
+            - Be culturally appropriate and representative of the target audience
+            - Follow current premium design trends
             - Be optimized for social media dimensions
-            - Include relevant Indian cultural elements when appropriate
-            
-            Example prompts:
-            - Father's Day: "Indian father and child, modern Indian family, kurta or casual Indian clothing, warm family moment"
-            - General business: "Modern Indian lifestyle, contemporary Indian setting, diverse Indian representation"
-            - Only use "traditional Arabic clothing, Middle Eastern setting" for Eid/Islamic content
+            - Have consistent branding across carousel slides
             
             {self.__tip_section()}
             
-            Return both the image prompt you created and the generated image URL.
+            Return the image prompt(s) and generated image URL(s).
         """
             ),
-            expected_output="Image generation prompt and the generated image URL",
+            expected_output="Single image or carousel images with premium quality prompts and URLs",
             agent=agent,
         )
 
