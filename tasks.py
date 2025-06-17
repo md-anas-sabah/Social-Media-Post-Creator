@@ -97,13 +97,13 @@ class SocialMediaTasks:
             4. Create one focused prompt per point (not mentioning other points)
             
             PREMIUM VISUAL STYLE REQUIREMENTS:
-            - Clean, modern, minimalist design with premium aesthetics
-            - Professional typography and layout suitable for top-tier brands
-            - Consistent color palette (choose sophisticated colors like deep blues, elegant grays, warm golds, or modern pastels)
-            - High contrast and readability
-            - Instagram/LinkedIn professional standard quality
-            - Clean white or gradient backgrounds
-            - Professional iconography and visual elements
+            - Realistic, high-quality photographic style or clean modern design
+            - Professional, polished appearance that looks authentic
+            - High-resolution, crisp imagery suitable for social media
+            - Natural lighting and realistic textures when using photographic elements
+            - Clean images WITHOUT any text or typography overlays
+            - Vibrant, engaging colors that perform well on social platforms
+            - Premium aesthetic that attracts social media users - let the visuals speak for themselves
             
             CULTURAL CONSIDERATIONS:
             - If the content is about Father's Day, Christmas, general celebrations, or everyday topics, create images with INDIAN/SOUTH ASIAN cultural context
@@ -117,31 +117,33 @@ class SocialMediaTasks:
             
             FOR CAROUSEL POSTS:
             1. Extract the list items/tips from the content
-            2. Create individual premium prompts for each slide
-            3. Ensure consistent style across all slides (same color scheme, typography, layout style)
+            2. Create individual clean image prompts for each slide that visually represent the concept
+            3. Ensure consistent photographic style across all slides (same lighting, color tone, quality)
             4. Use the generate_carousel_images tool with the list of prompts
             
-            IMPORTANT: Each carousel prompt should create ONE COMPLETE IMAGE focused on ONE specific tip/point.
-            DO NOT mention "slide X of Y" or "part of series" - each image should be self-contained.
+            IMPORTANT: Create clean, text-free images that visually represent each tip/concept.
+            The numbering and text content will be handled in the caption, not on the image itself.
+            Focus on creating visually compelling images that support each tip conceptually.
             
-            PREMIUM PROMPT TEMPLATE FOR CAROUSEL:
-            "Professional social media post design featuring: [SPECIFIC_TIP_CONTENT]. Modern minimalist layout, premium typography, clean [COLOR_SCHEME] color scheme, high-end brand aesthetic, Instagram-ready design, single focused concept, [CULTURAL_CONTEXT]"
+            CAROUSEL PROMPT TEMPLATE:
+            "Clean, high-quality photograph representing: [SPECIFIC_TIP_CONTENT]. Realistic, professional photography style. No text or typography on the image. Vibrant colors, natural lighting, Instagram-ready format. Focus on visual storytelling that conceptually represents the tip."
             
-            EXAMPLE GOOD PROMPTS FOR "5 Ways to Improve Focus":
-            Prompt 1: "Professional social media post design featuring: Eliminate distractions from your workspace. Modern minimalist layout, premium typography, clean navy blue and white color scheme, high-end brand aesthetic, Instagram-ready design, single focused concept"
-            Prompt 2: "Professional social media post design featuring: Take regular breaks every 25 minutes. Modern minimalist layout, premium typography, clean navy blue and white color scheme, high-end brand aesthetic, Instagram-ready design, single focused concept"
-            Prompt 3: "Professional social media post design featuring: Practice deep breathing exercises. Modern minimalist layout, premium typography, clean navy blue and white color scheme, high-end brand aesthetic, Instagram-ready design, single focused concept"
+            EXAMPLE PROMPTS FOR "5 Ways to Improve Focus":
+            Prompt 1: "Clean, high-quality photograph of an organized, minimalist workspace with no distractions. Realistic, professional photography style. No text on the image. Vibrant colors, natural lighting, Instagram-ready format."
+            Prompt 2: "Clean, high-quality photograph of a person taking a peaceful break in a modern office or home setting. Realistic, professional photography style. No text on the image. Vibrant colors, natural lighting, Instagram-ready format."
+            Prompt 3: "Clean, high-quality photograph of a person in a calm, meditative pose doing breathing exercises. Realistic, professional photography style. No text on the image. Vibrant colors, natural lighting, Instagram-ready format."
             
-            CRITICAL: Each prompt generates ONE COMPLETE STANDALONE IMAGE. Never reference other slides or use terms like "slide 1 of 5".
+            CRITICAL: Never include any text, numbers, or typography on the images. Keep them clean and purely visual.
             
             The images should:
-            - Look like they're created by top-tier design agencies
-            - Be visually striking and social media ready
-            - Complement the caption perfectly
-            - Be culturally appropriate and representative of the target audience
-            - Follow current premium design trends
-            - Be optimized for social media dimensions
-            - Have consistent branding across carousel slides
+            - Look realistic and professional, like high-quality photography
+            - Feature real-looking people, objects, and environments when relevant
+            - Be completely clean with NO text, numbers, or typography whatsoever
+            - Use natural lighting and authentic-looking settings
+            - Have consistent photographic quality and styling across all carousel slides
+            - Visually represent the concept/tip through imagery alone
+            - Look engaging and authentic to attract social media users
+            - Let the visual tell the story - text will be in the caption
             
             {self.__tip_section()}
             
