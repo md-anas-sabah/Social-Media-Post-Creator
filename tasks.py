@@ -315,3 +315,81 @@ class SocialMediaTasks:
             expected_output="Complete formatted social media post with all components",
             agent=agent,
         )
+
+    def content_calendar_planning_task(self, agent, user_prompt, platforms=None, duration_weeks=4):
+        return Task(
+            description=dedent(
+                f"""
+            Based on the user's request: "{user_prompt}"
+            Target platforms: {platforms if platforms else "Instagram, Facebook, Twitter, LinkedIn"}
+            Calendar duration: {duration_weeks} weeks
+            
+            Create a comprehensive content calendar plan that includes:
+            
+            CALENDAR STRUCTURE:
+            - Weekly organization with specific dates
+            - Platform-specific content distribution
+            - Content type variety (posts, stories, carousels, reels, etc.)
+            - Strategic theme alignment
+            - Optimal posting times for each platform
+            
+            CONTENT ELEMENTS FOR EACH ENTRY:
+            1. Date/Time: Specific posting schedule
+            2. Platform: Target social media platform
+            3. Content Type: Post format (single post, carousel, story, reel, etc.)
+            4. Topic/Theme: Content subject and focus
+            5. Caption/Copy: Brief content description or actual caption
+            6. Media: Image/video description or requirements
+            7. Hashtags/Tags: Relevant hashtags strategy
+            8. Status: Draft/Scheduled/Published tracking
+            
+            STRATEGIC CONSIDERATIONS:
+            - Content variety and engagement optimization
+            - Platform-specific best practices
+            - Audience engagement patterns
+            - Brand consistency and voice
+            - Seasonal relevance and trending topics
+            - Cross-platform content adaptation
+            - Campaign alignment and objectives
+            
+            FORMAT THE CALENDAR AS:
+            
+            ## CONTENT CALENDAR - [Duration]
+            
+            ### Week 1 (Dates: [Start Date] - [End Date])
+            
+            **Monday, [Date]**
+            - Platform: [Platform]
+            - Time: [Optimal Time]
+            - Content Type: [Type]
+            - Topic/Theme: [Theme]
+            - Caption: [Brief description or actual caption]
+            - Media: [Image/video description]
+            - Hashtags: [Relevant hashtags]
+            - Status: Draft
+            
+            **Tuesday, [Date]**
+            [Continue pattern]
+            
+            ### Week 2 (Dates: [Start Date] - [End Date])
+            [Continue pattern]
+            
+            ## CONTENT THEMES & STRATEGY
+            - Overall content strategy explanation
+            - Weekly themes and objectives
+            - Platform-specific adaptations
+            - Engagement and growth tactics
+            
+            ## POSTING SCHEDULE SUMMARY
+            - Platform-wise posting frequency
+            - Optimal times summary
+            - Content type distribution
+            
+            {self.__tip_section()}
+            
+            Create a detailed, actionable content calendar that ensures consistent, strategic social media presence.
+        """
+            ),
+            expected_output="Comprehensive content calendar with detailed scheduling, content descriptions, and strategic recommendations",
+            agent=agent,
+        )

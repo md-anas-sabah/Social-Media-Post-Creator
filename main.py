@@ -489,42 +489,225 @@ class SocialMediaPostCreator:
         return complete_result
 
 
+class ContentCalendarPlanner:
+    def __init__(self, user_prompt, platforms=None, duration_weeks=4):
+        self.user_prompt = user_prompt
+        self.platforms = platforms or ["instagram", "facebook", "twitter", "linkedin"]
+        self.duration_weeks = duration_weeks
+    
+    def create_unique_output_folder(self):
+        """Create a unique folder for this calendar's outputs"""
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        # Create a descriptive folder name from the prompt
+        prompt_slug = re.sub(r'[^\w\s-]', '', self.user_prompt.lower())
+        prompt_slug = re.sub(r'[\s]+', '_', prompt_slug)[:30]  # Limit length
+        
+        folder_name = f"content_calendar_{prompt_slug}_{timestamp}"
+        calendar_folder = os.path.join(os.getcwd(), "output", folder_name)
+        os.makedirs(calendar_folder, exist_ok=True)
+        
+        return calendar_folder, timestamp
+
+    def save_calendar_outputs(self, calendar_data, calendar_folder, timestamp):
+        """Save the calendar as JSON and Markdown files"""
+        # Save JSON file
+        json_filename = f"content_calendar_{timestamp}.json"
+        json_filepath = os.path.join(calendar_folder, json_filename)
+        
+        calendar_json = {
+            "timestamp": datetime.now().isoformat(),
+            "original_prompt": self.user_prompt,
+            "platforms": self.platforms,
+            "duration_weeks": self.duration_weeks,
+            "calendar_content": str(calendar_data),
+            "status": "completed"
+        }
+        
+        with open(json_filepath, 'w', encoding='utf-8') as f:
+            json.dump(calendar_json, f, ensure_ascii=False, indent=2)
+        
+        # Save Markdown file
+        markdown_filename = f"content_calendar_{timestamp}.md"
+        markdown_filepath = os.path.join(calendar_folder, markdown_filename)
+        
+        markdown_content = f"""# Content Calendar Plan
+
+## Original Request
+{self.user_prompt}
+
+## Calendar Details
+- **Platforms**: {', '.join(self.platforms)}
+- **Duration**: {self.duration_weeks} weeks
+- **Generated**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+## Content Calendar
+
+{calendar_data}
+
+---
+*Generated with AI Content Calendar Planner*
+"""
+        
+        with open(markdown_filepath, 'w', encoding='utf-8') as f:
+            f.write(markdown_content)
+        
+        return json_filepath, markdown_filepath
+
+    def run(self):
+        print(f"\n📅 Creating content calendar for: '{self.user_prompt}'")
+        print(f"📱 Platforms: {', '.join(self.platforms)}")
+        print(f"📆 Duration: {self.duration_weeks} weeks")
+        print("=" * 50)
+
+        # Initialize agents and tasks
+        agents = SocialMediaAgents()
+        tasks = SocialMediaTasks()
+
+        # Create calendar planning workflow
+        print("\n🗓️  STEP 1: Generating comprehensive content calendar...")
+        calendar_agent = agents.calendar_planner_agent()
+        calendar_task = tasks.content_calendar_planning_task(
+            calendar_agent, 
+            self.user_prompt, 
+            self.platforms, 
+            self.duration_weeks
+        )
+        
+        calendar_crew = Crew(
+            agents=[calendar_agent],
+            tasks=[calendar_task],
+            verbose=True,
+        )
+        
+        calendar_result = calendar_crew.kickoff()
+        
+        # Create unique output folder for this calendar
+        calendar_folder, timestamp = self.create_unique_output_folder()
+        print(f"\n📁 Created output folder: {os.path.basename(calendar_folder)}")
+        
+        # Save calendar outputs
+        json_filepath, markdown_filepath = self.save_calendar_outputs(
+            calendar_result, calendar_folder, timestamp
+        )
+        
+        # Display results
+        print("\n" + "="*60)
+        print("🎉 YOUR CONTENT CALENDAR IS READY!")
+        print("="*60)
+        
+        print(f"\n📋 CALENDAR OVERVIEW:")
+        print("-" * 30)
+        print(f"📱 Platforms: {', '.join(self.platforms)}")
+        print(f"📆 Duration: {self.duration_weeks} weeks")
+        print(f"🎯 Theme: {self.user_prompt}")
+        
+        print(f"\n📅 CONTENT CALENDAR:")
+        print("-" * 30)
+        print(str(calendar_result))
+        
+        print(f"\n💾 OUTPUT FILES SAVED:")
+        print("-" * 30)
+        print(f"📁 Folder: {os.path.basename(calendar_folder)}")
+        print(f"📄 JSON: {os.path.basename(json_filepath)}")
+        print(f"📝 Markdown: {os.path.basename(markdown_filepath)}")
+        
+        print(f"\n📂 Complete folder path: {calendar_folder}")
+        print("\n" + "="*60)
+        print("✨ Your content calendar is organized and ready to use!")
+        print("📝 Open the Markdown file for easy reading and planning!")
+        print("="*60)
+        
+        return calendar_result
+
+
 if __name__ == "__main__":
     print("🎨 Welcome to Social Media Post Creator AI!")
     print("=" * 50)
-    print("💡 Just tell me what kind of content you want, and I'll create:")
+    print("💡 Choose what you want to create:")
+    print("   🎯 SINGLE POST: Create individual social media posts")
+    print("   📅 CONTENT CALENDAR: Plan and organize your content strategy")
+    print("")
+    print("🎯 SINGLE POST FEATURES:")
     print("   • 3 creative ideas for you to choose from")
     print("   • A polished caption")
     print("   • Premium-quality visuals (single, carousel, or stories)")
     print("   • Strategic hashtags")
     print("   • Optimal posting times")
     print("")
-    print("🎠 NEW FEATURES:")
+    print("📅 CONTENT CALENDAR FEATURES:")
+    print("   • Multi-week content planning")
+    print("   • Platform-specific scheduling")
+    print("   • Content type variety (posts, stories, carousels)")
+    print("   • Strategic theme alignment")
+    print("   • Organized output files")
+    print("")
+    print("🎠 SUPPORTED FORMATS:")
     print("   • Carousel posts for lists (e.g., '5 ways to...', '10 tips for...')")
     print("   • Story templates with 9:16 vertical format (1080×1920px)")
     print("   • Story series for multi-part content")
     print("=" * 50)
     
     try:
-        user_prompt = input("\n🗣️  What kind of social media content do you want to create?\n   (e.g., 'Eid Mubarak post for my fashion brand'): ").strip()
+        # Choose mode
+        mode = input("\n🎯 What would you like to create?\n   (1) Single Post\n   (2) Content Calendar\n   Enter 1 or 2: ").strip()
         
-        if not user_prompt:
-            print("❌ Please provide a prompt!")
+        if mode == "1":
+            # Single post creation workflow
+            user_prompt = input("\n🗣️  What kind of social media content do you want to create?\n   (e.g., 'Eid Mubarak post for my fashion brand'): ").strip()
+            
+            if not user_prompt:
+                print("❌ Please provide a prompt!")
+                exit()
+            
+            platform = input("\n📱 Which platform? (instagram/facebook/twitter/linkedin) [default: instagram]: ").strip().lower()
+            if not platform or platform not in ["instagram", "facebook", "twitter", "linkedin"]:
+                platform = "instagram"
+            
+            content_type = input("\n📸 Content type? (post/story) [default: post]: ").strip().lower()
+            if not content_type or content_type not in ["post", "story"]:
+                content_type = "post"
+            
+            creator = SocialMediaPostCreator(user_prompt, platform, content_type)
+            result = creator.run()
+            
+        elif mode == "2":
+            # Content calendar creation workflow
+            user_prompt = input("\n📅 What kind of content calendar do you want to create?\n   (e.g., 'Fashion brand content for holiday season', 'Tech startup social media strategy'): ").strip()
+            
+            if not user_prompt:
+                print("❌ Please provide a prompt!")
+                exit()
+            
+            # Platform selection
+            print("\n📱 Select platforms (separate with commas):")
+            print("   Available: instagram, facebook, twitter, linkedin")
+            platforms_input = input("   Platforms [default: instagram,facebook,twitter,linkedin]: ").strip().lower()
+            
+            if platforms_input:
+                platforms = [p.strip() for p in platforms_input.split(",") if p.strip() in ["instagram", "facebook", "twitter", "linkedin"]]
+                if not platforms:
+                    platforms = ["instagram", "facebook", "twitter", "linkedin"]
+            else:
+                platforms = ["instagram", "facebook", "twitter", "linkedin"]
+            
+            # Duration selection
+            duration_input = input("\n📆 How many weeks? [default: 4]: ").strip()
+            try:
+                duration_weeks = int(duration_input) if duration_input else 4
+                if duration_weeks < 1 or duration_weeks > 12:
+                    duration_weeks = 4
+            except ValueError:
+                duration_weeks = 4
+            
+            planner = ContentCalendarPlanner(user_prompt, platforms, duration_weeks)
+            result = planner.run()
+            
+        else:
+            print("❌ Please enter 1 or 2!")
             exit()
         
-        platform = input("\n📱 Which platform? (instagram/facebook/twitter/linkedin) [default: instagram]: ").strip().lower()
-        if not platform or platform not in ["instagram", "facebook", "twitter", "linkedin"]:
-            platform = "instagram"
-        
-        content_type = input("\n📸 Content type? (post/story) [default: post]: ").strip().lower()
-        if not content_type or content_type not in ["post", "story"]:
-            content_type = "post"
-        
-        creator = SocialMediaPostCreator(user_prompt, platform, content_type)
-        result = creator.run()
-        
     except KeyboardInterrupt:
-        print("\n\n👋 Goodbye! Come back anytime to create amazing social media posts!")
+        print("\n\n👋 Goodbye! Come back anytime to create amazing social media content!")
     except Exception as e:
         print(f"\n❌ An error occurred: {str(e)}")
         print("💡 Make sure you have set your OPENAI_API_KEY in the .env file!")

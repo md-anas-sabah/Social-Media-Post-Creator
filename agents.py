@@ -448,3 +448,20 @@ class SocialMediaAgents:
             verbose=True,
             llm=self.OpenAIGPT35,
         )
+
+    def calendar_planner_agent(self):
+        return Agent(
+            role="Content Calendar Planning Specialist",
+            backstory=dedent("""You are an expert content calendar strategist with extensive experience 
+                            in social media planning, content organization, and strategic scheduling. 
+                            You understand how to create comprehensive content calendars that ensure 
+                            consistency, strategic alignment, and maximum engagement across multiple 
+                            platforms and content types."""),
+            goal=dedent("""Create detailed content calendar plans that organize and schedule social media 
+                       content strategically. Generate comprehensive calendar structures that include 
+                       dates, platforms, content types, themes, and scheduling recommendations to 
+                       help maintain consistent and effective social media presence."""),
+            allow_delegation=False,
+            verbose=True,
+            llm=self.OpenAIGPT4,
+        )
