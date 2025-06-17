@@ -180,6 +180,178 @@ class CarouselImageGeneratorTool(BaseTool):
                 "error": f"Error generating carousel images: {str(e)}"
             })
 
+
+class StoryImageGeneratorArgs(BaseModel):
+    prompt: str = Field(description="The prompt for story image generation")
+
+class StoryImageGeneratorTool(BaseTool):
+    name: str = "generate_story_image"
+    description: str = "Generate a single vertical story image (9:16 format) using DALL-E based on the provided prompt."
+    args_schema: Type[BaseModel] = StoryImageGeneratorArgs
+    output_folder: str = None
+
+    def __init__(self, output_folder=None):
+        super().__init__()
+        self.output_folder = output_folder
+
+    def _run(self, prompt: str) -> str:
+        try:
+            client = openai.OpenAI()
+            response = client.images.generate(
+                model="dall-e-3",
+                prompt=prompt,
+                size="1024x1792",  # 9:16 aspect ratio (closest available size)
+                quality="standard",
+                n=1,
+            )
+            
+            image_url = response.data[0].url
+            
+            # Download and save the image locally
+            image_response = requests.get(image_url)
+            if image_response.status_code == 200:
+                # Create unique filename with timestamp
+                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                unique_id = str(uuid.uuid4())[:8]
+                filename = f"story_image_{timestamp}_{unique_id}.png"
+                
+                # Use the specific output folder if provided, otherwise use default
+                if self.output_folder:
+                    local_path = os.path.join(self.output_folder, filename)
+                else:
+                    # Fallback to default generated_images folder
+                    current_dir = os.getcwd()
+                    images_dir = os.path.join(current_dir, "generated_images")
+                    os.makedirs(images_dir, exist_ok=True)
+                    local_path = os.path.join(images_dir, filename)
+                
+                with open(local_path, 'wb') as f:
+                    f.write(image_response.content)
+                
+                return json.dumps({
+                    "image_url": image_url,
+                    "local_path": local_path,
+                    "filename": filename,
+                    "prompt": prompt,
+                    "format": "story_single",
+                    "dimensions": "1024x1792"
+                })
+            else:
+                return json.dumps({
+                    "image_url": image_url,
+                    "local_path": "Failed to download",
+                    "filename": "Failed to download",
+                    "prompt": prompt,
+                    "format": "story_single",
+                    "error": f"Failed to download image: {image_response.status_code}"
+                })
+                
+        except Exception as e:
+            return json.dumps({
+                "image_url": "Error",
+                "local_path": "Error",
+                "filename": "Error", 
+                "prompt": prompt,
+                "format": "story_single",
+                "error": f"Error generating story image: {str(e)}"
+            })
+
+
+class StorySeriesGeneratorArgs(BaseModel):
+    prompts: list = Field(description="List of prompts for story series generation")
+    
+class StorySeriesGeneratorTool(BaseTool):
+    name: str = "generate_story_series"
+    description: str = "Generate multiple vertical story images (9:16 format) for story series using DALL-E based on a list of prompts."
+    args_schema: Type[BaseModel] = StorySeriesGeneratorArgs
+    output_folder: str = None
+
+    def __init__(self, output_folder=None):
+        super().__init__()
+        self.output_folder = output_folder
+
+    def _run(self, prompts: list) -> str:
+        try:
+            client = openai.OpenAI()
+            story_images = []
+            
+            for i, prompt in enumerate(prompts, 1):
+                try:
+                    response = client.images.generate(
+                        model="dall-e-3",
+                        prompt=prompt,
+                        size="1024x1792",  # 9:16 aspect ratio (closest available size)
+                        quality="standard",
+                        n=1,
+                    )
+                    
+                    image_url = response.data[0].url
+                    
+                    # Download and save the image locally
+                    image_response = requests.get(image_url)
+                    if image_response.status_code == 200:
+                        # Create unique filename with story index
+                        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                        unique_id = str(uuid.uuid4())[:8]
+                        filename = f"story_{i}_{timestamp}_{unique_id}.png"
+                        
+                        # Use the specific output folder if provided, otherwise use default
+                        if self.output_folder:
+                            local_path = os.path.join(self.output_folder, filename)
+                        else:
+                            # Fallback to default generated_images folder
+                            current_dir = os.getcwd()
+                            images_dir = os.path.join(current_dir, "generated_images")
+                            os.makedirs(images_dir, exist_ok=True)
+                            local_path = os.path.join(images_dir, filename)
+                        
+                        with open(local_path, 'wb') as f:
+                            f.write(image_response.content)
+                        
+                        story_images.append({
+                            "story_number": i,
+                            "image_url": image_url,
+                            "local_path": local_path,
+                            "filename": filename,
+                            "prompt": prompt
+                        })
+                    else:
+                        story_images.append({
+                            "story_number": i,
+                            "image_url": image_url,
+                            "local_path": "Failed to download",
+                            "filename": "Failed to download",
+                            "prompt": prompt,
+                            "error": f"Failed to download image: {image_response.status_code}"
+                        })
+                        
+                except Exception as e:
+                    story_images.append({
+                        "story_number": i,
+                        "image_url": "Error",
+                        "local_path": "Error",
+                        "filename": "Error",
+                        "prompt": prompt,
+                        "error": f"Error generating story image {i}: {str(e)}"
+                    })
+            
+            return json.dumps({
+                "story_images": story_images,
+                "total_stories": len(story_images),
+                "successful_stories": len([img for img in story_images if "error" not in img]),
+                "format": "story_series",
+                "dimensions": "1024x1792"
+            })
+                
+        except Exception as e:
+            return json.dumps({
+                "story_images": [],
+                "total_stories": 0,
+                "successful_stories": 0,
+                "format": "story_series",
+                "error": f"Error generating story series: {str(e)}"
+            })
+
 class TimingArgs(BaseModel):
     platform: str = Field(default="instagram", description="Social media platform")
 
@@ -237,11 +409,15 @@ class SocialMediaAgents:
             backstory=dedent("""You are a creative visual artist and prompt engineer who specializes 
                             in creating stunning social media visuals. You understand color theory, 
                             composition, and what makes images perform well on social platforms. You excel 
-                            at creating both single images and cohesive carousel designs."""),
+                            at creating single images, cohesive carousel designs, and engaging vertical 
+                            Story content optimized for mobile viewing."""),
             goal=dedent("""Generate detailed, creative prompts for AI image generation that will result 
                        in visually striking images perfectly suited for social media posts. For carousel 
-                       posts, create consistent, premium-quality designs across multiple slides."""),
-            tools=[ImageGeneratorTool(output_folder), CarouselImageGeneratorTool(output_folder)],
+                       posts, create consistent, premium-quality designs across multiple slides. For 
+                       Story content, create mobile-optimized vertical visuals that work perfectly 
+                       in the 9:16 format."""),
+            tools=[ImageGeneratorTool(output_folder), CarouselImageGeneratorTool(output_folder), 
+                   StoryImageGeneratorTool(output_folder), StorySeriesGeneratorTool(output_folder)],
             allow_delegation=False,
             verbose=True,
             llm=self.creative_llm,

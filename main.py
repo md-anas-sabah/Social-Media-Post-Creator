@@ -16,9 +16,10 @@ if config("OPENAI_ORGANIZATION_ID", default=""):
 
 
 class SocialMediaPostCreator:
-    def __init__(self, user_prompt, platform="instagram"):
+    def __init__(self, user_prompt, platform="instagram", content_type="post"):
         self.user_prompt = user_prompt
         self.platform = platform
+        self.content_type = content_type  # "post" or "story"
     
     def create_unique_output_folder(self):
         """Create a unique folder for this post's outputs"""
@@ -27,7 +28,7 @@ class SocialMediaPostCreator:
         prompt_slug = re.sub(r'[^\w\s-]', '', self.user_prompt.lower())
         prompt_slug = re.sub(r'[\s]+', '_', prompt_slug)[:30]  # Limit length
         
-        folder_name = f"{self.platform}_{prompt_slug}_{timestamp}"
+        folder_name = f"{self.platform}_{self.content_type}_{prompt_slug}_{timestamp}"
         post_folder = os.path.join(os.getcwd(), "output", folder_name)
         os.makedirs(post_folder, exist_ok=True)
         
@@ -35,7 +36,7 @@ class SocialMediaPostCreator:
 
     def save_json_output(self, data, post_folder, timestamp):
         """Save the output as JSON file"""
-        filename = f"{self.platform}_post_{timestamp}.json"
+        filename = f"{self.platform}_{self.content_type}_{timestamp}.json"
         filepath = os.path.join(post_folder, filename)
         
         with open(filepath, 'w', encoding='utf-8') as f:
@@ -45,7 +46,7 @@ class SocialMediaPostCreator:
 
     def save_markdown_output(self, data, post_folder, timestamp):
         """Generate and save Markdown file"""
-        filename = f"{self.platform}_post_{timestamp}.md"
+        filename = f"{self.platform}_{self.content_type}_{timestamp}.md"
         filepath = os.path.join(post_folder, filename)
         
         # Extract hashtags
@@ -61,7 +62,8 @@ class SocialMediaPostCreator:
                     hashtags = " ".join(hashtag_matches)
         
         # Create markdown content
-        markdown_content = f"""# {self.platform.title()} Post
+        content_title = "Post" if self.content_type == "post" else "Story"
+        markdown_content = f"""# {self.platform.title()} {content_title}
 
 ## Original Prompt
 {data.get('original_prompt', '')}
@@ -80,7 +82,30 @@ class SocialMediaPostCreator:
         
         if data.get('image'):
             image_data = data['image']
-            if image_data.get('carousel_images'):
+            if image_data.get('story_images'):
+                # Handle story series
+                story_images = image_data['story_images']
+                total_stories = image_data.get('total_stories', len(story_images))
+                successful_stories = image_data.get('successful_stories', 0)
+                
+                markdown_content += f"""**Story Series**: {successful_stories}/{total_stories} stories generated
+
+"""
+                for img in story_images:
+                    if "error" not in img:
+                        markdown_content += f"""### Story {img['story_number']}
+- **Local Path**: {img.get('filename', 'N/A')}
+- **Original URL**: {img.get('image_url', 'N/A')}
+- **Prompt**: {img.get('prompt', 'N/A')}
+- **Dimensions**: 1024x1792 (9:16 format)
+
+"""
+                    else:
+                        markdown_content += f"""### Story {img['story_number']}
+- **Status**: Failed - {img.get('error', 'Unknown error')}
+
+"""
+            elif image_data.get('carousel_images'):
                 # Handle carousel images
                 carousel_images = image_data['carousel_images']
                 total_images = image_data.get('total_images', len(carousel_images))
@@ -102,8 +127,16 @@ class SocialMediaPostCreator:
 - **Status**: Failed - {img.get('error', 'Unknown error')}
 
 """
+            elif image_data.get('format') == 'story_single':
+                # Handle single story image
+                markdown_content += f"""**Single Story**
+- **Local Path**: {image_data.get('filename', 'N/A')}
+- **Original URL**: {image_data.get('image_url', 'N/A')}
+- **Prompt**: {image_data.get('prompt', 'N/A')}
+- **Dimensions**: {image_data.get('dimensions', '1024x1792')} (9:16 format)
+"""
             else:
-                # Handle single image
+                # Handle single regular image
                 markdown_content += f"""**Single Image**
 - **Local Path**: {image_data.get('filename', 'N/A')}
 - **Original URL**: {image_data.get('image_url', 'N/A')}
@@ -216,8 +249,10 @@ class SocialMediaPostCreator:
             return None
 
     def run(self):
-        print(f"\n🎯 Creating social media post for: '{self.user_prompt}'")
+        content_title = "post" if self.content_type == "post" else "story"
+        print(f"\n🎯 Creating social media {content_title} for: '{self.user_prompt}'")
         print(f"📱 Platform: {self.platform}")
+        print(f"📸 Content Type: {self.content_type}")
         print("=" * 50)
 
         # Initialize agents and tasks
@@ -282,8 +317,12 @@ class SocialMediaPostCreator:
         
         caption_result = copy_crew.kickoff()
         
-        # Create remaining tasks with the caption
-        image_task = tasks.image_generation_task(creative, caption_result, self.user_prompt)
+        # Create remaining tasks with the caption based on content type
+        if self.content_type == "story":
+            image_task = tasks.story_generation_task(creative, caption_result, self.user_prompt)
+        else:
+            image_task = tasks.image_generation_task(creative, caption_result, self.user_prompt)
+        
         hashtag_task = tasks.hashtag_research_task(hashtag_agent, caption_result, self.user_prompt, self.platform)
         timing_task = tasks.timing_optimization_task(timing_agent, self.platform)
         
@@ -356,17 +395,38 @@ class SocialMediaPostCreator:
         html_filepath = self.generate_html_preview(complete_result, self.platform, post_folder, timestamp)
         
         # Format and display final output
+        content_title = "POST" if self.content_type == "post" else "STORY"
         print("\n" + "="*60)
-        print("🎉 YOUR COMPLETE SOCIAL MEDIA POST IS READY!")
+        print(f"🎉 YOUR COMPLETE SOCIAL MEDIA {content_title} IS READY!")
         print("="*60)
         
         print(f"\n📝 CAPTION:")
         print("-" * 30)
         print(complete_result["caption"])
         
-        print(f"\n📸 IMAGES:")
+        visual_title = "IMAGES" if self.content_type == "post" else "STORY VISUALS"
+        print(f"\n📸 {visual_title}:")
         print("-" * 30)
-        if complete_result["image"].get("carousel_images"):
+        if complete_result["image"].get("story_images"):
+            # Handle story series
+            story_images = complete_result["image"]["story_images"]
+            total_stories = complete_result["image"].get("total_stories", len(story_images))
+            successful_stories = complete_result["image"].get("successful_stories", 0)
+            
+            print(f"📖 STORY SERIES: {successful_stories}/{total_stories} stories generated successfully")
+            for img in story_images:
+                if "error" not in img:
+                    print(f"  📱 Story {img['story_number']}: {img['filename']} (9:16 format)")
+                else:
+                    print(f"  ❌ Story {img['story_number']}: Failed ({img.get('error', 'Unknown error')})")
+        elif complete_result["image"].get("format") == "story_single":
+            # Handle single story
+            print(f"📱 SINGLE STORY (9:16 format)")
+            print(f"✅ Story saved to: {complete_result['image']['local_path']}")
+            print(f"🌐 Original URL: {complete_result['image'].get('image_url', 'N/A')}")
+            print(f"📝 Story prompt: {complete_result['image'].get('prompt', 'N/A')}")
+            print(f"📐 Dimensions: {complete_result['image'].get('dimensions', '1024x1792')}")
+        elif complete_result["image"].get("carousel_images"):
             # Handle carousel images
             carousel_images = complete_result["image"]["carousel_images"]
             total_images = complete_result["image"].get("total_images", len(carousel_images))
@@ -400,16 +460,24 @@ class SocialMediaPostCreator:
             print(f"🌐 HTML Preview: {os.path.basename(html_filepath)}")
             
             # List all images in the output folder
-            if complete_result["image"].get("carousel_images"):
+            if complete_result["image"].get("story_images"):
+                story_images = complete_result["image"]["story_images"]
+                successful_stories = [img for img in story_images if "error" not in img]
+                print(f"📖 Story Images ({len(successful_stories)} stories):")
+                for img in successful_stories:
+                    print(f"   📱 {img['filename']}")
+            elif complete_result["image"].get("carousel_images"):
                 carousel_images = complete_result["image"]["carousel_images"]
                 successful_images = [img for img in carousel_images if "error" not in img]
                 print(f"🎠 Carousel Images ({len(successful_images)} slides):")
                 for img in successful_images:
                     print(f"   📄 {img['filename']}")
             elif complete_result["image"].get("filename"):
-                print(f"🖼️  Image: {complete_result['image']['filename']}")
+                content_type_icon = "📱" if complete_result["image"].get("format") == "story_single" else "🖼️ "
+                print(f"{content_type_icon} Image: {complete_result['image']['filename']}")
                 
-            print(f"👁️  Open the HTML file in your browser to see the {self.platform.title()} UI preview!")
+            preview_text = "Story" if self.content_type == "story" else self.platform.title()
+            print(f"👁️  Open the HTML file in your browser to see the {preview_text} UI preview!")
         else:
             print("❌ HTML preview generation failed")
         
@@ -424,19 +492,21 @@ class SocialMediaPostCreator:
 if __name__ == "__main__":
     print("🎨 Welcome to Social Media Post Creator AI!")
     print("=" * 50)
-    print("💡 Just tell me what kind of post you want, and I'll create:")
+    print("💡 Just tell me what kind of content you want, and I'll create:")
     print("   • 3 creative ideas for you to choose from")
     print("   • A polished caption")
-    print("   • Premium-quality images (single or carousel)")
+    print("   • Premium-quality visuals (single, carousel, or stories)")
     print("   • Strategic hashtags")
     print("   • Optimal posting times")
     print("")
-    print("🎠 NEW: Automatically creates carousel posts for lists!")
-    print("   (e.g., '5 ways to...', '10 tips for...', step-by-step guides)")
+    print("🎠 NEW FEATURES:")
+    print("   • Carousel posts for lists (e.g., '5 ways to...', '10 tips for...')")
+    print("   • Story templates with 9:16 vertical format (1080×1920px)")
+    print("   • Story series for multi-part content")
     print("=" * 50)
     
     try:
-        user_prompt = input("\n🗣️  What kind of social media post do you want to create?\n   (e.g., 'Eid Mubarak post for my fashion brand'): ").strip()
+        user_prompt = input("\n🗣️  What kind of social media content do you want to create?\n   (e.g., 'Eid Mubarak post for my fashion brand'): ").strip()
         
         if not user_prompt:
             print("❌ Please provide a prompt!")
@@ -446,7 +516,11 @@ if __name__ == "__main__":
         if not platform or platform not in ["instagram", "facebook", "twitter", "linkedin"]:
             platform = "instagram"
         
-        creator = SocialMediaPostCreator(user_prompt, platform)
+        content_type = input("\n📸 Content type? (post/story) [default: post]: ").strip().lower()
+        if not content_type or content_type not in ["post", "story"]:
+            content_type = "post"
+        
+        creator = SocialMediaPostCreator(user_prompt, platform, content_type)
         result = creator.run()
         
     except KeyboardInterrupt:

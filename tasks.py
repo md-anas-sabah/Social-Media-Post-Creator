@@ -210,6 +210,89 @@ class SocialMediaTasks:
             agent=agent,
         )
 
+    def story_generation_task(self, agent, caption_content, user_prompt):
+        return Task(
+            description=dedent(
+                f"""
+            Based on the caption content: "{caption_content}"
+            Original user prompt: "{user_prompt}"
+            
+            Create STORY TEMPLATE content optimized for Instagram, Facebook, and LinkedIn Stories.
+            
+            STORY SPECIFICATIONS:
+            - Dimensions: 1080 × 1920 pixels (9:16 aspect ratio)
+            - Safe Zone: Keep important elements within 1080 × 1420 px (centered vertically)
+            - Premium vertical design optimized for mobile viewing
+            
+            STORY CONTENT ANALYSIS:
+            Determine the best Story format based on content:
+            
+            CREATE SINGLE STORY for:
+            - Simple announcements
+            - Motivational quotes
+            - Behind-the-scenes content
+            - Quick tips or facts
+            - Product highlights
+            
+            CREATE STORY SERIES (2-5 stories) for:
+            - Step-by-step tutorials
+            - Multiple tips or insights
+            - Product showcases with different angles
+            - Story-driven content with progression
+            - Educational content with multiple points
+            
+            PREMIUM STORY VISUAL REQUIREMENTS:
+            - Vertical 9:16 format (1080×1920px)
+            - Text-safe zone awareness (avoid top/bottom 250px for key content)
+            - High-quality, engaging visuals that work on mobile
+            - Clean, modern aesthetic suitable for Stories
+            - Vibrant colors that perform well in Story format
+            - Professional photography style or clean graphics
+            - NO text overlays on images (text will be added separately)
+            
+            CULTURAL CONSIDERATIONS:
+            - For general content: Use INDIAN/SOUTH ASIAN cultural context
+            - Indian clothing, settings, families, and lifestyle
+            - Only use Arabic/Islamic styling for explicitly religious content
+            - Modern Indian urban/lifestyle representation
+            
+            FOR SINGLE STORY:
+            Use the generate_story_image tool with a premium vertical prompt.
+            
+            FOR STORY SERIES:
+            1. Break content into logical story segments (2-5 stories max)
+            2. Create individual story prompts that flow together
+            3. Ensure visual consistency across the series
+            4. Use the generate_story_series tool with the list of prompts
+            
+            STORY PROMPT TEMPLATE:
+            "Vertical story format (9:16, 1080x1920px): [SPECIFIC_STORY_CONTENT]. High-quality mobile-optimized photography. Clean, modern aesthetic. No text overlays. Professional lighting, engaging composition. Instagram Story ready format. Focus on [MAIN_SUBJECT/THEME]."
+            
+            EXAMPLE STORY PROMPTS:
+            Single Story: "Vertical story format (9:16, 1080x1920px): Professional woman in modern Indian casual wear holding coffee, smiling in bright modern office space. High-quality mobile photography, clean aesthetic, no text overlays, natural lighting, Instagram Story ready."
+            
+            Story Series Example (3-part productivity tips):
+            Story 1: "Vertical story format: Clean, organized desk setup with laptop and notebook in modern Indian home office. Mobile-optimized photography, no text, natural lighting."
+            Story 2: "Vertical story format: Person in comfortable Indian casual wear taking a mindful break, sitting by window with plants. Clean aesthetic, professional mobile photography."
+            Story 3: "Vertical story format: Hands holding smartphone with productivity app, modern Indian lifestyle setting. High-quality vertical photography, Instagram Story ready."
+            
+            CRITICAL REQUIREMENTS:
+            - Always use 9:16 vertical format
+            - Keep text-safe zones in mind
+            - No text or typography on images
+            - High mobile engagement potential
+            - Professional story-appropriate quality
+            - Consistent visual style if creating series
+            
+            {self.__tip_section()}
+            
+            Return the story image prompt(s) and generated Story URL(s).
+        """
+            ),
+            expected_output="Single Story image or Story series with premium quality vertical prompts and URLs",
+            agent=agent,
+        )
+
     def final_output_task(self, agent, caption, image_url, hashtags, timing, user_prompt):
         return Task(
             description=dedent(
