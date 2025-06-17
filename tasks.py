@@ -324,72 +324,165 @@ class SocialMediaTasks:
             Target platforms: {platforms if platforms else "Instagram, Facebook, Twitter, LinkedIn"}
             Calendar duration: {duration_weeks} weeks
             
-            Create a comprehensive content calendar plan that includes:
+            Create a COMPREHENSIVE and ACTIONABLE content calendar plan that includes:
             
-            CALENDAR STRUCTURE:
-            - Weekly organization with specific dates
-            - Platform-specific content distribution
-            - Content type variety (posts, stories, carousels, reels, etc.)
-            - Strategic theme alignment
-            - Optimal posting times for each platform
+            CALENDAR STRUCTURE REQUIREMENTS:
+            - Complete daily scheduling for ALL {duration_weeks} weeks (no shortcuts like "Continue pattern")
+            - Platform-specific content distribution across all days
+            - Content type variety (posts, stories, carousels, reels, live videos, polls)
+            - Strategic theme alignment with seasonal/trending topics
+            - Optimal posting times for each platform based on audience behavior
             
-            CONTENT ELEMENTS FOR EACH ENTRY:
-            1. Date/Time: Specific posting schedule
+            CONTENT ELEMENTS FOR EACH ENTRY (REQUIRED):
+            1. Date/Time: Specific posting schedule with exact dates
             2. Platform: Target social media platform
-            3. Content Type: Post format (single post, carousel, story, reel, etc.)
-            4. Topic/Theme: Content subject and focus
-            5. Caption/Copy: Brief content description or actual caption
-            6. Media: Image/video description or requirements
-            7. Hashtags/Tags: Relevant hashtags strategy
-            8. Status: Draft/Scheduled/Published tracking
+            3. Content Type: Post format (single post, carousel, story, reel, live video, poll, etc.)
+            4. Topic/Theme: Detailed content subject and focus
+            5. Caption/Copy: FULL caption text or detailed description (not just brief)
+            6. Media: Specific image/video description with visual requirements
+            7. Hashtags/Tags: 8-12 strategic hashtags relevant to the content
+            8. Call-to-Action: Specific action for audience engagement
+            9. Status: Draft/Scheduled/Published tracking
+            10. Performance Goal: Expected engagement/reach target
             
-            STRATEGIC CONSIDERATIONS:
-            - Content variety and engagement optimization
-            - Platform-specific best practices
-            - Audience engagement patterns
-            - Brand consistency and voice
-            - Seasonal relevance and trending topics
-            - Cross-platform content adaptation
-            - Campaign alignment and objectives
+            ADVANCED STRATEGIC CONSIDERATIONS:
+            - Content variety: 40% promotional, 30% educational, 20% behind-the-scenes, 10% user-generated
+            - Platform-specific best practices and algorithm optimization
+            - Audience engagement patterns and peak activity times
+            - Brand consistency across all touchpoints
+            - Seasonal relevance, holidays, and trending topics integration
+            - Cross-platform content adaptation and repurposing
+            - Campaign alignment with business objectives
+            - Competitor analysis integration
+            - Influencer collaboration opportunities
+            - Community building and user-generated content strategies
             
-            FORMAT THE CALENDAR AS:
+            CONTENT CALENDAR FORMAT (COMPLETE ALL WEEKS):
             
-            ## CONTENT CALENDAR - [Duration]
+            ## CONTENT CALENDAR - {duration_weeks} Week Strategy
             
-            ### Week 1 (Dates: [Start Date] - [End Date])
+            ### Week 1 (Dates: [Specific Start Date] - [Specific End Date])
             
-            **Monday, [Date]**
+            **Monday, [Exact Date]**
             - Platform: [Platform]
-            - Time: [Optimal Time]
-            - Content Type: [Type]
-            - Topic/Theme: [Theme]
-            - Caption: [Brief description or actual caption]
-            - Media: [Image/video description]
-            - Hashtags: [Relevant hashtags]
+            - Time: [Optimal Time with timezone]
+            - Content Type: [Specific type]
+            - Topic/Theme: [Detailed theme]
+            - Caption: [Full caption text or comprehensive description]
+            - Media: [Detailed visual requirements]
+            - Hashtags: [8-12 strategic hashtags]
+            - Call-to-Action: [Specific CTA]
+            - Performance Goal: [Expected metrics]
             - Status: Draft
             
-            **Tuesday, [Date]**
-            [Continue pattern]
+            **Tuesday, [Exact Date]**
+            [Complete entry with all fields]
             
-            ### Week 2 (Dates: [Start Date] - [End Date])
-            [Continue pattern]
+            **Wednesday, [Exact Date]**
+            [Complete entry with all fields]
             
-            ## CONTENT THEMES & STRATEGY
-            - Overall content strategy explanation
-            - Weekly themes and objectives
-            - Platform-specific adaptations
-            - Engagement and growth tactics
+            **Thursday, [Exact Date]**
+            [Complete entry with all fields]
             
-            ## POSTING SCHEDULE SUMMARY
-            - Platform-wise posting frequency
-            - Optimal times summary
-            - Content type distribution
+            **Friday, [Exact Date]**
+            [Complete entry with all fields]
+            
+            **Saturday, [Exact Date]**
+            [Complete entry with all fields]
+            
+            **Sunday, [Exact Date]**
+            [Complete entry with all fields]
+            
+            ### Week 2 (Dates: [Specific Start Date] - [Specific End Date])
+            [Complete daily entries for all 7 days]
+            
+            ### Week 3 (Dates: [Specific Start Date] - [Specific End Date])
+            [Complete daily entries for all 7 days]
+            
+            ### Week 4 (Dates: [Specific Start Date] - [Specific End Date])
+            [Complete daily entries for all 7 days]
+            
+            [Continue for additional weeks if duration_weeks > 4]
+            
+            ## CONTENT THEMES & WEEKLY OBJECTIVES
+            **Week 1 Theme:** [Specific theme with objectives]
+            **Week 2 Theme:** [Specific theme with objectives]
+            **Week 3 Theme:** [Specific theme with objectives]
+            **Week 4 Theme:** [Specific theme with objectives]
+            
+            ## PLATFORM-SPECIFIC STRATEGY
+            **Instagram:**
+            - Posting frequency: [Specific schedule]
+            - Content mix: [Percentage breakdown]
+            - Optimal times: [Specific times]
+            - Engagement tactics: [Specific strategies]
+            
+            **Facebook:**
+            - Posting frequency: [Specific schedule]
+            - Content mix: [Percentage breakdown]
+            - Optimal times: [Specific times]
+            - Engagement tactics: [Specific strategies]
+            
+            **Twitter:**
+            - Posting frequency: [Specific schedule]
+            - Content mix: [Percentage breakdown]
+            - Optimal times: [Specific times]
+            - Engagement tactics: [Specific strategies]
+            
+            **LinkedIn:**
+            - Posting frequency: [Specific schedule]
+            - Content mix: [Percentage breakdown]
+            - Optimal times: [Specific times]
+            - Engagement tactics: [Specific strategies]
+            
+            ## HASHTAG STRATEGY
+            - Brand hashtags: [Branded hashtags]
+            - Industry hashtags: [Industry-specific tags]
+            - Trending hashtags: [Current trending tags]
+            - Niche hashtags: [Targeted niche tags]
+            - Weekly rotating hashtags: [Weekly themes]
+            
+            ## CONTENT CREATION REQUIREMENTS
+            - Visual assets needed: [Detailed list]
+            - Video content requirements: [Specific needs]
+            - Graphic design needs: [Template requirements]
+            - Photography sessions: [Planned shoots]
+            - Content writing: [Copy requirements]
+            
+            ## ENGAGEMENT & COMMUNITY MANAGEMENT
+            - Response time targets: [Specific timeframes]
+            - Community engagement hours: [Daily schedules]
+            - User-generated content campaigns: [Specific campaigns]
+            - Influencer collaboration schedule: [Partnership timing]
+            - Contest and giveaway calendar: [Promotional events]
+            
+            ## PERFORMANCE TRACKING & KPIs
+            - Weekly engagement targets: [Specific metrics]
+            - Follower growth goals: [Growth targets]
+            - Reach and impression goals: [Visibility targets]
+            - Conversion tracking: [Business objectives]
+            - Monthly performance reviews: [Review schedule]
+            
+            ## CONTENT REPURPOSING STRATEGY
+            - Cross-platform adaptation guide: [Repurposing rules]
+            - Long-form to short-form content: [Adaptation strategies]
+            - Video to image conversions: [Visual strategies]
+            - Blog to social content: [Content breakdown]
+            
+            CRITICAL REQUIREMENTS:
+            1. Provide COMPLETE daily entries for ALL {duration_weeks} weeks
+            2. Include FULL captions or detailed descriptions (not brief summaries)
+            3. Provide 8-12 specific hashtags for each entry
+            4. Include specific call-to-actions for each post
+            5. Set performance goals for each content piece
+            6. Ensure content variety and platform optimization
+            7. Make the calendar immediately actionable for the user
             
             {self.__tip_section()}
             
-            Create a detailed, actionable content calendar that ensures consistent, strategic social media presence.
+            Create a detailed, comprehensive, immediately actionable content calendar that serves as a complete social media strategy blueprint.
         """
             ),
-            expected_output="Comprehensive content calendar with detailed scheduling, content descriptions, and strategic recommendations",
+            expected_output="Comprehensive, detailed content calendar with complete daily scheduling, full captions, strategic hashtags, and actionable recommendations for all weeks",
             agent=agent,
         )

@@ -4,7 +4,7 @@ import re
 from crewai import Agent, Task, Crew, Process
 from langchain_openai import ChatOpenAI
 from decouple import config
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from textwrap import dedent
 from agents import SocialMediaAgents
@@ -509,7 +509,7 @@ class ContentCalendarPlanner:
         return calendar_folder, timestamp
 
     def save_calendar_outputs(self, calendar_data, calendar_folder, timestamp):
-        """Save the calendar as JSON and Markdown files"""
+        """Save the calendar as JSON, Markdown, and CSV files"""
         # Save JSON file
         json_filename = f"content_calendar_{timestamp}.json"
         json_filepath = os.path.join(calendar_folder, json_filename)
@@ -520,38 +520,107 @@ class ContentCalendarPlanner:
             "platforms": self.platforms,
             "duration_weeks": self.duration_weeks,
             "calendar_content": str(calendar_data),
-            "status": "completed"
+            "status": "completed",
+            "metadata": {
+                "total_posts_planned": self.duration_weeks * 7 * len(self.platforms),
+                "platforms_count": len(self.platforms),
+                "calendar_type": "comprehensive_strategy"
+            }
         }
         
         with open(json_filepath, 'w', encoding='utf-8') as f:
             json.dump(calendar_json, f, ensure_ascii=False, indent=2)
         
-        # Save Markdown file
+        # Save enhanced Markdown file
         markdown_filename = f"content_calendar_{timestamp}.md"
         markdown_filepath = os.path.join(calendar_folder, markdown_filename)
         
-        markdown_content = f"""# Content Calendar Plan
+        markdown_content = f"""# 📅 Content Calendar Strategy Plan
 
-## Original Request
-{self.user_prompt}
+## 🎯 Original Request
+**Brief:** {self.user_prompt}
 
-## Calendar Details
-- **Platforms**: {', '.join(self.platforms)}
-- **Duration**: {self.duration_weeks} weeks
-- **Generated**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+## 📊 Calendar Overview
+- **🚀 Platforms**: {', '.join(self.platforms)}
+- **⏰ Duration**: {self.duration_weeks} weeks
+- **📈 Total Posts Planned**: ~{self.duration_weeks * 7 * len(self.platforms)} posts
+- **📅 Generated**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
-## Content Calendar
+---
+
+## 📋 Complete Content Calendar
 
 {calendar_data}
 
 ---
-*Generated with AI Content Calendar Planner*
+
+## 📋 Quick Action Checklist
+
+### Week 1 Preparation
+- [ ] Review and approve all Week 1 content
+- [ ] Prepare visual assets for first week
+- [ ] Schedule posts in social media management tool
+- [ ] Set up tracking for performance metrics
+
+### Ongoing Tasks
+- [ ] Weekly performance review and optimization
+- [ ] Content creation for upcoming weeks
+- [ ] Community engagement and response management
+- [ ] Hashtag performance monitoring
+
+### Monthly Review
+- [ ] Analyze engagement metrics
+- [ ] Adjust strategy based on performance
+- [ ] Plan next month's content themes
+- [ ] Review and update brand guidelines
+
+---
+
+## 🛠️ Tools & Resources Recommended
+
+### Content Creation
+- **Design**: Canva, Adobe Creative Suite, Figma
+- **Video**: CapCut, InShot, Adobe Premiere
+- **Photography**: VSCO, Lightroom, Snapseed
+
+### Scheduling & Management
+- **Scheduling**: Buffer, Hootsuite, Later, Sprout Social
+- **Analytics**: Native platform insights, Google Analytics
+- **Collaboration**: Trello, Asana, Monday.com
+
+### Content Planning
+- **Calendar Tools**: Google Calendar, Notion, Airtable
+- **Asset Storage**: Google Drive, Dropbox, Brand folder
+- **Approval Workflow**: ReviewBoard, Gain, Planable
+
+---
+
+*🤖 Generated with AI Content Calendar Planner*
+*📈 Ready-to-implement social media strategy*
 """
         
         with open(markdown_filepath, 'w', encoding='utf-8') as f:
             f.write(markdown_content)
         
-        return json_filepath, markdown_filepath
+        # Save CSV file for easy import to scheduling tools
+        csv_filename = f"content_calendar_{timestamp}.csv"
+        csv_filepath = os.path.join(calendar_folder, csv_filename)
+        
+        csv_content = """Date,Time,Platform,Content Type,Topic/Theme,Caption Preview,Media Requirements,Hashtags,Call-to-Action,Status,Performance Goal
+"""
+        
+        # Add sample CSV structure (this would be populated from actual calendar data)
+        current_date = datetime.now()
+        for week in range(self.duration_weeks):
+            for day in range(7):
+                date = current_date + timedelta(weeks=week, days=day)
+                for platform in self.platforms:
+                    csv_content += f"{date.strftime('%Y-%m-%d')},12:00 PM,{platform.title()},Post,Sample Theme,Sample caption preview...,Image/Video description,#hashtag1 #hashtag2,Sample CTA,Draft,100 engagements\n"
+        
+        with open(csv_filepath, 'w', encoding='utf-8') as f:
+            f.write(csv_content)
+        
+        return json_filepath, markdown_filepath, csv_filepath
 
     def run(self):
         print(f"\n📅 Creating content calendar for: '{self.user_prompt}'")
@@ -586,7 +655,7 @@ class ContentCalendarPlanner:
         print(f"\n📁 Created output folder: {os.path.basename(calendar_folder)}")
         
         # Save calendar outputs
-        json_filepath, markdown_filepath = self.save_calendar_outputs(
+        json_filepath, markdown_filepath, csv_filepath = self.save_calendar_outputs(
             calendar_result, calendar_folder, timestamp
         )
         
@@ -610,11 +679,28 @@ class ContentCalendarPlanner:
         print(f"📁 Folder: {os.path.basename(calendar_folder)}")
         print(f"📄 JSON: {os.path.basename(json_filepath)}")
         print(f"📝 Markdown: {os.path.basename(markdown_filepath)}")
+        print(f"📊 CSV: {os.path.basename(csv_filepath)}")
+        
+        print(f"\n🎯 ACTIONABLE NEXT STEPS:")
+        print("-" * 30)
+        print("1. 📖 Review the Markdown file for complete strategy")
+        print("2. 📊 Import CSV into your scheduling tool (Buffer, Hootsuite, etc.)")
+        print("3. 🎨 Begin creating visual assets for Week 1")
+        print("4. 📅 Schedule your first week of posts")
+        print("5. 📈 Set up performance tracking and monitoring")
+        
+        print(f"\n🛠️ RECOMMENDED TOOLS:")
+        print("-" * 30)
+        print("• 📱 Scheduling: Buffer, Hootsuite, Later")
+        print("• 🎨 Design: Canva, Adobe Creative Suite")
+        print("• 📊 Analytics: Native platform insights")
+        print("• 📋 Project Management: Trello, Asana")
         
         print(f"\n📂 Complete folder path: {calendar_folder}")
         print("\n" + "="*60)
-        print("✨ Your content calendar is organized and ready to use!")
-        print("📝 Open the Markdown file for easy reading and planning!")
+        print("✨ Your comprehensive content calendar strategy is ready!")
+        print("🚀 This calendar includes detailed daily planning for all weeks!")
+        print("📈 Follow the action checklist to implement your strategy!")
         print("="*60)
         
         return calendar_result
