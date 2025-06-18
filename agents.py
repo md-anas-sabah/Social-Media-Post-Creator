@@ -8,12 +8,13 @@ from langchain_openai import ChatOpenAI
 from crewai.tools import BaseTool
 from typing import Any, Type
 from pydantic import BaseModel, Field
-import openai
 import requests
 import os
 from datetime import datetime
 import json
 import uuid
+import fal_client as fal
+from decouple import config
 
 
 class ImageGeneratorArgs(BaseModel):
@@ -21,7 +22,7 @@ class ImageGeneratorArgs(BaseModel):
 
 class ImageGeneratorTool(BaseTool):
     name: str = "generate_image"
-    description: str = "Generate an image using DALL-E based on the provided prompt."
+    description: str = "Generate an image using Ideogram V2A based on the provided prompt."
     args_schema: Type[BaseModel] = ImageGeneratorArgs
     output_folder: str = None
 
@@ -31,16 +32,20 @@ class ImageGeneratorTool(BaseTool):
 
     def _run(self, prompt: str) -> str:
         try:
-            client = openai.OpenAI()
-            response = client.images.generate(
-                model="dall-e-3",
-                prompt=prompt,
-                size="1024x1024",
-                quality="standard",
-                n=1,
+            # Ensure FAL_KEY is set in environment
+            os.environ['FAL_KEY'] = config('FAL_KEY')
+            
+            # Submit request to Ideogram V2A
+            result = fal.run(
+                "fal-ai/ideogram/v2a",
+                arguments={
+                    "prompt": prompt,
+                    "aspect_ratio": "1:1",
+                    "style": "auto"
+                }
             )
             
-            image_url = response.data[0].url
+            image_url = result['images'][0]['url']
             
             # Download and save the image locally
             image_response = requests.get(image_url)
@@ -52,6 +57,7 @@ class ImageGeneratorTool(BaseTool):
                 
                 # Use the specific output folder if provided, otherwise use default
                 if self.output_folder:
+                    os.makedirs(self.output_folder, exist_ok=True)
                     local_path = os.path.join(self.output_folder, filename)
                 else:
                     # Fallback to default generated_images folder
@@ -67,7 +73,8 @@ class ImageGeneratorTool(BaseTool):
                     "image_url": image_url,
                     "local_path": local_path,
                     "filename": filename,
-                    "prompt": prompt
+                    "prompt": prompt,
+                    "seed": result.get('seed')
                 })
             else:
                 return json.dumps({
@@ -93,7 +100,7 @@ class CarouselImageGeneratorArgs(BaseModel):
     
 class CarouselImageGeneratorTool(BaseTool):
     name: str = "generate_carousel_images"
-    description: str = "Generate multiple images for carousel posts using DALL-E based on a list of prompts."
+    description: str = "Generate multiple images for carousel posts using Ideogram V2A based on a list of prompts."
     args_schema: Type[BaseModel] = CarouselImageGeneratorArgs
     output_folder: str = None
 
@@ -103,20 +110,23 @@ class CarouselImageGeneratorTool(BaseTool):
 
     def _run(self, prompts: list) -> str:
         try:
-            client = openai.OpenAI()
             carousel_images = []
             
             for i, prompt in enumerate(prompts, 1):
                 try:
-                    response = client.images.generate(
-                        model="dall-e-3",
-                        prompt=prompt,
-                        size="1024x1024",
-                        quality="standard",
-                        n=1,
+                    # Ensure FAL_KEY is set in environment
+                    os.environ['FAL_KEY'] = config('FAL_KEY')
+                    
+                    result = fal.run(
+                        "fal-ai/ideogram/v2a",
+                        arguments={
+                            "prompt": prompt,
+                            "aspect_ratio": "1:1",
+                            "style": "auto"
+                        }
                     )
                     
-                    image_url = response.data[0].url
+                    image_url = result['images'][0]['url']
                     
                     # Download and save the image locally
                     image_response = requests.get(image_url)
@@ -128,6 +138,7 @@ class CarouselImageGeneratorTool(BaseTool):
                         
                         # Use the specific output folder if provided, otherwise use default
                         if self.output_folder:
+                            os.makedirs(self.output_folder, exist_ok=True)
                             local_path = os.path.join(self.output_folder, filename)
                         else:
                             # Fallback to default generated_images folder
@@ -144,7 +155,8 @@ class CarouselImageGeneratorTool(BaseTool):
                             "image_url": image_url,
                             "local_path": local_path,
                             "filename": filename,
-                            "prompt": prompt
+                            "prompt": prompt,
+                            "seed": result.get('seed')
                         })
                     else:
                         carousel_images.append({
@@ -186,7 +198,7 @@ class StoryImageGeneratorArgs(BaseModel):
 
 class StoryImageGeneratorTool(BaseTool):
     name: str = "generate_story_image"
-    description: str = "Generate a single vertical story image (9:16 format) using DALL-E based on the provided prompt."
+    description: str = "Generate a single vertical story image (9:16 format) using Ideogram V2A based on the provided prompt."
     args_schema: Type[BaseModel] = StoryImageGeneratorArgs
     output_folder: str = None
 
@@ -196,16 +208,19 @@ class StoryImageGeneratorTool(BaseTool):
 
     def _run(self, prompt: str) -> str:
         try:
-            client = openai.OpenAI()
-            response = client.images.generate(
-                model="dall-e-3",
-                prompt=prompt,
-                size="1024x1792",  # 9:16 aspect ratio (closest available size)
-                quality="standard",
-                n=1,
+            # Ensure FAL_KEY is set in environment
+            os.environ['FAL_KEY'] = config('FAL_KEY')
+            
+            result = fal.run(
+                "fal-ai/ideogram/v2a",
+                arguments={
+                    "prompt": prompt,
+                    "aspect_ratio": "9:16",
+                    "style": "auto"
+                }
             )
             
-            image_url = response.data[0].url
+            image_url = result['images'][0]['url']
             
             # Download and save the image locally
             image_response = requests.get(image_url)
@@ -234,7 +249,8 @@ class StoryImageGeneratorTool(BaseTool):
                     "filename": filename,
                     "prompt": prompt,
                     "format": "story_single",
-                    "dimensions": "1024x1792"
+                    "dimensions": "9:16",
+                    "seed": result.get('seed')
                 })
             else:
                 return json.dumps({
@@ -262,7 +278,7 @@ class StorySeriesGeneratorArgs(BaseModel):
     
 class StorySeriesGeneratorTool(BaseTool):
     name: str = "generate_story_series"
-    description: str = "Generate multiple vertical story images (9:16 format) for story series using DALL-E based on a list of prompts."
+    description: str = "Generate multiple vertical story images (9:16 format) for story series using Ideogram V2A based on a list of prompts."
     args_schema: Type[BaseModel] = StorySeriesGeneratorArgs
     output_folder: str = None
 
@@ -272,20 +288,23 @@ class StorySeriesGeneratorTool(BaseTool):
 
     def _run(self, prompts: list) -> str:
         try:
-            client = openai.OpenAI()
             story_images = []
             
             for i, prompt in enumerate(prompts, 1):
                 try:
-                    response = client.images.generate(
-                        model="dall-e-3",
-                        prompt=prompt,
-                        size="1024x1792",  # 9:16 aspect ratio (closest available size)
-                        quality="standard",
-                        n=1,
+                    # Ensure FAL_KEY is set in environment
+                    os.environ['FAL_KEY'] = config('FAL_KEY')
+                    
+                    result = fal.run(
+                        "fal-ai/ideogram/v2a",
+                        arguments={
+                            "prompt": prompt,
+                            "aspect_ratio": "9:16",
+                            "style": "auto"
+                        }
                     )
                     
-                    image_url = response.data[0].url
+                    image_url = result['images'][0]['url']
                     
                     # Download and save the image locally
                     image_response = requests.get(image_url)
@@ -297,6 +316,7 @@ class StorySeriesGeneratorTool(BaseTool):
                         
                         # Use the specific output folder if provided, otherwise use default
                         if self.output_folder:
+                            os.makedirs(self.output_folder, exist_ok=True)
                             local_path = os.path.join(self.output_folder, filename)
                         else:
                             # Fallback to default generated_images folder
@@ -313,7 +333,8 @@ class StorySeriesGeneratorTool(BaseTool):
                             "image_url": image_url,
                             "local_path": local_path,
                             "filename": filename,
-                            "prompt": prompt
+                            "prompt": prompt,
+                            "seed": result.get('seed')
                         })
                     else:
                         story_images.append({
@@ -340,7 +361,7 @@ class StorySeriesGeneratorTool(BaseTool):
                 "total_stories": len(story_images),
                 "successful_stories": len([img for img in story_images if "error" not in img]),
                 "format": "story_series",
-                "dimensions": "1024x1792"
+                "dimensions": "9:16"
             })
                 
         except Exception as e:
@@ -411,12 +432,12 @@ class SocialMediaAgents:
                             the structured format: "High-resolution [type], showing [subject] in [setting], in the style 
                             of [style], captured with [camera], using [lighting], with clean and centered text saying 
                             '[message]' in elegant, bold typography. No distortions, no artifacts, realistic proportions, 
-                            highly detailed, ultra sharp, suitable for print and digital use." You understand DALL-E's 
+                            highly detailed, ultra sharp, suitable for print and digital use." You understand Ideogram V2A's 
                             capabilities and create prompts that produce professional, high-quality results with perfect 
                             text clarity. You prioritize realistic proportions, appropriate settings, and perfect text 
                             spelling in every image generation prompt."""),
             goal=dedent("""Generate detailed, creative prompts using the professional template structure 
-                       that will result in visually striking images with perfect text clarity. Use the format: 
+                       that will result in visually striking images with perfect text clarity using Ideogram V2A. Use the format: 
                        "High-resolution [type], showing [subject] in [setting], in the style of professional 
                        social media photography, captured with professional camera, using [lighting], with clean 
                        and centered text saying '[message]' in elegant, bold typography. No distortions, no 
