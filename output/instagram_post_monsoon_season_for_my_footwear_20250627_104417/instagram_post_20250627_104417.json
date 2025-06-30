@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-06-27T10:45:08.848961",
+  "original_prompt": "\\Monsoon Season for my footwear",
+  "selected_option": "Option 2",
+  "platform": "instagram",
+  "caption": "\"☔💦 There's nothing quite like the splash of rain on a new pair of shoes! Our Monsoon Collection is designed to keep you stylish and your feet dry during the rainy season. Tap the link in our bio to shop now, because puddles are for jumping, not for ruining your shoes! 💙👟 #RainOrShine #FootwearFashion\"",
+  "image": {
+    "error": "Could not access task outputs",
+    "raw_results": "Best posting times for Instagram: 6:00 PM - 9:00 PM on weekdays and 10:00 AM - 1:00 PM on weekends.\nDay of week recommendations: Weekdays for evening posts and weekends for morning posts.\nAudience timezone considerations: Consider the timezone of the target audience for optimal engagement.\nPlatform-specific tips: Utilize Instagram Stories, engage with followers through comments and messages, and use relevant hashtags to increase visibility."
+  },
+  "hashtags_and_timing": "Best posting times for Instagram: 6:00 PM - 9:00 PM on weekdays and 10:00 AM - 1:00 PM on weekends.\nDay of week recommendations: Weekdays for evening posts and weekends for morning posts.\nAudience timezone considerations: Consider the timezone of the target audience for optimal engagement.\nPlatform-specific tips: Utilize Instagram Stories, engage with followers through comments and messages, and use relevant hashtags to increase visibility.",
+  "status": "completed"
+}
