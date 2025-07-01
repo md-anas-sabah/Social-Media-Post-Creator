@@ -16,7 +16,7 @@ The main entry point offers two modes:
 Copy `.env_example` to `.env` and add your API keys:
 ```bash
 cp .env_example .env
-# Edit .env to add your OPENAI_API_KEY, FAL_KEY, and optionally OPENAI_ORGANIZATION_ID
+# Edit .env to add your OPENAI_API_KEY, FAL_KEY, CLAUDE_API_KEY, and optionally OPENAI_ORGANIZATION_ID
 ```
 
 ### Dependencies
@@ -31,6 +31,7 @@ Core dependencies include:
 - `python-decouple` - Environment variable management
 - `openai` - OpenAI API client for LLM functions
 - `fal-client` - FAL AI client for Ideogram V2A image generation
+- `anthropic` - Claude API client for content refinement
 - `requests` - HTTP requests for image downloading
 - `uuid` - Unique identifier generation
 
@@ -57,26 +58,33 @@ This is a specialized CrewAI-based social media content creation system with two
   - `ContentCalendarPlanner`: Handles content calendar generation
 - **agents.py**: Contains `SocialMediaAgents` class with specialized agents:
   - Script Agent: Generates 3 creative post ideas
-  - Copywriter Agent: Creates polished captions
-  - Creative Agent: Generates images using advanced Ideogram V2A tools
-  - Hashtag Agent: Researches strategic hashtags
+  - Copywriter Agent: Creates polished captions with Claude refinement
+  - Creative Agent: Generates images using advanced Ideogram V2A tools with Claude prompt refinement
+  - Hashtag Agent: Researches strategic hashtags with Claude optimization
   - Timing Agent: Provides optimal posting times
   - Calendar Planner Agent: Creates comprehensive content calendars
 - **tasks.py**: Contains `SocialMediaTasks` class with specialized tasks for each workflow step
+- **claude_refinement.py**: Claude API integration service for content refinement
 
 ### Advanced Agent System
 - **Script Agent**: Uses GPT-4 for creative ideation and concept development
-- **Copywriter Agent**: Uses GPT-4 for high-quality, platform-optimized copywriting
-- **Creative Agent**: Uses GPT-4 with high temperature (0.9) for maximum creativity + multiple specialized image tools
-- **Hashtag Agent**: Uses GPT-3.5 for hashtag research and trending analysis
+- **Copywriter Agent**: Uses GPT-4 for high-quality, platform-optimized copywriting + Claude Sonnet 3.5 for advanced caption refinement
+- **Creative Agent**: Uses GPT-4 with high temperature (0.9) for maximum creativity + Claude Sonnet 3.5 for world-class image prompt refinement + multiple specialized image tools
+- **Hashtag Agent**: Uses GPT-3.5 for hashtag research and trending analysis + Claude Sonnet 3.5 for hashtag strategy optimization
 - **Timing Agent**: Uses GPT-3.5 with custom timing optimization tool
 - **Calendar Planner Agent**: Uses GPT-4 for comprehensive strategic content planning
 
+### Claude AI Integration
+- **Prompt Refinement**: Claude Sonnet 3.5 refines all image generation prompts before sending to FAL.ai for world-class visual results
+- **Caption Enhancement**: Claude Sonnet 3.5 optimizes captions for maximum engagement and viral potential
+- **Hashtag Strategy**: Claude Sonnet 3.5 analyzes and optimizes hashtag strategies for maximum reach
+- **Professional Templates**: Uses structured prompt templates for consistent, high-quality outputs
+
 ### Task Flow - Single Posts
 1. **Ideation Task**: Generate 3 creative post concepts with compelling hooks
-2. **Copywriting Task**: Create platform-optimized captions with engagement focus
-3. **Image Generation Task**: Create custom visuals (single, carousel, or story format)
-4. **Hashtag Research Task**: Find 8-12 strategic hashtags for maximum reach
+2. **Copywriting Task**: Create platform-optimized captions with engagement focus → Claude refinement for maximum engagement
+3. **Image Generation Task**: Create custom visuals (single, carousel, or story format) → Claude prompt refinement for world-class results
+4. **Hashtag Research Task**: Find 8-12 strategic hashtags for maximum reach → Claude optimization for viral potential
 5. **Timing Optimization Task**: Recommend platform-specific optimal posting times
 
 ### Task Flow - Content Calendar
@@ -121,6 +129,62 @@ Each post/calendar creation generates:
 - **Platform Optimization**: Content tailored to each platform's best practices
 - **Professional Templates**: Structured prompt templates for consistent quality
 - **Error Handling**: Comprehensive error handling with fallback options
+
+## Latest Updates - Claude AI Integration (December 2024)
+
+### 🚀 Major Enhancement: Claude-Powered Content Refinement
+
+We've integrated **Claude Sonnet 3.5** as a content refinement layer to elevate every aspect of content creation to world-class standards.
+
+#### New Capabilities Added:
+
+**1. World-Class Image Prompt Refinement**
+- Every image prompt is now refined by Claude before being sent to FAL.ai
+- Transforms basic prompts into detailed, professional specifications
+- Uses structured template format for consistent, high-quality results
+- Ensures perfect text clarity, realistic proportions, and professional composition
+- All original and refined prompts are preserved for comparison
+
+**2. Advanced Caption Enhancement**
+- Copywriter Agent now uses Claude to refine all captions for maximum engagement
+- Hook-driven content with emotional storytelling techniques
+- Platform-specific optimization for Instagram, Facebook, LinkedIn, Twitter
+- Strategic call-to-actions and viral potential optimization
+- Authentic, conversational tone with strategic formatting
+
+**3. Strategic Hashtag Optimization**
+- Hashtag Agent leverages Claude for intelligent hashtag strategy
+- Mix of trending, niche, and audience-targeted hashtags
+- Platform-specific hashtag counts and strategies
+- Community engagement and discoverability optimization
+- Brand positioning and target audience alignment
+
+#### Technical Implementation:
+
+**New Files Added:**
+- `claude_refinement.py`: Core Claude API integration service
+- Enhanced `agents.py`: Integrated Claude tools into existing agents
+- Updated environment setup with `CLAUDE_API_KEY` requirement
+
+**Enhanced Workflow:**
+1. **Original Content Creation** → **Claude Refinement** → **Final Output**
+2. **Dual-AI Approach**: GPT-4 for creativity + Claude for refinement
+3. **Quality Tracking**: All original and refined versions preserved
+4. **Error Handling**: Graceful fallbacks if Claude refinement fails
+
+#### Benefits:
+- ✅ **World-Class Image Quality**: Professional, detailed image prompts
+- ✅ **Maximum Engagement**: Optimized captions for viral potential
+- ✅ **Strategic Reach**: Intelligent hashtag strategies
+- ✅ **Professional Output**: Consistent, high-quality content
+- ✅ **Platform Optimization**: Tailored for each social media platform
+
+#### Setup Requirements:
+- Add `CLAUDE_API_KEY` to your `.env` file
+- Install `anthropic>=0.34.0` package
+- Claude API account with Sonnet 3.5 access
+
+This upgrade transforms the system from good to exceptional, ensuring every piece of content meets professional marketing standards with maximum engagement potential.
 
 ### File Structure
 ```
