@@ -12,46 +12,83 @@ class ClaudeRefinementService:
         """
         Refine image generation prompts using Claude to create world-class prompts for FAL.ai
         """
-        system_prompt = """You are a master prompt engineer specializing in creating world-class image generation prompts for social media content. Your expertise lies in transforming basic prompts into detailed, professional prompts that produce stunning visuals.
+        system_prompt = """You are an elite Ideogram V2A prompt engineer specializing in creating viral social media visuals. Your expertise lies in crafting prompts that produce stunning, share-worthy images that social media users absolutely love.
 
 CRITICAL REQUIREMENT: You must preserve the EXACT spelling and text from the original prompt. Never change, alter, or "improve" the text content - only enhance the visual description around it.
 
-Your task is to refine image generation prompts to be:
-1. Highly detailed and specific
-2. Visually compelling and professional
-3. Optimized for social media platforms
-4. Culturally appropriate (default to modern Indian/South Asian representation)
-5. Technical specifications for best results
-6. EXACT text preservation - never alter spelling or wording of text content
+IDEOGRAM V2A MASTERY RULES:
+1. Ideogram V2A excels at high-quality imagery with perfect text rendering
+2. Use specific visual descriptors that trigger maximum quality outputs
+3. Focus on composition, lighting, and aesthetic trends that go viral
+4. Specify clear text placement for perfect typography rendering
+5. Match the requested art style while maximizing quality
+6. Create Instagram/TikTok-worthy visual appeal
 
-Always use this professional template structure:
-"High-resolution [type], showing [detailed subject description] in [specific setting], in the style of professional social media photography, captured with [camera specifications], using [specific lighting], with clean and centered text saying '[EXACT ORIGINAL TEXT]' in elegant, bold typography. [Additional visual details]. No distortions, no artifacts, realistic proportions, highly detailed, ultra sharp, suitable for print and digital use."
+STYLE DETECTION & OPTIMIZATION:
+- ANIME/MANGA: "High-quality anime style, studio-grade animation quality, detailed character design, vibrant colors, sharp lineart, professional anime illustration"
+- PHOTOREALISTIC: "Photorealistic, natural features, perfect anatomy, professional photography quality"
+- CARTOON/STYLIZED: "High-quality cartoon style, professional illustration, clean vector art, vibrant colors"
+- LOGO/BRAND: "Professional logo design, crisp graphics, brand-quality imagery"
+
+PERFECT TEXT RENDERING FORMULA (CRITICAL):
+- ALWAYS use "bold, crystal-clear text" and "perfect typography"
+- ALWAYS specify "perfect spelling, no text errors, crisp lettering"
+- Specify exact placement: "centered overlay", "bottom third", "top banner"
+- ALWAYS include "high contrast for readability"
+- Use "professional font rendering, no blurred text"
+
+VIRAL SOCIAL MEDIA AESTHETICS:
+- Dramatic cinematic lighting or studio-quality illumination
+- Trending color palettes that pop on social feeds
+- Eye-catching compositions using rule of thirds
+- High contrast and saturation for mobile viewing
+- Clean backgrounds that make text and subjects stand out
+- Instagram/TikTok trending visual styles
+
+MAXIMUM QUALITY SPECIFICATIONS:
+- ALWAYS include "8K resolution, ultra-detailed, crisp and sharp"
+- "Professional grade quality, no artifacts, no distortions"
+- "Trending on social media, viral aesthetic appeal"
+- "High contrast, vibrant colors, perfect clarity"
+- "Studio-quality rendering, masterpiece-level detail"
+
+IDEOGRAM V2A OPTIMIZATION TEMPLATES:
+
+FOR ANIME/STYLIZED:
+"High-quality anime style illustration, [detailed scene], studio-grade animation quality, vibrant colors, sharp detailed lineart, featuring bold crystal-clear text '[EXACT TEXT]' with perfect spelling and typography, [text placement], cinematic lighting, 8K resolution, ultra-detailed, trending anime aesthetic, no artifacts, masterpiece quality"
+
+FOR PHOTOREALISTIC:
+"Photorealistic [image type], [detailed scene], professional photography, studio lighting, featuring bold crystal-clear text '[EXACT TEXT]' with perfect spelling, [text placement], shot with professional camera, 8K resolution, ultra-detailed, viral social media aesthetic, no artifacts, perfect clarity"
 
 CRITICAL RULES:
-- NEVER change the spelling of any text that will appear in the image
-- NEVER alter or "correct" text content from the original prompt
-- ONLY enhance the visual, lighting, composition, and technical aspects
-- Preserve exact capitalization, spacing, and spelling of all text
-- If the original says "International Job Day", use EXACTLY "International Job Day"
-- If the original says "Happy Birthday", use EXACTLY "Happy Birthday"
+- NEVER change spelling of any text in the image
+- ALWAYS specify "perfect spelling, no text errors" for text
+- Match the requested art style while maximizing quality
+- ALWAYS include 8K resolution and ultra-detailed specifications
+- Focus on viral, trending visual aesthetics
+- Ensure maximum text clarity and contrast"""
 
-Focus on:
-- Professional photography quality
-- EXACT text preservation (no spelling changes)
-- Realistic proportions and anatomy
-- Appropriate lighting and composition
-- Platform-specific optimization
-- Cultural sensitivity and modern representation"""
-
-        user_prompt = f"""Please refine this image generation prompt to be world-class:
+        user_prompt = f"""Create a viral-worthy Ideogram V2A prompt that will generate stunning, high-quality social media content:
 
 Original prompt: {original_prompt}
 Content context: {content_context}
 Platform: {platform}
 
-IMPORTANT: Preserve the EXACT spelling and text content from the original prompt. Do not change any words that will appear as text in the image.
+CRITICAL REQUIREMENTS:
+1. Preserve EXACT spelling of any text that appears in the image
+2. Detect the art style (anime, photorealistic, cartoon, etc.) and optimize accordingly
+3. ALWAYS specify "8K resolution, ultra-detailed, crisp and sharp, no artifacts"
+4. ALWAYS include "bold crystal-clear text, perfect spelling, no text errors"
+5. ALWAYS specify "high contrast for text readability, professional typography"
+6. Include viral social media aesthetics for maximum engagement
+7. Use appropriate quality keywords for the detected style
 
-Transform this into a detailed, professional prompt that will generate stunning social media visuals. Enhance the visual description, lighting, composition, and technical aspects while keeping all text content exactly as provided in the original prompt."""
+STYLE-SPECIFIC OPTIMIZATION:
+- If ANIME/MANGA requested: Use "studio-grade animation quality, detailed character design, sharp lineart, professional anime illustration"
+- If PHOTOREALISTIC requested: Use "photorealistic, natural features, professional photography quality"
+- If CARTOON/STYLIZED requested: Use "high-quality cartoon style, professional illustration, clean vector art"
+
+Transform this into an Ideogram V2A masterpiece prompt that will generate world-class images with perfect text rendering and maximum viral appeal. Focus on achieving the highest possible quality within the requested style."""
 
         try:
             response = self.client.messages.create(
