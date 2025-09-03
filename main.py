@@ -727,46 +727,149 @@ class VideoReelCreator:
         reel_folder, timestamp = create_unique_reel_folder(self.user_prompt, self.platform)
         print(f"\n📁 Created output folder: {os.path.basename(reel_folder)}")
         
-        # For Phase 1, just show "Coming soon" message
-        print("\n🚧 PHASE 1: Foundation Setup Complete!")
-        print("-" * 30)
-        print("✅ Reel folder structure created")
-        print("✅ All skeleton files in place")
-        print("✅ Environment configured")
-        print("✅ Import system working")
-        print("\n🎬 Full video generation pipeline coming in Phase 2!")
-        print("🔄 This will include:")
-        print("   • Content planning and storyboarding")
-        print("   • Claude prompt refinement")
-        print("   • FAL.AI video generation")
-        print("   • Audio generation (TTS/Music)")
-        print("   • Video editing and synchronization")
-        print("   • Quality assessment and reloop")
+        # PHASE 2: Content Planning Agent Implementation
+        print("\n🧠 PHASE 2: Content Planning & Storyboard Generation")
+        print("-" * 50)
         
-        # Create mock metadata for Phase 1
-        mock_result = {
-            'timestamp': datetime.now().isoformat(),
-            'user_prompt': self.user_prompt,
-            'platform': self.platform,
-            'duration': self.duration,
-            'content_mode': self.content_mode,
-            'status': 'phase_1_complete',
-            'folder_path': reel_folder,
-            'phase': 1,
-            'message': 'Foundation setup complete - full pipeline coming soon!'
-        }
-        
-        # Save basic metadata
-        save_reel_metadata(reel_folder, mock_result)
-        create_reel_summary(reel_folder, mock_result)
-        create_reel_preview_html(reel_folder, mock_result)
-        
-        print(f"\n📂 Complete folder path: {reel_folder}")
-        print("\n" + "="*50)
-        print("✨ Phase 1 Complete! Ready for Phase 2 development.")
-        print("="*50)
-        
-        return mock_result
+        try:
+            # Initialize reel-specific agents and tasks
+            agents = ReelAgents()
+            tasks = ReelTasks()
+            
+            # Step 1: Content Planning
+            print("\n📋 STEP 1: Analyzing content and creating storyboard...")
+            content_planner = agents.content_planning_agent()
+            planning_task = tasks.content_planning_task(
+                content_planner, 
+                self.user_prompt, 
+                self.content_mode, 
+                self.duration
+            )
+            
+            # Execute content planning
+            from crewai import Crew
+            planning_crew = Crew(
+                agents=[content_planner],
+                tasks=[planning_task],
+                verbose=True
+            )
+            
+            planning_result = planning_crew.kickoff()
+            
+            print("\n" + "="*60)
+            print("🎯 CONTENT PLANNING COMPLETE!")
+            print("="*60)
+            print(f"\n📊 ANALYSIS RESULT:")
+            print("-" * 30)
+            print(str(planning_result))
+            
+            # Try to parse JSON result
+            import json
+            try:
+                if isinstance(planning_result, str):
+                    # Try to extract JSON from the string result
+                    import re
+                    json_match = re.search(r'\{.*\}', str(planning_result), re.DOTALL)
+                    if json_match:
+                        planning_data = json.loads(json_match.group())
+                    else:
+                        raise ValueError("No JSON found in result")
+                else:
+                    planning_data = planning_result
+                
+                # Display structured results
+                if isinstance(planning_data, dict):
+                    print(f"\n🔍 CONTENT ANALYSIS:")
+                    print(f"   Category: {planning_data.get('content_analysis', {}).get('category', 'N/A')}")
+                    print(f"   Complexity: {planning_data.get('content_analysis', {}).get('complexity_level', 'N/A')}")
+                    print(f"   Target Audience: {planning_data.get('content_analysis', {}).get('target_audience', 'N/A')}")
+                    
+                    print(f"\n🎵 MODE SELECTION:")
+                    mode_selection = planning_data.get('mode_selection', {})
+                    print(f"   Recommended: {mode_selection.get('recommended_mode', 'N/A')}")
+                    print(f"   User Requested: {mode_selection.get('user_requested', 'N/A')}")
+                    print(f"   Rationale: {mode_selection.get('rationale', 'N/A')}")
+                    
+                    print(f"\n🎬 STORYBOARD:")
+                    storyboard = planning_data.get('storyboard', {})
+                    print(f"   Total Duration: {storyboard.get('total_duration', 'N/A')}s")
+                    print(f"   Scene Count: {storyboard.get('scene_count', 'N/A')}")
+                    
+                    scenes = storyboard.get('scenes', [])
+                    for scene in scenes:
+                        if isinstance(scene, dict):
+                            print(f"\n   Scene {scene.get('scene_number', 'N/A')} ({scene.get('duration', 'N/A')}s):")
+                            print(f"     Title: {scene.get('title', 'N/A')}")
+                            print(f"     Description: {scene.get('description', 'N/A')}")
+                            print(f"     Key Message: {scene.get('key_message', 'N/A')}")
+                    
+                    print(f"\n🎨 VISUAL STYLE:")
+                    visual_style = planning_data.get('visual_style', {})
+                    print(f"   Color Palette: {visual_style.get('color_palette', 'N/A')}")
+                    print(f"   Aesthetic: {visual_style.get('aesthetic_mood', 'N/A')}")
+                    print(f"   Engagement Hooks: {visual_style.get('engagement_hooks', 'N/A')}")
+                    
+            except (json.JSONDecodeError, ValueError, TypeError) as e:
+                print(f"\n⚠️  Could not parse structured data: {e}")
+                print("Raw result will be saved to metadata")
+                planning_data = {
+                    'raw_result': str(planning_result),
+                    'parse_error': str(e)
+                }
+            
+            # Create comprehensive result for Phase 2
+            phase2_result = {
+                'timestamp': datetime.now().isoformat(),
+                'user_prompt': self.user_prompt,
+                'platform': self.platform,
+                'duration': self.duration,
+                'content_mode': self.content_mode,
+                'status': 'phase_2_complete',
+                'folder_path': reel_folder,
+                'phase': 2,
+                'content_planning': planning_data,
+                'next_phase': 'claude_prompt_refinement',
+                'message': 'Content planning complete - ready for Claude refinement!'
+            }
+            
+            # Save comprehensive metadata
+            save_reel_metadata(reel_folder, phase2_result)
+            create_reel_summary(reel_folder, phase2_result)
+            create_reel_preview_html(reel_folder, phase2_result)
+            
+            print(f"\n💾 OUTPUT FILES SAVED:")
+            print(f"   📁 Folder: {os.path.basename(reel_folder)}")
+            print(f"   📄 Metadata: reel_metadata.json")
+            print(f"   📝 Summary: reel_summary.md")
+            print(f"   🌐 Preview: reel_preview.html")
+            
+            print(f"\n📂 Complete folder path: {reel_folder}")
+            print("\n" + "="*60)
+            print("✨ PHASE 2 COMPLETE! Content Planning & Storyboarding Done!")
+            print("🚀 Next: Phase 3 - Claude Prompt Refinement")
+            print("="*60)
+            
+            return phase2_result
+            
+        except Exception as e:
+            print(f"\n❌ Error in Phase 2: {str(e)}")
+            print("💡 Make sure all API keys are configured correctly")
+            
+            # Fallback result
+            error_result = {
+                'timestamp': datetime.now().isoformat(),
+                'user_prompt': self.user_prompt,
+                'platform': self.platform,
+                'duration': self.duration,
+                'content_mode': self.content_mode,
+                'status': 'phase_2_error',
+                'error': str(e),
+                'folder_path': reel_folder,
+                'phase': 2
+            }
+            
+            save_reel_metadata(reel_folder, error_result)
+            return error_result
 
 
 if __name__ == "__main__":

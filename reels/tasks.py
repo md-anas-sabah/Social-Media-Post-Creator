@@ -9,23 +9,88 @@ from textwrap import dedent
 class ReelTasks:
     """Specialized tasks for video reel generation"""
     
-    def content_planning_task(self, agent, prompt, mode):
+    def content_planning_task(self, agent, prompt, mode, duration=20):
         """Analyze content and create storyboard"""
         return Task(
             description=dedent(f"""
-                Analyze the user prompt: "{prompt}" and content mode: "{mode}"
+                CONTENT PLANNING MISSION:
+                Analyze user prompt: "{prompt}"
+                Requested mode: "{mode}"
+                Target duration: {duration} seconds
                 
-                Create a detailed storyboard that includes:
-                1. Content analysis and theme identification
-                2. Mode selection rationale (music vs narration)
-                3. Scene breakdown (2-3 scenes for optimal pacing)
-                4. Timing allocation per scene
-                5. Visual style recommendations
+                STEP 1: CONTENT ANALYSIS
+                - Identify content category (educational, entertainment, promotional, lifestyle, tutorial, etc.)
+                - Determine complexity level and information density
+                - Analyze target audience and engagement expectations
+                - Consider platform-specific requirements
                 
-                Output format: JSON with storyboard structure
+                STEP 2: INTELLIGENT MODE SELECTION
+                - Apply mode selection rules based on content characteristics
+                - Override user preference if analysis suggests better alternative
+                - Provide clear rationale for mode recommendation
+                
+                STEP 3: STORYBOARD CREATION
+                Create 2-3 scenes based on duration:
+                - 15s reels: 2 scenes (8s + 7s)
+                - 20s reels: 3 scenes (7s + 6s + 7s)
+                - 30s reels: 3 scenes (10s + 10s + 10s)
+                
+                For each scene include:
+                - Scene description and visual elements
+                - Key messaging or narrative focus
+                - Timing and pacing
+                - Technical requirements (camera angles, transitions)
+                
+                STEP 4: VISUAL STYLE GUIDELINES
+                - Color palette recommendations
+                - Visual aesthetics and mood
+                - Platform-specific optimizations
+                - Engagement hooks and retention elements
+                
+                REQUIRED OUTPUT FORMAT (strict JSON):
+                {{
+                    "content_analysis": {{
+                        "category": "string",
+                        "complexity_level": "low|medium|high",
+                        "target_audience": "string",
+                        "engagement_type": "string"
+                    }},
+                    "mode_selection": {{
+                        "recommended_mode": "music|narration",
+                        "user_requested": "{mode}",
+                        "override_reason": "string or null",
+                        "rationale": "string"
+                    }},
+                    "storyboard": {{
+                        "total_duration": {duration},
+                        "scene_count": "int",
+                        "scenes": [
+                            {{
+                                "scene_number": 1,
+                                "duration": "int",
+                                "title": "string",
+                                "description": "string",
+                                "visual_elements": "string",
+                                "key_message": "string",
+                                "technical_notes": "string"
+                            }}
+                        ]
+                    }},
+                    "visual_style": {{
+                        "color_palette": "string",
+                        "aesthetic_mood": "string",
+                        "platform_optimization": "string",
+                        "engagement_hooks": "string"
+                    }},
+                    "success_metrics": {{
+                        "engagement_prediction": "high|medium|low",
+                        "target_completion_rate": "percentage",
+                        "key_performance_indicators": "string"
+                    }}
+                }}
             """),
             agent=agent,
-            expected_output="Detailed storyboard JSON with scenes, timing, and style recommendations"
+            expected_output="Complete content planning JSON with analysis, mode selection, storyboard, and visual guidelines"
         )
     
     def prompt_refinement_task(self, agent, storyboard):

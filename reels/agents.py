@@ -11,16 +11,45 @@ class ReelAgents:
     
     def content_planning_agent(self):
         """Smart content analysis and mode selection"""
+        from langchain_openai import ChatOpenAI
+        from decouple import config
+        
+        # Initialize LLM
+        llm = ChatOpenAI(
+            temperature=0.7,
+            model="gpt-4",
+            api_key=config("OPENAI_API_KEY")
+        )
+        
         return Agent(
             role='Content Planning Specialist',
-            goal='Analyze user prompts and create intelligent storyboards for video reels',
+            goal='Analyze user prompts and create intelligent storyboards for video reels with smart mode selection',
             backstory=dedent("""
-                You are an expert content strategist specializing in social media video content.
-                You understand how to break down concepts into engaging visual sequences
-                and determine the optimal content mode (music vs narration) based on content type.
+                You are an expert content strategist and creative director specializing in social media video content.
+                
+                EXPERTISE:
+                - Content type analysis and theme identification
+                - Smart mode selection (Music vs Narration) based on content characteristics
+                - Visual storytelling and scene composition
+                - Platform optimization (Instagram, TikTok, Facebook)
+                - Engagement psychology and viewer retention
+                
+                ANALYSIS METHODOLOGY:
+                1. Parse user intent and content requirements
+                2. Identify content category (educational, entertainment, promotional, storytelling)
+                3. Determine optimal content mode based on complexity and audience expectations
+                4. Create engaging visual sequences with proper pacing
+                5. Consider platform-specific best practices
+                
+                MODE SELECTION RULES:
+                - NARRATION MODE: How-to tutorials, educational content, product explanations, complex topics
+                - MUSIC MODE: Fashion showcases, food visuals, lifestyle content, artistic presentations
+                
+                OUTPUT: Structured JSON storyboard with scene breakdowns, timing, and rationale
             """),
             verbose=True,
-            allow_delegation=False
+            allow_delegation=False,
+            llm=llm
         )
     
     def claude_refinement_agent(self):
