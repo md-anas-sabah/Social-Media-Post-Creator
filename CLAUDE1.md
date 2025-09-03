@@ -5,7 +5,7 @@ This file documents the comprehensive video generation enhancement for the Socia
 ## 🎬 Social Media Reel Generator – Advanced Architecture
 
 ### Overview
-Revolutionary 6-layer architecture for generating professional-quality social media reels with intelligent content planning, multi-modal AI generation, and automated synchronization.
+Revolutionary **8-layer architecture** for generating professional-quality social media reels with intelligent content planning, **Claude-powered prompt refinement**, multi-modal AI generation, automated synchronization, and **intelligent QA testing with reloop capability**.
 
 ## 🏗️ Complete Architecture Overview
 
@@ -194,20 +194,25 @@ Text Overlays: "Winter 2024" (2s), "Premium Materials" (8s), "Shop Now" (18s)
 pip install moviepy>=1.0.3
 pip install ffmpeg-python>=0.2.0
 
+# Claude AI integration for refinement and QA
+pip install anthropic>=0.34.0           # Claude API for prompt refinement and QA
+
 # Audio generation and processing  
 pip install elevenlabs>=0.2.24          # Premium TTS
 pip install openai>=1.3.0               # OpenAI TTS
-pip install whisper>=1.0                # Speech recognition
+pip install whisper>=1.0                # Speech recognition for QA
 pip install pydub>=0.25.1              # Audio manipulation
 
 # AI music generation
 pip install suno-api                     # AI music (if available)
 pip install requests>=2.28.0            # API requests
 
-# Advanced video editing
-pip install opencv-python>=4.7.0        # Video processing
+# Advanced video editing and QA
+pip install opencv-python>=4.7.0        # Video processing and quality analysis
 pip install pillow>=9.4.0               # Image processing
 pip install numpy>=1.24.0               # Numerical processing
+pip install scikit-learn>=1.3.0         # ML for quality prediction
+pip install tensorflow>=2.13.0          # Deep learning for content analysis
 ```
 
 #### New Tools to Add:
@@ -238,7 +243,44 @@ def stitch_video_clips(clips_paths: list, output_path: str, background_music_pat
     """
 ```
 
-##### 3. Audio Addition Tool
+##### 3. Claude Prompt Refinement Tool
+```python
+@tool
+def refine_video_prompts(prompts: list, content_context: dict, brand_guidelines: dict) -> dict:
+    """
+    Claude-powered prompt optimization for video generation
+    Args:
+        prompts: List of original video generation prompts
+        content_context: Content type, platform, and requirements
+        brand_guidelines: Brand voice and visual guidelines
+    """
+```
+
+##### 4. QA Testing Tool
+```python
+@tool
+def comprehensive_quality_assessment(reel_data: dict, quality_thresholds: dict) -> dict:
+    """
+    Comprehensive quality assessment with Claude-powered content review
+    Args:
+        reel_data: Complete reel with video, audio, and metadata
+        quality_thresholds: Minimum quality standards for approval
+    """
+```
+
+##### 5. Reloop Decision Tool
+```python
+@tool
+def determine_reloop_strategy(quality_report: dict, attempt_count: int) -> dict:
+    """
+    Intelligent decision-making for quality improvement loops
+    Args:
+        quality_report: Detailed quality assessment results
+        attempt_count: Number of previous generation attempts
+    """
+```
+
+##### 6. Audio Addition Tool
 ```python
 @tool
 def add_background_audio(video_path: str, audio_path: str, output_path: str) -> str:
@@ -268,20 +310,26 @@ def add_background_audio(video_path: str, audio_path: str, output_path: str) -> 
 "Lifestyle video showing [activity/scene] with [people/objects] in [setting], natural movements, authentic feel, good lighting, engaging composition, perfect for social media. Duration: 10 seconds."
 ```
 
-### Enhanced Workflow Architecture
+### Enhanced 8-Layer Workflow Architecture
 
-#### New Video Generation Workflow:
-1. **Content Analysis**: Determine if content needs video format
-2. **Video Prompt Creation**: Generate optimized prompts for video clips
-3. **Multi-Clip Generation**: Generate 2-3 video clips using Hailuo 02
-4. **Video Stitching**: Automatically combine clips using MoviePy
-5. **Audio Enhancement**: Add background music or sound effects
-6. **Final Export**: Output as ready-to-use reel
+#### Complete Video Generation Pipeline:
+1. **Input Processing**: Natural language prompt analysis and parameter extraction
+2. **Content Planning**: AI-powered content strategy and storyboard creation
+3. **Claude Prompt Refinement**: AI-enhanced prompt optimization for maximum quality
+4. **Video Generation**: Multi-model AI video creation with fallback systems
+5. **Audio Generation**: TTS narration and AI music composition
+6. **Synchronization & Editing**: Professional audio-video alignment and post-production
+7. **Output Generation**: Multi-format platform-optimized export
+8. **QA Testing & Reloop**: Intelligent quality assessment with automatic improvement loops
 
-#### Updated Agent System:
-- **Video Creative Agent**: Specialized for video generation and editing
-- **Audio Agent**: Handles background music and sound selection
-- **Video Editor Agent**: Manages stitching and post-processing
+#### Comprehensive Agent System:
+- **Content Planning Agent**: Strategic content analysis and storyboard creation
+- **Claude Refinement Agent**: Prompt optimization and quality prediction
+- **Video Creative Agent**: Multi-model video generation with fallback handling
+- **Audio Generation Agent**: TTS and music creation with intelligent mixing
+- **Synchronization Agent**: Professional audio-video alignment and editing
+- **QA Testing Agent**: Comprehensive quality assessment and improvement recommendations
+- **Reloop Management Agent**: Intelligent failure analysis and recovery strategies
 
 ### File Structure Updates
 ```
