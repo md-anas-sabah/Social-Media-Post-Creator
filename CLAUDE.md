@@ -8,9 +8,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 python main.py
 ```
-The main entry point offers two modes:
+The main entry point offers three modes:
 1. **Single Post Creation**: Creates individual social media posts with 3 idea options, professional images, captions, hashtags, and timing
 2. **Content Calendar Planning**: Generates comprehensive multi-week content calendars with strategic scheduling
+3. **Video Reel Creation**: Generates 15-30 second video reels using advanced AI video generation models
 
 ### Environment Setup
 Copy `.env_example` to `.env` and add your API keys:
@@ -30,14 +31,16 @@ Core dependencies include:
 - `langchain-openai` - OpenAI integration  
 - `python-decouple` - Environment variable management
 - `openai` - OpenAI API client for LLM functions
-- `fal-client` - FAL AI client for Ideogram V2A image generation
+- `fal-client` - FAL AI client for Ideogram V2A image generation and video generation
 - `anthropic` - Claude API client for content refinement
 - `requests` - HTTP requests for image downloading
 - `uuid` - Unique identifier generation
+- `moviepy` - Video editing and processing for reel creation
+- `ffmpeg-python` - Video manipulation and format conversion
 
 ## Architecture
 
-This is a specialized CrewAI-based social media content creation system with two main workflows:
+This is a specialized CrewAI-based social media content creation system with three main workflows:
 
 ### Single Post Creation Workflow
 1. User provides a natural language prompt (e.g., "Eid Mubarak post for my fashion brand")
@@ -52,14 +55,26 @@ This is a specialized CrewAI-based social media content creation system with two
 3. Includes daily scheduling, platform-specific content, strategic themes
 4. Outputs saved as JSON, Markdown, and CSV files for easy import to scheduling tools
 
+### Video Reel Creation Workflow
+1. User provides natural language prompt for video content
+2. System analyzes content requirements and generates optimized video prompts
+3. Creates 2-3 high-quality video clips using FAL.AI's Hailuo 02 model (10 seconds each)
+4. Automatically stitches clips together using MoviePy for seamless 15-30 second reels
+5. Adds background music and audio enhancement
+6. Outputs final reel with metadata, preview, and all source materials organized
+
 ### Core Components
-- **main.py**: Entry point with two main classes:
+- **main.py**: Entry point with three main classes:
   - `SocialMediaPostCreator`: Handles single post creation workflow
   - `ContentCalendarPlanner`: Handles content calendar generation
+  - `VideoReelCreator`: Handles video reel generation workflow
 - **agents.py**: Contains `SocialMediaAgents` class with specialized agents:
   - Script Agent: Generates 3 creative post ideas
   - Copywriter Agent: Creates polished captions with Claude refinement
   - Creative Agent: Generates images using advanced Ideogram V2A tools with Claude prompt refinement
+  - Video Creative Agent: Generates and processes video content using FAL.AI models
+  - Audio Agent: Handles background music and sound selection for videos
+  - Video Editor Agent: Manages video stitching and post-processing
   - Hashtag Agent: Researches strategic hashtags with Claude optimization
   - Timing Agent: Provides optimal posting times
   - Calendar Planner Agent: Creates comprehensive content calendars
@@ -90,11 +105,14 @@ This is a specialized CrewAI-based social media content creation system with two
 ### Task Flow - Content Calendar
 1. **Content Calendar Planning Task**: Generate comprehensive multi-week strategic calendar with daily entries, platform distribution, content types, themes, and performance goals
 
-### Advanced Image Generation Tools
+### Advanced Content Generation Tools
 - `generate_image`: Creates single high-quality images using Ideogram V2A
 - `generate_carousel_images`: Creates multiple images for carousel posts
 - `generate_story_image`: Creates vertical story images (9:16 format, 1080x1920px)
 - `generate_story_series`: Creates multiple story images for story series
+- `generate_video_reel`: Creates 15-30 second video reels using Hailuo 02 model
+- `stitch_video_clips`: Automatically combines multiple video clips into seamless reels
+- `add_background_audio`: Adds background music and sound effects to videos
 - `get_optimal_posting_time`: Provides platform-specific posting time recommendations
 
 ### Content Format Support
@@ -102,12 +120,16 @@ This is a specialized CrewAI-based social media content creation system with two
 - **Carousel Posts**: Multi-slide posts for lists, tips, step-by-step content
 - **Story Posts**: Vertical format optimized for Instagram/Facebook Stories
 - **Story Series**: Multiple connected story posts for complex content
+- **Video Reels**: 15-30 second vertical videos (9:16 ratio) for Instagram, Facebook, TikTok
+- **Video Posts**: Square format videos (1:1 ratio) for social media feeds
+- **Product Videos**: Showcase and demo videos with professional quality
 
 ### Platform Support & Optimization
-- **Instagram**: Posts, carousels, stories with Instagram-specific best practices
-- **Facebook**: Posts, carousels, stories with Facebook algorithm optimization
-- **Twitter**: Text-focused posts with visual enhancements
-- **LinkedIn**: Professional content with business-focused messaging
+- **Instagram**: Posts, carousels, stories, reels with Instagram-specific best practices and video optimization
+- **Facebook**: Posts, carousels, stories, reels with Facebook algorithm optimization and video engagement features
+- **TikTok**: Short-form vertical videos optimized for TikTok's algorithm and trending formats
+- **Twitter**: Text-focused posts with visual and video enhancements
+- **LinkedIn**: Professional content with business-focused messaging and corporate video content
 
 ### Output Organization
 Each post/calendar creation generates:
