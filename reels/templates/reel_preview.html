@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reel Preview Template</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .reel-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin: 20px 0;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .header h1 {
+            color: #333;
+            margin: 0;
+            font-size: 2.5em;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+            margin: 10px 0 0 0;
+        }
+        
+        .video-preview {
+            text-align: center;
+            margin: 30px 0;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px dashed #dee2e6;
+        }
+        
+        .video-placeholder {
+            width: 300px;
+            height: 533px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            margin: 0 auto;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .metadata {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #007bff;
+        }
+        
+        .metadata h3 {
+            margin-top: 0;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
+        
+        .metadata h3::before {
+            content: "📊";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .metadata-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .metadata-item strong {
+            color: #495057;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .metadata-item span {
+            color: #007bff;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        
+        .quality-section {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .quality-section h3 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .quality-section h3::before {
+            content: "🏆";
+            margin-right: 10px;
+            font-size: 1.3em;
+        }
+        
+        .quality-score {
+            font-size: 2em;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .files-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .files-section h3 {
+            margin-top: 0;
+            color: #856404;
+            display: flex;
+            align-items: center;
+        }
+        
+        .files-section h3::before {
+            content: "📁";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        
+        .file-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .file-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            color: #333;
+        }
+        
+        .file-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .file-list li::before {
+            content: "📄";
+            margin-right: 10px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="reel-container">
+        <div class="header">
+            <h1>🎬 AI-Generated Reel</h1>
+            <p>Professional social media content created with AI</p>
+        </div>
+        
+        <div class="video-preview">
+            <h3>Video Preview</h3>
+            <div class="video-placeholder">
+                <div>
+                    <div>📱 1080x1920</div>
+                    <div style="margin-top: 10px; font-size: 0.9em;">Instagram Reel Format</div>
+                </div>
+            </div>
+            <p style="margin-top: 20px; color: #666; font-style: italic;">
+                Video player will be embedded here in production
+            </p>
+        </div>
+        
+        <div class="metadata">
+            <h3>Generation Details</h3>
+            <div class="metadata-grid">
+                <div class="metadata-item">
+                    <strong>User Prompt</strong>
+                    <span>{{USER_PROMPT}}</span>
+                </div>
+                <div class="metadata-item">
+                    <strong>Platform</strong>
+                    <span>{{PLATFORM}}</span>
+                </div>
+                <div class="metadata-item">
+                    <strong>Duration</strong>
+                    <span>{{DURATION}}s</span>
+                </div>
+                <div class="metadata-item">
+                    <strong>Content Mode</strong>
+                    <span>{{CONTENT_MODE}}</span>
+                </div>
+                <div class="metadata-item">
+                    <strong>Resolution</strong>
+                    <span>1080x1920</span>
+                </div>
+                <div class="metadata-item">
+                    <strong>Generated</strong>
+                    <span>{{TIMESTAMP}}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="quality-section">
+            <h3>Quality Assessment</h3>
+            <div class="quality-score">{{QA_SCORE}}/100</div>
+            <div style="text-align: center;">
+                <strong>Status:</strong> {{QA_STATUS}}
+            </div>
+        </div>
+        
+        <div class="files-section">
+            <h3>Generated Files</h3>
+            <ul class="file-list">
+                <li>final_reel.mp4 - Main output file</li>
+                <li>raw_clips/ - Individual video segments</li>
+                <li>audio/ - Generated audio files</li>
+                <li>reel_metadata.json - Complete generation data</li>
+                <li>qa_report.json - Quality assessment results</li>
+                <li>claude_refinements.json - Prompt optimization history</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p>🤖 Generated with AI Social Media Content Creator</p>
+            <p style="font-size: 0.9em; color: #999;">
+                Powered by CrewAI, FAL.AI, Claude, and OpenAI
+            </p>
+        </div>
+    </div>
+</body>
+</html>

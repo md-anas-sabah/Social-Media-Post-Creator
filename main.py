@@ -9,6 +9,8 @@ from datetime import datetime, timedelta
 from textwrap import dedent
 from agents import SocialMediaAgents
 from tasks import SocialMediaTasks
+from reels import ReelAgents, ReelTasks
+from reels.utils import parse_duration, create_unique_reel_folder, save_reel_metadata, create_reel_summary, create_reel_preview_html
 
 os.environ["OPENAI_API_KEY"] = config("OPENAI_API_KEY")
 if config("OPENAI_ORGANIZATION_ID", default=""):
@@ -706,12 +708,74 @@ class ContentCalendarPlanner:
         return calendar_result
 
 
+class VideoReelCreator:
+    """Video Reel Generation System using 8-Layer Architecture"""
+    
+    def __init__(self, user_prompt, duration="20s", content_mode="1", platform="instagram"):
+        self.user_prompt = user_prompt
+        self.duration = parse_duration(duration)
+        self.content_mode = "music" if content_mode == "1" else "narration"
+        self.platform = platform
+    
+    def run(self):
+        print(f"\n🎬 Creating {self.duration}s {self.content_mode} reel for: '{self.user_prompt}'")
+        print(f"📱 Platform: {self.platform}")
+        print(f"🎵 Mode: {self.content_mode}")
+        print("=" * 50)
+        
+        # Create output folder
+        reel_folder, timestamp = create_unique_reel_folder(self.user_prompt, self.platform)
+        print(f"\n📁 Created output folder: {os.path.basename(reel_folder)}")
+        
+        # For Phase 1, just show "Coming soon" message
+        print("\n🚧 PHASE 1: Foundation Setup Complete!")
+        print("-" * 30)
+        print("✅ Reel folder structure created")
+        print("✅ All skeleton files in place")
+        print("✅ Environment configured")
+        print("✅ Import system working")
+        print("\n🎬 Full video generation pipeline coming in Phase 2!")
+        print("🔄 This will include:")
+        print("   • Content planning and storyboarding")
+        print("   • Claude prompt refinement")
+        print("   • FAL.AI video generation")
+        print("   • Audio generation (TTS/Music)")
+        print("   • Video editing and synchronization")
+        print("   • Quality assessment and reloop")
+        
+        # Create mock metadata for Phase 1
+        mock_result = {
+            'timestamp': datetime.now().isoformat(),
+            'user_prompt': self.user_prompt,
+            'platform': self.platform,
+            'duration': self.duration,
+            'content_mode': self.content_mode,
+            'status': 'phase_1_complete',
+            'folder_path': reel_folder,
+            'phase': 1,
+            'message': 'Foundation setup complete - full pipeline coming soon!'
+        }
+        
+        # Save basic metadata
+        save_reel_metadata(reel_folder, mock_result)
+        create_reel_summary(reel_folder, mock_result)
+        create_reel_preview_html(reel_folder, mock_result)
+        
+        print(f"\n📂 Complete folder path: {reel_folder}")
+        print("\n" + "="*50)
+        print("✨ Phase 1 Complete! Ready for Phase 2 development.")
+        print("="*50)
+        
+        return mock_result
+
+
 if __name__ == "__main__":
-    print("🎨 Welcome to Social Media Post Creator AI!")
+    print("🎨 Welcome to Social Media Content Creator AI!")
     print("=" * 50)
     print("💡 Choose what you want to create:")
     print("   🎯 SINGLE POST: Create individual social media posts")
     print("   📅 CONTENT CALENDAR: Plan and organize your content strategy")
+    print("   🎬 REELS GENERATION: Create professional video reels")
     print("")
     print("🎯 SINGLE POST FEATURES:")
     print("   • 3 creative ideas for you to choose from")
@@ -727,6 +791,13 @@ if __name__ == "__main__":
     print("   • Strategic theme alignment")
     print("   • Organized output files")
     print("")
+    print("🎬 REELS GENERATION FEATURES:")
+    print("   • AI-powered video generation")
+    print("   • Professional narration or background music")
+    print("   • Claude-enhanced prompt optimization")
+    print("   • Quality assessment and reloop system")
+    print("   • Platform-optimized output (Instagram, TikTok, etc.)")
+    print("")
     print("🎠 SUPPORTED FORMATS:")
     print("   • Carousel posts for lists (e.g., '5 ways to...', '10 tips for...')")
     print("   • Story templates with 9:16 vertical format (1080×1920px)")
@@ -735,7 +806,7 @@ if __name__ == "__main__":
     
     try:
         # Choose mode
-        mode = input("\n🎯 What would you like to create?\n   (1) Single Post\n   (2) Content Calendar\n   Enter 1 or 2: ").strip()
+        mode = input("\n🎯 What would you like to create?\n   (1) Single Post\n   (2) Content Calendar\n   (3) Video Reels\n   Enter 1, 2, or 3: ").strip()
         
         if mode == "1":
             # Single post creation workflow
@@ -788,8 +859,25 @@ if __name__ == "__main__":
             planner = ContentCalendarPlanner(user_prompt, platforms, duration_weeks)
             result = planner.run()
             
+        elif mode == "3":
+            # NEW: Video reels generation workflow
+            user_prompt = input("\n🎬 What kind of reel do you want to create?\n   (e.g., 'Fashion brand showcase', 'Cooking tutorial', 'Fitness motivation'): ").strip()
+            
+            if not user_prompt:
+                print("❌ Please provide a prompt!")
+                exit()
+            
+            duration = input("\n⏱️ Duration? (15s/20s/30s) [default: 20s]: ").strip() or "20s"
+            
+            content_mode = input("\n🎵 Content mode?\n   (1) Music Mode - Visual storytelling with background music\n   (2) Narration Mode - Educational with voice explanation\n   Enter 1 or 2 [default: 1]: ").strip() or "1"
+            
+            platform = input("\n📱 Primary platform? (instagram/tiktok/facebook/all) [default: instagram]: ").strip() or "instagram"
+            
+            reel_creator = VideoReelCreator(user_prompt, duration, content_mode, platform)
+            result = reel_creator.run()
+            
         else:
-            print("❌ Please enter 1 or 2!")
+            print("❌ Please enter 1, 2, or 3!")
             exit()
         
     except KeyboardInterrupt:
