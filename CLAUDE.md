@@ -31,13 +31,13 @@ Core dependencies include:
 - `langchain-openai` - OpenAI integration  
 - `python-decouple` - Environment variable management
 - `openai` - OpenAI API client for LLM functions
-- `fal-client` - FAL AI client for Ideogram V2A image generation and video generation
+- `fal-client` - FAL AI client for Ideogram V2A image generation, video generation, and F5 TTS audio generation
 - `anthropic` - Claude API client for content refinement and prompt optimization
 - `requests` - HTTP requests for image downloading
 - `uuid` - Unique identifier generation
 - `moviepy` - Video editing and processing for reel creation
 - `ffmpeg-python` - Video manipulation and format conversion
-- `elevenlabs` - Premium TTS for narration
+- `pydub` - Audio manipulation
 - `whisper` - Speech recognition for QA
 - `pydub` - Audio manipulation
 
@@ -63,7 +63,7 @@ This is a specialized CrewAI-based social media content creation system with **t
 2. System analyzes content requirements and determines Music vs Narration mode
 3. **Claude Prompt Refinement**: AI-enhanced prompt optimization for maximum quality
 4. Creates 2-3 high-quality video clips using FAL.AI's video generation models
-5. Generates AI narration (TTS) or background music based on content type
+5. Generates AI narration using FAL AI F5 TTS or background music based on content type
 6. Automatically stitches clips together using MoviePy for seamless 15-30 second reels
 7. **Intelligent QA Testing**: Comprehensive quality assessment with reloop capability
 8. Outputs final reel with metadata, preview, and all source materials organized in `/reels/` folder
@@ -313,8 +313,8 @@ class IntelligentQASystem:
 ### API Keys Required
 - `FAL_KEY`: For video generation (Hailuo 02, Veo 3, etc.)
 - `CLAUDE_API_KEY`: For prompt refinement and QA
-- `ELEVENLABS_API_KEY`: For premium TTS (optional)
-- `OPENAI_API_KEY`: For content planning and alternative TTS
+- `FAL_KEY`: For video generation and F5 TTS audio generation
+- `OPENAI_API_KEY`: For content planning
 
 ### Cost Estimates Per Reel
 - **Basic (15s)**: $1.50-$2.50
@@ -476,7 +476,7 @@ reels/
 **Estimated Time: 3-4 hours**
 
 ### Phase 5 Tasks:
-1. **TTS integration (ElevenLabs/OpenAI)**
+1. **TTS integration (FAL AI F5 TTS)**
 2. **AI music generation integration**
 3. **Audio processing and optimization**
 4. **Mode-specific audio handling**
@@ -487,10 +487,11 @@ reels/
 - `reels/tasks.py` → `audio_generation_task()`
 
 ### Key Features:
-- **Narration Mode**: TTS generation for educational content
+- **Narration Mode**: FAL AI F5 TTS generation for educational content ($0.05 per 1000 characters)
 - **Music Mode**: AI-generated background music
 - **Audio Processing**: Quality optimization and format conversion
 - **Timing Alignment**: Match audio to video duration
+- **High Quality**: F5 TTS provides best balance of naturalness and intelligibility
 
 ### Success Criteria:
 - ✅ TTS working for narration mode
