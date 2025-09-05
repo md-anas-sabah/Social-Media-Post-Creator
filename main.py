@@ -763,19 +763,26 @@ class VideoReelCreator:
             print("-" * 30)
             print(str(planning_result))
             
-            # Try to parse JSON result
+            # Try to parse JSON result from CrewOutput
             import json
             try:
-                if isinstance(planning_result, str):
-                    # Try to extract JSON from the string result
-                    import re
-                    json_match = re.search(r'\{.*\}', str(planning_result), re.DOTALL)
-                    if json_match:
-                        planning_data = json.loads(json_match.group())
-                    else:
-                        raise ValueError("No JSON found in result")
+                # Extract text from CrewOutput object
+                if hasattr(planning_result, 'raw'):
+                    result_text = str(planning_result.raw)
                 else:
-                    planning_data = planning_result
+                    result_text = str(planning_result)
+                
+                # Try to extract JSON from the string result
+                import re
+                json_match = re.search(r'\{.*\}', result_text, re.DOTALL)
+                if json_match:
+                    planning_data = json.loads(json_match.group())
+                else:
+                    # Fallback: create basic structure from text
+                    planning_data = {
+                        'raw_result': result_text,
+                        'status': 'parsed_as_text'
+                    }
                 
                 # Display structured results
                 if isinstance(planning_data, dict):
@@ -843,13 +850,250 @@ class VideoReelCreator:
             print(f"   📝 Summary: reel_summary.md")
             print(f"   🌐 Preview: reel_preview.html")
             
+            # PHASE 3: Claude Prompt Refinement
+            print("\n🔍 PHASE 3: Claude Prompt Refinement")
+            print("-" * 50)
+            
+            # Step 2: Claude Prompt Refinement
+            print("\n📝 STEP 2: Enhancing prompts with Claude AI...")
+            claude_refiner = agents.claude_refinement_agent()
+            
+            # Create context for refinement
+            refinement_context = {
+                'platform': self.platform,
+                'duration': self.duration,
+                'content_mode': self.content_mode,
+                'user_prompt': self.user_prompt,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+            refinement_task = tasks.prompt_refinement_task(
+                claude_refiner, 
+                planning_data, 
+                refinement_context
+            )
+            
+            # Execute Claude refinement
+            refinement_crew = Crew(
+                agents=[claude_refiner],
+                tasks=[refinement_task],
+                verbose=True
+            )
+            
+            refinement_result = refinement_crew.kickoff()
+            
+            print("\n" + "="*60)
+            print("🎯 CLAUDE REFINEMENT COMPLETE!")
+            print("="*60)
+            print(f"\n🔍 REFINEMENT RESULT:")
+            print("-" * 30)
+            print(str(refinement_result))
+            
+            # Parse refinement result from CrewOutput
+            refined_data = {}
+            try:
+                # Extract text from CrewOutput object
+                if hasattr(refinement_result, 'raw'):
+                    result_text = str(refinement_result.raw)
+                else:
+                    result_text = str(refinement_result)
+                
+                # Try to find JSON in the result
+                import re
+                json_match = re.search(r'\{.*\}', result_text, re.DOTALL)
+                if json_match:
+                    import json
+                    refined_data = json.loads(json_match.group())
+                else:
+                    refined_data = {
+                        'raw_result': result_text,
+                        'status': 'parsed_as_text'
+                    }
+                
+                # Display structured refinement results
+                if isinstance(refined_data, dict) and 'refined_prompts' in refined_data:
+                    refined_prompts = refined_data.get('refined_prompts', [])
+                    quality_predictions = refined_data.get('quality_predictions', {})
+                    
+                    print(f"\n✨ ENHANCED PROMPTS:")
+                    for prompt in refined_prompts:
+                        if isinstance(prompt, dict):
+                            print(f"\n   Scene {prompt.get('scene_number', 'N/A')}:")
+                            print(f"     Enhanced: {prompt.get('enhanced_prompt', 'N/A')[:100]}...")
+                            print(f"     Quality Score: {prompt.get('quality_prediction', 'N/A')}")
+                            print(f"     Model: {prompt.get('recommended_model', 'N/A')}")
+                    
+                    print(f"\n🎯 OVERALL QUALITY PREDICTION:")
+                    print(f"   Overall Score: {quality_predictions.get('overall_score', 'N/A')}")
+                    print(f"   Technical Feasibility: {quality_predictions.get('technical_feasibility', 'N/A')}")
+                    print(f"   Creative Appeal: {quality_predictions.get('creative_appeal', 'N/A')}")
+                    print(f"   Engagement Potential: {quality_predictions.get('engagement_potential', 'N/A')}")
+                
+            except (json.JSONDecodeError, ValueError, TypeError) as e:
+                print(f"\n⚠️  Could not parse refinement data: {e}")
+                refined_data = {
+                    'raw_result': str(refinement_result),
+                    'parse_error': str(e)
+                }
+            
+            # Create comprehensive Phase 3 result
+            phase3_result = {
+                'timestamp': datetime.now().isoformat(),
+                'user_prompt': self.user_prompt,
+                'platform': self.platform,
+                'duration': self.duration,
+                'content_mode': self.content_mode,
+                'status': 'phase_3_complete',
+                'folder_path': reel_folder,
+                'phase': 3,
+                'content_planning': planning_data,
+                'claude_refinement': refined_data,
+                'next_phase': 'video_generation',
+                'message': 'Claude prompt refinement complete - ready for video generation!'
+            }
+            
+            # Save comprehensive metadata
+            save_reel_metadata(reel_folder, phase3_result)
+            create_reel_summary(reel_folder, phase3_result)
+            create_reel_preview_html(reel_folder, phase3_result)
+            
+            print(f"\n💾 OUTPUT FILES UPDATED:")
+            print(f"   📁 Folder: {os.path.basename(reel_folder)}")
+            print(f"   📄 Metadata: reel_metadata.json (updated)")
+            print(f"   📝 Summary: reel_summary.md (updated)")
+            print(f"   🌐 Preview: reel_preview.html (updated)")
+            
+            # PHASE 4: Video Generation
+            print("\n🎬 PHASE 4: Video Generation")
+            print("-" * 50)
+            
+            # Step 3: Video Generation using FAL.AI
+            print("\n📹 STEP 3: Generating video clips with FAL.AI...")
+            video_generator = agents.video_generation_agent(reel_folder)
+            
+            # Create video generation context
+            video_context = {
+                'platform': self.platform,
+                'duration': self.duration,
+                'content_mode': self.content_mode,
+                'user_prompt': self.user_prompt,
+                'timestamp': datetime.now().isoformat(),
+                'reel_folder': reel_folder
+            }
+            
+            video_task = tasks.video_generation_task(
+                video_generator,
+                refined_data,
+                video_context
+            )
+            
+            # Execute video generation
+            video_crew = Crew(
+                agents=[video_generator],
+                tasks=[video_task],
+                verbose=True
+            )
+            
+            video_result = video_crew.kickoff()
+            
+            print("\n" + "="*60)
+            print("🎬 VIDEO GENERATION COMPLETE!")
+            print("="*60)
+            print(f"\n🎥 GENERATION RESULT:")
+            print("-" * 30)
+            print(str(video_result))
+            
+            # Parse video generation result
+            video_data = {}
+            try:
+                # Extract text from CrewOutput object
+                if hasattr(video_result, 'raw'):
+                    result_text = str(video_result.raw)
+                else:
+                    result_text = str(video_result)
+                
+                # Try to find JSON in the result
+                import re
+                json_match = re.search(r'\{.*\}', result_text, re.DOTALL)
+                if json_match:
+                    import json
+                    video_data = json.loads(json_match.group())
+                else:
+                    video_data = {
+                        'raw_result': result_text,
+                        'status': 'parsed_as_text'
+                    }
+                
+                # Display structured video generation results
+                if isinstance(video_data, dict) and 'generated_clips' in video_data:
+                    generated_clips = video_data.get('generated_clips', [])
+                    generation_summary = video_data.get('generation_summary', {})
+                    quality_assessment = video_data.get('quality_assessment', {})
+                    
+                    print(f"\n🎬 GENERATED CLIPS:")
+                    for clip in generated_clips:
+                        if isinstance(clip, dict):
+                            print(f"\n   Clip {clip.get('clip_id', 'N/A')}:")
+                            print(f"     Status: {clip.get('status', 'N/A')}")
+                            print(f"     Model: {clip.get('model_used', 'N/A')}")
+                            print(f"     Duration: {clip.get('duration', 'N/A')}s")
+                            print(f"     File: {clip.get('filename', 'N/A')}")
+                            print(f"     Cost: ${clip.get('cost_estimate', 0):.2f}")
+                    
+                    print(f"\n📊 GENERATION SUMMARY:")
+                    print(f"   Total Clips: {generation_summary.get('total_clips', 'N/A')}")
+                    print(f"   Successful: {generation_summary.get('successful_clips', 'N/A')}")
+                    print(f"   Failed: {generation_summary.get('failed_clips', 'N/A')}")
+                    print(f"   Total Cost: ${generation_summary.get('total_cost', 0):.2f}")
+                    
+                    print(f"\n🔍 QUALITY ASSESSMENT:")
+                    print(f"   Overall Score: {quality_assessment.get('overall_quality_score', 'N/A')}")
+                    print(f"   Technical Compliance: {quality_assessment.get('technical_compliance', 'N/A')}")
+                    print(f"   Ready for Phase 5: {quality_assessment.get('ready_for_synchronization', 'N/A')}")
+                
+            except (json.JSONDecodeError, ValueError, TypeError) as e:
+                print(f"\n⚠️  Could not parse video generation data: {e}")
+                video_data = {
+                    'raw_result': str(video_result),
+                    'parse_error': str(e)
+                }
+            
+            # Create comprehensive Phase 4 result
+            phase4_result = {
+                'timestamp': datetime.now().isoformat(),
+                'user_prompt': self.user_prompt,
+                'platform': self.platform,
+                'duration': self.duration,
+                'content_mode': self.content_mode,
+                'status': 'phase_4_complete',
+                'folder_path': reel_folder,
+                'phase': 4,
+                'content_planning': planning_data,
+                'claude_refinement': refined_data,
+                'video_generation': video_data,
+                'next_phase': 'audio_generation',
+                'message': 'Video generation complete - ready for audio generation!'
+            }
+            
+            # Save comprehensive metadata
+            save_reel_metadata(reel_folder, phase4_result)
+            create_reel_summary(reel_folder, phase4_result)
+            create_reel_preview_html(reel_folder, phase4_result)
+            
+            print(f"\n💾 OUTPUT FILES UPDATED:")
+            print(f"   📁 Folder: {os.path.basename(reel_folder)}")
+            print(f"   📄 Metadata: reel_metadata.json (updated)")
+            print(f"   📝 Summary: reel_summary.md (updated)")
+            print(f"   🌐 Preview: reel_preview.html (updated)")
+            print(f"   🎬 Video Clips: {video_data.get('generation_summary', {}).get('successful_clips', 0)} clips in /raw_clips/")
+            
             print(f"\n📂 Complete folder path: {reel_folder}")
             print("\n" + "="*60)
-            print("✨ PHASE 2 COMPLETE! Content Planning & Storyboarding Done!")
-            print("🚀 Next: Phase 3 - Claude Prompt Refinement")
+            print("✨ PHASE 4 COMPLETE! Video Generation Done!")
+            print("🚀 Next: Phase 5 - Audio Generation")
             print("="*60)
             
-            return phase2_result
+            return phase4_result
             
         except Exception as e:
             print(f"\n❌ Error in Phase 2: {str(e)}")
