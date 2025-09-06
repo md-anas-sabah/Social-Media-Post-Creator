@@ -48,11 +48,12 @@ class VideoGenerator:
         # Model configurations - Updated with correct FAL.AI endpoints (2025)
         self.models = {
             'hailuo-02': {
-                'endpoint': 'fal-ai/minimax/hailuo-02/pro/text-to-video',
+                'endpoint': 'fal-ai/minimax/hailuo-02',  # Try basic endpoint
                 'max_duration': 10,
-                'cost_per_clip': 0.50,  # Pro version pricing
+                'cost_per_clip': 0.50,
                 'strengths': ['realistic_motion', 'human_activities', 'high_quality'],
-                'best_for': ['all_content_types', 'professional_quality', 'versatile']
+                'best_for': ['all_content_types', 'professional_quality', 'versatile'],
+                'supports_aspect_ratio': True
             }
         }
         
@@ -76,24 +77,45 @@ class VideoGenerator:
         for i, prompt_data in enumerate(refined_prompts):
             try:
                 print(f"\n📹 Generating clip {i + 1}/{len(refined_prompts)}...")
+                print(f"   ⏰ Starting at: {time.strftime('%H:%M:%S')}")
                 
                 # Select optimal model
                 selected_model = self.select_optimal_model(prompt_data)
                 print(f"   🤖 Using model: {selected_model}")
                 print(f"   📝 Prompt: {prompt_data.get('enhanced_prompt', '')[:60]}...")
                 
-                # Generate clip
-                clip_data = self._generate_single_clip(prompt_data, i + 1, selected_model)
-                generated_clips.append(clip_data)
-                
-                if clip_data['status'] == 'success':
-                    print(f"   ✅ Clip {i + 1} generated successfully")
-                else:
-                    print(f"   ⚠️  Clip {i + 1} generation issues: {clip_data.get('status')}")
+                # Generate clip with better error recovery
+                try:
+                    clip_data = self._generate_single_clip(prompt_data, i + 1, selected_model)
+                    generated_clips.append(clip_data)
+                    
+                    if clip_data['status'] == 'success':
+                        print(f"   ✅ Clip {i + 1} generated successfully")
+                        print(f"   ⏰ Completed at: {time.strftime('%H:%M:%S')}")
+                    elif clip_data['status'] == 'mock':
+                        print(f"   🧪 Clip {i + 1} generated as mock (API issues)")
+                        print(f"   ⏰ Completed at: {time.strftime('%H:%M:%S')}")
+                    else:
+                        print(f"   ⚠️  Clip {i + 1} generation issues: {clip_data.get('status')}")
+                        print(f"   ⚠️  Error: {clip_data.get('error', 'Unknown error')}")
+                        
+                except Exception as clip_error:
+                    print(f"   ❌ Clip generation failed: {str(clip_error)}")
+                    # Create error placeholder and continue
+                    clip_data = {
+                        'clip_id': i + 1,
+                        'file_path': None,
+                        'status': 'failed',
+                        'error': str(clip_error),
+                        'prompt_data': prompt_data,
+                        'model_used': selected_model
+                    }
+                    generated_clips.append(clip_data)
+                    print(f"   ⚠️  Continuing with next clip despite failure...")
                 
             except Exception as e:
-                print(f"   ❌ Error generating clip {i + 1}: {e}")
-                # Create error placeholder
+                print(f"   ❌ Unexpected error in clip {i + 1}: {e}")
+                # Create error placeholder and continue processing
                 clip_data = {
                     'clip_id': i + 1,
                     'file_path': None,
@@ -103,6 +125,7 @@ class VideoGenerator:
                     'model_used': None
                 }
                 generated_clips.append(clip_data)
+                print(f"   ⚠️  Continuing with remaining clips...")
         
         # Summary
         successful_clips = len([c for c in generated_clips if c['status'] == 'success'])
@@ -122,33 +145,34 @@ class VideoGenerator:
             # Get model configuration
             model_config = self.models[model_name]
             
-            # Prepare generation arguments
+            # Prepare generation arguments with AGGRESSIVE vertical format enforcement
+            # Strong vertical format prompt with multiple keywords
+            vertical_prompt = f"VERTICAL VIDEO: {enhanced_prompt}, shot in 9:16 vertical aspect ratio, portrait mode, mobile phone video format, Instagram Reels style, TikTok format, vertical smartphone recording, tall narrow frame, portrait orientation video"
+            
             generation_args = {
-                'prompt': enhanced_prompt,
-                'duration_seconds': min(duration, model_config['max_duration']),
-                'aspect_ratio': '9:16',
-                'resolution': 'hd'
+                'prompt': vertical_prompt,
+                'duration': min(duration, model_config['max_duration']),
+                'aspect_ratio': '9:16'
             }
             
-            # Model-specific parameter adjustments
+            # Model-specific parameter adjustments with verified FAL.AI parameters only
             if model_name == 'hailuo-02':
+                # Hailuo-02 specific parameters based on FAL.AI docs
                 generation_args.update({
-                    'fps': 24,
-                    'quality': 'high'
+                    'aspect_ratio': '9:16'  # Force vertical - this is critical!
                 })
             elif model_name == 'runway-gen3':
                 generation_args.update({
-                    'fps': 30,
-                    'motion_intensity': 0.7
+                    'aspect_ratio': '9:16'  # Force vertical
                 })
             elif model_name == 'pika-labs':
                 generation_args.update({
-                    'guidance_scale': 7.5,
-                    'num_inference_steps': 25
+                    'aspect_ratio': '9:16'  # Force vertical
                 })
             
             # Generate video using FAL.AI
             print(f"   🚀 Submitting to {model_config['endpoint']}...")
+            print(f"   📐 Generation parameters: {generation_args}")
             
             try:
                 result = fal_client.submit(
@@ -168,9 +192,72 @@ class VideoGenerator:
                 if not result.request_id:
                     raise Exception("FAL.AI request_id is empty")
                 
-                # Wait for result using correct FAL client syntax
+                # Wait for result with proper timeout handling
                 print(f"   ⏳ Waiting for generation with request_id: {result.request_id}")
-                final_result = result.get()
+                
+                try:
+                    # Try simple approach first - direct get() with shorter wait
+                    print(f"   ⚡ Attempting direct result retrieval...")
+                    start_time = time.time()
+                    
+                    # First, try a simple get() call with reasonable expectations
+                    try:
+                        final_result = result.get()
+                        elapsed = time.time() - start_time
+                        print(f"   ✅ Generation completed in {elapsed:.1f} seconds")
+                        
+                    except Exception as direct_error:
+                        print(f"   ⚠️  Direct get() failed: {str(direct_error)}")
+                        print(f"   🔄 Trying status-based approach...")
+                        
+                        # Fallback: Use status checking with reduced timeout
+                        max_attempts = 30  # 5 minutes total (30 * 10 seconds)
+                        attempt = 0
+                        final_result = None
+                        
+                        while attempt < max_attempts and not final_result:
+                            try:
+                                # Check status
+                                status = fal_client.status(model_config['endpoint'], result.request_id)
+                                status_state = status.get('status', 'UNKNOWN')
+                                
+                                print(f"   📊 Check {attempt + 1}/30: {status_state}")
+                                
+                                if status_state == 'COMPLETED':
+                                    final_result = result.get()
+                                    print(f"   ✅ Status-based completion after {attempt + 1} checks")
+                                    break
+                                elif status_state == 'FAILED':
+                                    error_msg = status.get('error', 'Generation failed')
+                                    raise Exception(f"FAL.AI reported failure: {error_msg}")
+                                elif attempt >= 20:  # After 20 attempts (3+ minutes), be more aggressive
+                                    print(f"   ⏰ Extended wait, trying direct get() again...")
+                                    try:
+                                        final_result = result.get()
+                                        break
+                                    except:
+                                        pass
+                                
+                                time.sleep(10)
+                                attempt += 1
+                                
+                            except Exception as status_error:
+                                print(f"   ⚠️  Status error: {str(status_error)}")
+                                attempt += 1
+                                if attempt < max_attempts:
+                                    time.sleep(10)
+                                    continue
+                                else:
+                                    break
+                        
+                        # If still no result, raise timeout
+                        if not final_result:
+                            elapsed = time.time() - start_time
+                            raise Exception(f"FAL.AI timeout after {elapsed:.1f}s ({max_attempts} attempts)")
+                        
+                except Exception as wait_error:
+                    print(f"   ❌ Generation wait failed: {str(wait_error)}")
+                    raise Exception(f"FAL.AI generation failed: {str(wait_error)}")
                 
             except Exception as api_error:
                 print(f"   ❌ FAL.AI API Error: {str(api_error)}")
@@ -189,6 +276,12 @@ class VideoGenerator:
                 success = self._download_video(video_url, clip_path)
                 
                 if success:
+                    # Check if video needs aspect ratio correction
+                    corrected_path = self._ensure_vertical_aspect_ratio(clip_path, clip_id, model_name)
+                    if corrected_path:
+                        clip_path = corrected_path
+                        clip_filename = os.path.basename(corrected_path)
+                    
                     # Validate video quality
                     quality_check = self.validate_clip_quality(clip_path)
                     
@@ -354,3 +447,61 @@ class VideoGenerator:
             'clip_count': len(refined_prompts),
             'average_cost_per_clip': total_cost / len(refined_prompts) if refined_prompts else 0
         }
+    
+    def _ensure_vertical_aspect_ratio(self, video_path: str, clip_id: int, model_name: str) -> Optional[str]:
+        """Convert video to vertical 9:16 aspect ratio using FFmpeg crop/scale"""
+        try:
+            print(f"   🔄 Converting to 9:16 vertical format for clip {clip_id}...")
+            
+            corrected_filename = f"clip_{clip_id}_{model_name}_vertical.mp4"
+            corrected_path = os.path.join(self.clips_folder, corrected_filename)
+            
+            # Try FFmpeg conversion to 9:16 aspect ratio
+            try:
+                import subprocess
+                
+                # FFmpeg command to convert to 9:16 by cropping center and scaling
+                ffmpeg_cmd = [
+                    'ffmpeg', '-y',  # -y to overwrite output file
+                    '-i', video_path,  # Input file
+                    '-vf', 'scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920',  # Scale and crop to 9:16
+                    '-c:a', 'copy',  # Copy audio without re-encoding
+                    '-crf', '23',  # Good quality
+                    corrected_path
+                ]
+                
+                print(f"   🎬 Running FFmpeg conversion...")
+                result = subprocess.run(ffmpeg_cmd, capture_output=True, text=True, timeout=60)
+                
+                if result.returncode == 0 and os.path.exists(corrected_path):
+                    file_size = os.path.getsize(corrected_path)
+                    if file_size > 0:
+                        print(f"   ✅ Successfully converted to 9:16 format: {corrected_filename}")
+                        print(f"   📐 New format: 1080x1920 vertical")
+                        return corrected_path
+                    else:
+                        print(f"   ⚠️  FFmpeg produced empty file")
+                else:
+                    print(f"   ⚠️  FFmpeg failed: {result.stderr}")
+                    
+            except subprocess.TimeoutExpired:
+                print(f"   ⚠️  FFmpeg timeout - video too long or complex")
+            except FileNotFoundError:
+                print(f"   ⚠️  FFmpeg not found - installing FFmpeg recommended for aspect ratio correction")
+            except Exception as ffmpeg_error:
+                print(f"   ⚠️  FFmpeg error: {ffmpeg_error}")
+            
+            # Fallback: Just copy original and warn user
+            try:
+                import shutil
+                shutil.copy2(video_path, corrected_path)
+                print(f"   🟡 Fallback: Copied original video (may still be wide format)")
+                print(f"   💡 Install FFmpeg for automatic aspect ratio correction")
+                return corrected_path
+            except Exception as copy_error:
+                print(f"   ❌ Could not copy file: {copy_error}")
+                return None
+                
+        except Exception as e:
+            print(f"   ❌ Aspect ratio correction failed: {e}")
+            return None

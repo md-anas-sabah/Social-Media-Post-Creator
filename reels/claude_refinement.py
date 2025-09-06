@@ -165,11 +165,13 @@ ORIGINAL SCENES:
 
 TASK: Refine each scene's description into professional video generation prompts optimized for AI models like Runway, Pika, or Hailuo.
 
+CRITICAL: All videos MUST be in VERTICAL 9:16 format for social media reels (1080x1920 resolution).
+
 FOR EACH SCENE, PROVIDE:
-1. **Enhanced Prompt**: Professional, detailed description with technical specifications
+1. **Enhanced Prompt**: Professional, detailed description with VERTICAL format specifications and "9:16 aspect ratio" explicitly mentioned
 2. **Quality Score**: Predicted success rate (0.0-1.0)
 3. **Model Recommendations**: Best AI model for this specific prompt
-4. **Technical Parameters**: Resolution, duration, style parameters
+4. **Technical Parameters**: Resolution (1080x1920), duration, style parameters, vertical format
 5. **Alternative Versions**: 2-3 variations for fallback options
 
 OUTPUT FORMAT (JSON):
@@ -178,7 +180,7 @@ OUTPUT FORMAT (JSON):
         {{
             "scene_number": 1,
             "original_description": "...",
-            "enhanced_prompt": "Professional video prompt with technical details...",
+            "enhanced_prompt": "Professional vertical video prompt, 9:16 aspect ratio, 1080x1920 resolution, with technical details...",
             "quality_prediction": 0.85,
             "recommended_model": "hailuo-02",
             "technical_params": {{
@@ -441,7 +443,7 @@ OUTPUT: List of specific, actionable improvement recommendations.
             refined_prompts.append({
                 'scene_number': scene.get('scene_number', 1),
                 'original_description': scene.get('description', ''),
-                'enhanced_prompt': f"High-quality cinematic {scene.get('description', '')}, professional lighting, 1080x1920 resolution",
+                'enhanced_prompt': f"High-quality cinematic {scene.get('description', '')}, professional lighting, vertical 9:16 aspect ratio, 1080x1920 resolution, mobile-optimized vertical video format",
                 'quality_prediction': 0.75,
                 'recommended_model': 'hailuo-02',
                 'technical_params': {

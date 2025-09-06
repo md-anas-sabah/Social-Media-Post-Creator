@@ -345,26 +345,136 @@ class ReelTasks:
             expected_output="Professional video clips generated with complete quality validation, cost analysis, and metadata ready for Phase 5 synchronization"
         )
     
-    def audio_generation_task(self, agent, content_mode):
-        """Create narration or background music"""
+    def audio_generation_task(self, agent, video_generation_result, context):
+        """Generate professional audio using FAL AI F5 TTS for narration or background music for music mode"""
         return Task(
             description=dedent(f"""
-                Create audio content for {content_mode} mode.
+                PHASE 5: ADVANCED AUDIO GENERATION MISSION
+                Transform video content into synchronized audio using FAL AI F5 TTS for narration or generate matching background music.
                 
-                If narration mode:
-                1. Generate TTS narration script
-                2. Create high-quality voice narration
-                3. Optimize timing for video content
+                PHASE 4 INPUT (VIDEO GENERATION RESULT):
+                {video_generation_result}
                 
-                If music mode:
-                1. Generate appropriate background music
-                2. Ensure music matches video theme and pace
-                3. Optimize volume and timing
+                CONTEXT DATA:
+                - Platform: {context.get('platform', 'instagram')}
+                - Duration: {context.get('duration', 20)} seconds total
+                - Content Mode: {context.get('content_mode', 'music')}
+                - User Prompt: {context.get('user_prompt', '')}
+                - Timestamp: Available in context
                 
-                Output format: Audio file paths with timing metadata
+                STEP 1: ANALYZE VIDEO GENERATION RESULTS
+                Extract key information from Phase 4:
+                - Video clips generated and their durations
+                - Total reel duration and timing breakdown
+                - Output folder location for audio placement
+                - Quality status of video generation
+                - Content themes and visual elements for audio matching
+                
+                STEP 2: DETERMINE AUDIO GENERATION APPROACH
+                Based on content_mode:
+                
+                **NARRATION MODE** (Educational/Tutorial Content):
+                - Analyze user prompt and video content to create educational script
+                - Generate professional narration using FAL AI F5 TTS
+                - Optimize speech speed and timing for video duration
+                - Create natural, engaging voice-over that enhances video content
+                - Cost: ~$0.05 per 1000 characters
+                
+                **MUSIC MODE** (Entertainment/Promotional Content):
+                - Generate appropriate background music matching video theme and mood
+                - Ensure music complements visual pacing and energy
+                - Select genre and style based on platform and audience
+                - Optimize for social media engagement and retention
+                - Cost: Free (mock generation) for development phase
+                
+                STEP 3: EXECUTE AUDIO GENERATION
+                Use the "Advanced Audio Generation Tool" with the following parameters:
+                
+                MANDATORY TOOL USAGE:
+                YOU MUST use the "Advanced Audio Generation Tool" to generate the audio content.
+                
+                Required Parameters:
+                - video_generation_result: The complete Phase 4 result data as JSON string
+                - content_mode: Either "narration" or "music" based on context
+                - audio_theme: Determine from user prompt (e.g., "professional", "upbeat", "cinematic")
+                - context: Pass complete context information as JSON string
+                
+                Optional Parameters (tool will auto-determine if not provided):
+                - script_content: For narration mode, let tool create intelligent script from context
+                
+                STEP 4: AUDIO PROCESSING AND OPTIMIZATION
+                The tool will automatically:
+                - Process generated audio for optimal quality
+                - Match duration precisely with video content
+                - Optimize format and compression for social media
+                - Prepare synchronization metadata for Phase 6
+                - Validate audio quality and technical compliance
+                
+                STEP 5: QUALITY ASSURANCE AND VALIDATION
+                - Verify audio generation success and quality scores
+                - Ensure proper duration matching with video clips
+                - Validate file format compliance and technical specifications
+                - Confirm readiness for Phase 6 synchronization
+                - Generate comprehensive cost analysis and quality reports
+                
+                EXPECTED OUTPUT FORMAT (strict JSON):
+                {{
+                    "audio_generation_status": "success|mock|failed",
+                    "content_mode": "narration|music",
+                    "generated_audio": {{
+                        "file_path": "path/to/audio/file",
+                        "filename": "audio_filename",
+                        "duration": 20,
+                        "type": "narration|background_music",
+                        "status": "success|mock|failed",
+                        "format": "wav|mp3",
+                        "cost_estimate": 0.05
+                    }},
+                    "generation_summary": {{
+                        "audio_type": "narration|music",
+                        "duration": 20,
+                        "theme": "audio_theme",
+                        "cost": 0.05,
+                        "status": "success"
+                    }},
+                    "quality_assessment": {{
+                        "audio_quality_score": 0.9,
+                        "sync_ready": true,
+                        "format_compliance": true,
+                        "ready_for_synchronization": true
+                    }},
+                    "next_phase_data": {{
+                        "audio_folder": "path/to/audio/folder",
+                        "final_audio_file": "final_audio_filename",
+                        "audio_duration": 20,
+                        "video_clips": 3,
+                        "ready_for_phase_6": true
+                    }},
+                    "script_content": "generated_script_for_narration"
+                }}
+                
+                CRITICAL REQUIREMENTS:
+                1. Audio must be precisely timed to match video duration
+                2. Quality standards must meet social media platform requirements
+                3. Cost estimates must be accurate and transparent
+                4. File organization must be systematic and accessible
+                5. All metadata must be preserved for Phase 6 synchronization
+                
+                SUCCESS METRICS:
+                - Audio generation success rate ≥ 95%
+                - Perfect duration matching with video content
+                - Professional audio quality (≥ 44.1kHz for narration)
+                - Cost efficiency within estimated budgets
+                - Ready for seamless Phase 6 integration
+                
+                ERROR HANDLING:
+                - Intelligent fallback to mock audio for testing scenarios
+                - Clear error reporting with specific failure reasons
+                - Maintain partial success capability when possible
+                - Preserve all generation attempts and metadata for debugging
             """),
             agent=agent,
-            expected_output="Audio files with timing and synchronization metadata"
+            expected_output="Professional audio content with FAL AI F5 TTS narration or background music, perfectly synchronized and ready for Phase 6 video integration"
         )
     
     def synchronization_task(self, agent, video_clips, audio):

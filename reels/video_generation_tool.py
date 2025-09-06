@@ -98,6 +98,7 @@ class VideoGenerationTool(BaseTool):
             print(f"   📋 Processing {len(refined_prompts)} refined prompts")
             print(f"   📁 Output folder: {output_folder}")
             print(f"   🎯 Platform: {context_dict.get('platform', 'instagram')}")
+            print(f"   📐 Target format: VERTICAL 9:16 (1080x1920) for reels")
             
             # Initialize video generator
             video_gen = VideoGenerator(output_folder)
@@ -106,8 +107,27 @@ class VideoGenerationTool(BaseTool):
             cost_estimate = video_gen.estimate_generation_cost(refined_prompts)
             print(f"   💰 Estimated cost: ${cost_estimate['total_estimated_cost']:.2f}")
             
-            # Generate video clips
-            generated_clips = video_gen.generate_video_clips(refined_prompts)
+            # Generate video clips with CrewAI safety measures
+            try:
+                generated_clips = video_gen.generate_video_clips(refined_prompts)
+                
+                # Force tool completion to prevent CrewAI hanging
+                if not generated_clips:
+                    raise Exception("No clips generated - forcing tool completion")
+                    
+            except Exception as gen_error:
+                print(f"   ❌ Video generation error: {gen_error}")
+                # Create fallback clips to prevent CrewAI hanging
+                generated_clips = []
+                for i, prompt_data in enumerate(refined_prompts):
+                    generated_clips.append({
+                        'clip_id': i + 1,
+                        'file_path': None,
+                        'status': 'failed',
+                        'error': str(gen_error),
+                        'prompt_data': prompt_data,
+                        'model_used': 'hailuo-02'
+                    })
             
             # Analyze results
             successful_clips = [c for c in generated_clips if c['status'] in ['success', 'mock']]

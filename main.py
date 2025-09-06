@@ -1090,10 +1090,108 @@ class VideoReelCreator:
             print(f"\n📂 Complete folder path: {reel_folder}")
             print("\n" + "="*60)
             print("✨ PHASE 4 COMPLETE! Video Generation Done!")
-            print("🚀 Next: Phase 5 - Audio Generation")
+            print("🚀 Starting Phase 5 - Audio Generation")
             print("="*60)
             
-            return phase4_result
+            # Step 4: Audio Generation using FAL AI F5 TTS
+            print("\n🎵 STEP 4: Generating audio with FAL AI F5 TTS...")
+            audio_generator = agents.audio_generation_agent()
+            
+            # Create audio generation context
+            audio_context = {
+                'platform': self.platform,
+                'duration': self.duration,
+                'content_mode': self.content_mode,
+                'user_prompt': self.user_prompt,
+                'timestamp': datetime.now().isoformat(),
+                'reel_folder': reel_folder
+            }
+            
+            audio_task = tasks.audio_generation_task(
+                audio_generator,
+                video_result,
+                audio_context
+            )
+            
+            # Execute audio generation
+            audio_crew = Crew(
+                agents=[audio_generator],
+                tasks=[audio_task],
+                verbose=True
+            )
+            
+            audio_result = audio_crew.kickoff()
+            
+            print("\n" + "="*60)
+            print("🎵 AUDIO GENERATION COMPLETE!")
+            print("="*60)
+            print(f"\n🎙️  GENERATION RESULT:")
+            print("-" * 30)
+            print(str(audio_result))
+            
+            # Parse audio generation result
+            audio_data = {}
+            try:
+                # Extract text from CrewOutput object
+                if hasattr(audio_result, 'raw'):
+                    result_text = str(audio_result.raw)
+                else:
+                    result_text = str(audio_result)
+                
+                # Try to find JSON in the result
+                import re
+                json_match = re.search(r'\{.*\}', result_text, re.DOTALL)
+                if json_match:
+                    import json
+                    audio_data = json.loads(json_match.group())
+                else:
+                    print("⚠️  Could not parse JSON from audio result")
+                    
+            except Exception as parse_error:
+                print(f"⚠️  Error parsing audio result: {parse_error}")
+                audio_data = {
+                    'audio_generation_status': 'parse_error',
+                    'raw_result': str(audio_result)
+                }
+            
+            # Create comprehensive Phase 5 result
+            phase5_result = {
+                'timestamp': datetime.now().isoformat(),
+                'user_prompt': self.user_prompt,
+                'platform': self.platform,
+                'duration': self.duration,
+                'content_mode': self.content_mode,
+                'status': 'phase_5_complete',
+                'folder_path': reel_folder,
+                'phase': 5,
+                'content_planning': planning_data,
+                'claude_refinement': refined_data,
+                'video_generation': video_data,
+                'audio_generation': audio_data,
+                'next_phase': 'synchronization',
+                'message': 'Audio generation complete - ready for video-audio synchronization!'
+            }
+            
+            # Save comprehensive metadata
+            save_reel_metadata(reel_folder, phase5_result)
+            create_reel_summary(reel_folder, phase5_result)
+            create_reel_preview_html(reel_folder, phase5_result)
+            
+            print(f"\n💾 OUTPUT FILES UPDATED:")
+            print(f"   📁 Folder: {os.path.basename(reel_folder)}")
+            print(f"   📄 Metadata: reel_metadata.json (updated)")
+            print(f"   📝 Summary: reel_summary.md (updated)")
+            print(f"   🌐 Preview: reel_preview.html (updated)")
+            print(f"   🎬 Video Clips: {video_data.get('generation_summary', {}).get('successful_clips', 0)} clips in /raw_clips/")
+            print(f"   🎵 Audio Files: Generated in /audio/ folder")
+            
+            print(f"\n📂 Complete folder path: {reel_folder}")
+            print("\n" + "="*60)
+            print("✨ PHASE 5 COMPLETE! Audio Generation Done!")
+            print("🚀 Next: Phase 6 - Video-Audio Synchronization")
+            print("="*60)
+            
+            return phase5_result
             
         except Exception as e:
             print(f"\n❌ Error in Phase 2: {str(e)}")
