@@ -1284,7 +1284,7 @@ class AnalyticsDashboard:
 ### 10.1 Short-Term Enhancements (3-6 months)
 
 #### Advanced AI Integration
-- **GPT-4 Vision**: Enhanced content analysis and planning
+- **GPT-4o-mini Vision**: Enhanced content analysis and planning
 - **DALL-E 3**: Integrated image generation for hybrid content
 - **Advanced Voice Synthesis**: Custom voice training capabilities
 - **Real-time Collaboration**: Multi-user editing and approval workflows

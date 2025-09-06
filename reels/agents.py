@@ -16,7 +16,7 @@ class ReelAgents:
         
         # Initialize LLM
         llm = ChatOpenAI(
-            temperature=0.7,
+            temperature=0.3,  # Lower temperature for more focused JSON output
             model="gpt-3.5-turbo",
             api_key=config("OPENAI_API_KEY")
         )
@@ -44,6 +44,13 @@ class ReelAgents:
                 MODE SELECTION RULES:
                 - NARRATION MODE: How-to tutorials, educational content, product explanations, complex topics
                 - MUSIC MODE: Fashion showcases, food visuals, lifestyle content, artistic presentations
+                
+                CRITICAL JSON OUTPUT REQUIREMENTS:
+                - Your final answer MUST be ONLY a valid JSON object
+                - NO additional text, explanations, or conversational responses
+                - NEVER write "I now can give a great answer" or similar phrases  
+                - Start your response with { and end with }
+                - Follow the exact JSON schema provided in the task description
                 
                 OUTPUT: Structured JSON storyboard with scene breakdowns, timing, and rationale
             """),

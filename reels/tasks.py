@@ -109,10 +109,12 @@ class ReelTasks:
                 - Content Mode: {context.get('content_mode', 'music')}
                 - User Prompt: {context.get('user_prompt', '')}
                 
-                STEP 1: CLAUDE REFINEMENT SERVICE
-                Use the ClaudeRefinementService.refine_video_prompts() method to:
+                STEP 1: USE CLAUDE PROMPT REFINEMENT TOOL
+                You have access to the "Claude Prompt Refinement Tool" which integrates Claude AI for prompt optimization.
+                
+                Use the tool to:
                 1. Extract scenes from storyboard data
-                2. Analyze visual style and content requirements
+                2. Analyze visual style and content requirements  
                 3. Send comprehensive refinement request to Claude API
                 4. Parse enhanced prompts with quality predictions
                 
@@ -137,19 +139,9 @@ class ReelTasks:
                 - Style parameters (lighting, composition, mood)
                 - Platform optimization for social media engagement
                 
-                REQUIRED INTEGRATION:
-                ```python
-                from reels.claude_refinement import ClaudeRefinementService
-                
-                # Initialize Claude service
-                claude_service = ClaudeRefinementService()
-                
-                # Refine prompts using Claude AI
-                refined_result = claude_service.refine_video_prompts(
-                    storyboard_data=storyboard_result,
-                    context=context
-                )
-                ```
+                TOOL USAGE:
+                Use the "Claude Prompt Refinement Tool" with the storyboard data and context.
+                The tool will handle Claude API integration and return enhanced prompts with quality predictions.
                 
                 EXPECTED OUTPUT STRUCTURE:
                 {{
@@ -246,8 +238,13 @@ class ReelTasks:
                 - output_folder: Will auto-detect current reel folder and use raw_clips/ subdirectory
                 - context: Will use smart defaults for platform, duration, content_mode
                 
-                SIMPLE TOOL USAGE:
-                Just provide the refined prompts data as a JSON string. The tool will handle everything else automatically.
+                MANDATORY TOOL USAGE:
+                YOU MUST use the "Advanced Video Generation Tool" to generate the video clips. 
+                Call the tool with the refined prompts data as a JSON string parameter.
+                
+                Example tool usage:
+                Use the Advanced Video Generation Tool with:
+                - refined_prompts_data: The complete claude_refinement_result as a JSON string
                 
                 STEP 4: MULTI-MODEL VIDEO GENERATION
                 For each clip, execute:

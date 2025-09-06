@@ -1,0 +1,180 @@
+{
+  "timestamp": "2025-09-06T14:09:21.879408",
+  "user_prompt": "WWE Summer Slam Ad. Showing John Cena and Brock lesnar",
+  "platform": "instagram",
+  "duration": 15,
+  "content_mode": "music",
+  "status": "phase_3_complete",
+  "folder_path": "/Users/anassabah/Downloads/Marqait/Social-Media-Post-Creator/reels/reel_instagram_wwe_summer_slam_ad_s_20250906_140828",
+  "phase": 3,
+  "content_planning": {
+    "content_analysis": {
+      "category": "promotional",
+      "complexity_level": "high",
+      "target_audience": "WWE fans and general audience",
+      "engagement_type": "entertainment"
+    },
+    "mode_selection": {
+      "recommended_mode": "music",
+      "user_requested": "music",
+      "override_reason": null,
+      "rationale": "The content involves showcasing WWE stars which is more visually appealing and engaging with music mode, enhancing the entertainment factor."
+    },
+    "storyboard": {
+      "total_duration": 15,
+      "scene_count": 2,
+      "scenes": [
+        {
+          "scene_number": 1,
+          "duration": 8,
+          "title": "Intense Face-off",
+          "description": "John Cena and Brock Lesnar facing each other in the ring",
+          "visual_elements": "Close-up shots of Cena and Lesnar, dramatic lighting, WWE logo in the background",
+          "key_message": "The epic showdown is about to begin",
+          "technical_notes": "Use dynamic camera angles to capture the tension"
+        },
+        {
+          "scene_number": 2,
+          "duration": 7,
+          "title": "Action Unleashed",
+          "description": "Quick cuts of powerful moves and reactions",
+          "visual_elements": "Fast-paced action shots, audience reactions, slow-motion effects",
+          "key_message": "Witness the electrifying moments of WWE Summer Slam",
+          "technical_notes": "Apply smooth transitions for seamless flow"
+        }
+      ]
+    },
+    "visual_style": {
+      "color_palette": "Bold and vibrant colors like red, blue, and black",
+      "aesthetic_mood": "High-energy and intense",
+      "platform_optimization": "Utilize close-ups and fast cuts for Instagram and TikTok",
+      "engagement_hooks": "Include suspenseful music to enhance anticipation"
+    },
+    "success_metrics": {
+      "engagement_prediction": "high",
+      "target_completion_rate": "80%",
+      "key_performance_indicators": "View counts, shares, and comments"
+    }
+  },
+  "claude_refinement": {
+    "status": "success",
+    "original_storyboard": {
+      "content_analysis": {
+        "category": "promotional",
+        "complexity_level": "high",
+        "target_audience": "WWE fans and general audience",
+        "engagement_type": "entertainment"
+      },
+      "mode_selection": {
+        "recommended_mode": "music",
+        "user_requested": "music",
+        "override_reason": null,
+        "rationale": "The content involves showcasing WWE stars which is more visually appealing and engaging with music mode, enhancing the entertainment factor."
+      },
+      "storyboard": {
+        "total_duration": 15,
+        "scene_count": 2,
+        "scenes": [
+          {
+            "scene_number": 1,
+            "duration": 8,
+            "title": "Intense Face-off",
+            "description": "John Cena and Brock Lesnar facing each other in the ring",
+            "visual_elements": "Close-up shots of Cena and Lesnar, dramatic lighting, WWE logo in the background",
+            "key_message": "The epic showdown is about to begin",
+            "technical_notes": "Use dynamic camera angles to capture the tension"
+          },
+          {
+            "scene_number": 2,
+            "duration": 7,
+            "title": "Action Unleashed",
+            "description": "Quick cuts of powerful moves and reactions",
+            "visual_elements": "Fast-paced action shots, audience reactions, slow-motion effects",
+            "key_message": "Witness the electrifying moments of WWE Summer Slam",
+            "technical_notes": "Apply smooth transitions for seamless flow"
+          }
+        ]
+      },
+      "visual_style": {
+        "color_palette": "Bold and vibrant colors like red, blue, and black",
+        "aesthetic_mood": "High-energy and intense",
+        "platform_optimization": "Utilize close-ups and fast cuts for Instagram and TikTok",
+        "engagement_hooks": "Include suspenseful music to enhance anticipation"
+      },
+      "success_metrics": {
+        "engagement_prediction": "high",
+        "target_completion_rate": "80%",
+        "key_performance_indicators": "View counts, shares, and comments"
+      }
+    },
+    "refined_prompts": [
+      {
+        "scene_number": 1,
+        "original_description": "John Cena and Brock Lesnar facing each other in the ring",
+        "enhanced_prompt": "Cinematic shot of two muscular professional wrestlers in an intense face-off, standing 3 feet apart in a brightly lit wrestling ring. Dynamic lighting with dramatic shadows casting across their determined faces. Low-angle camera perspective creating heroic framing. Background features a massive LED screen with pulsing red and blue graphics. Smoke effects drift across the canvas floor. Hyperrealistic 8K quality, dramatic depth of field focusing on the wrestlers' expressions. Camera slowly circles the subjects at eye level.",
+        "quality_prediction": 0.88,
+        "recommended_model": "hailuo-02",
+        "technical_params": {
+          "resolution": "1080x1920",
+          "duration": 8,
+          "style": "hyperrealistic_cinematic",
+          "camera_movement": "circular_dolly",
+          "fps": 60,
+          "lighting": "dramatic_contrast"
+        },
+        "alternative_prompts": [
+          "Close-up tracking shot alternating between two professional wrestlers' intense faces, dramatic rim lighting, atmosphere filled with particle effects, inside a grand arena setting. Camera smoothly pushes in, ultra HD quality.",
+          "Wide establishing shot of wrestling ring from elevated angle, two imposing figures in dramatic standoff, arena lights creating dramatic beams, crowd silhouettes visible in background, slow motion effect."
+        ]
+      },
+      {
+        "scene_number": 2,
+        "original_description": "Quick cuts of powerful moves and reactions",
+        "enhanced_prompt": "High-energy sequence of professional wrestling action shots, rapid cuts between dynamic moves. Includes power slam in slow motion with camera shake effect, crowd reaction shots showing intense excitement, explosive particle effects during impact moments. Sharp contrast lighting emphasizing muscular definition. Camera switches between low angle and overhead perspectives. Cinematic color grading with enhanced saturation.",
+        "quality_prediction": 0.85,
+        "recommended_model": "runway-gen3",
+        "technical_params": {
+          "resolution": "1080x1920",
+          "duration": 7,
+          "style": "high_energy_sports",
+          "camera_movement": "dynamic_cuts",
+          "fps": 60,
+          "effects": "motion_blur_enabled"
+        },
+        "alternative_prompts": [
+          "Slow-motion sequence of wrestling moves, camera following the action with fluid movement, dramatic lighting casting dynamic shadows, visible impact ripples, crowd in background creating depth.",
+          "Fast-paced montage of wrestling highlights, quick cuts between moves, camera positioned at mat level, dramatic speed ramping effects, lens flares during intense moments."
+        ]
+      }
+    ],
+    "quality_predictions": {
+      "overall_score": 0.87,
+      "technical_feasibility": 0.85,
+      "creative_appeal": 0.9,
+      "engagement_potential": 0.88
+    },
+    "model_optimizations": {
+      "primary_model": "hailuo-02",
+      "fallback_models": [
+        "runway-gen3",
+        "pika-labs"
+      ],
+      "model_specific_tips": [
+        "Use --style cinematic --quality premium flags for Hailuo",
+        "Enable motion interpolation for smooth slow-motion in Runway",
+        "Adjust seed values if initial generations lack detail"
+      ]
+    },
+    "claude_analysis": "The refined prompts emphasize hyperrealistic detail and dynamic camera movement to create maximum impact. Scene 1 focuses on building tension through careful composition and lighting, while Scene 2 delivers high-energy action through technical effects and varied perspectives. The prompts are structured to maintain visual consistency while maximizing engagement through careful pacing and dramatic elements.",
+    "improvement_suggestions": [
+      "Added specific camera movement instructions for better spatial clarity",
+      "Enhanced lighting descriptions for more dramatic contrast",
+      "Included technical parameters for optimal render quality",
+      "Incorporated crowd elements to increase sense of scale",
+      "Added particle effects and impact moments for enhanced drama"
+    ],
+    "timestamp": ""
+  },
+  "next_phase": "video_generation",
+  "message": "Claude prompt refinement complete - ready for video generation!"
+}

@@ -12,11 +12,11 @@ from .claude_refinement import ClaudeRefinementService
 
 class ClaudeRefinementInput(BaseModel):
     """Input schema for Claude refinement tool"""
-    storyboard_data: str = Field(
-        description="Storyboard data (JSON string) from content planning phase"
+    storyboard_data: Dict = Field(
+        description="Storyboard data (dict) from content planning phase"
     )
-    context: str = Field(
-        description="Context data (JSON string) with platform, duration, content_mode, user_prompt"
+    context: Dict = Field(
+        description="Context data (dict) with platform, duration, content_mode, user_prompt"
     )
 
 
@@ -28,24 +28,15 @@ class ClaudeRefinementTool(BaseTool):
     )
     args_schema: Type[BaseModel] = ClaudeRefinementInput
 
-    def _run(self, storyboard_data: str, context: str) -> str:
+    def _run(self, storyboard_data: Dict, context: Dict) -> str:
         """Execute Claude prompt refinement"""
         try:
-            # Parse input JSON strings
-            try:
-                storyboard_dict = json.loads(storyboard_data)
-            except json.JSONDecodeError:
-                # If not JSON, try to extract JSON from string
-                json_match = re.search(r'\{.*\}', storyboard_data, re.DOTALL)
-                if json_match:
-                    storyboard_dict = json.loads(json_match.group())
-                else:
-                    return f"Error: Could not parse storyboard data as JSON: {storyboard_data[:200]}..."
+            # Input is already dict format, no need to parse JSON
+            storyboard_dict = storyboard_data
+            context_dict = context
             
-            try:
-                context_dict = json.loads(context)
-            except json.JSONDecodeError:
-                # Fallback context
+            # Ensure context has required fields
+            if not isinstance(context_dict, dict):
                 context_dict = {
                     'platform': 'instagram',
                     'duration': 20,

@@ -56,9 +56,8 @@ class VideoGenerationTool(BaseTool):
                 if reel_folders:
                     # Get the most recent reel folder
                     latest_folder = max(reel_folders, key=lambda x: os.path.getctime(os.path.join('reels', x)))
-                    output_folder = os.path.join('reels', latest_folder, 'raw_clips')
-                    # Ensure the raw_clips directory exists
-                    os.makedirs(output_folder, exist_ok=True)
+                    output_folder = os.path.join('reels', latest_folder)
+                    # VideoGenerator will create the raw_clips subfolder
                 else:
                     return json.dumps({
                         'video_generation_status': 'failed',

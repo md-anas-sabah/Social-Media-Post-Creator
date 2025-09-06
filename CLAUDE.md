@@ -338,7 +338,7 @@ class IntelligentQASystem:
 
 **✅ COMPLETED PHASES:**
 - **✅ Phase 1**: Foundation Setup (Folder structure, basic files)
-- **✅ Phase 2**: Content Planning Agent (GPT-4 powered storyboard generation)  
+- **✅ Phase 2**: Content Planning Agent (GPT-4o-mini powered storyboard generation)  
 - **✅ Phase 3**: Claude Prompt Refinement (Professional prompt enhancement with Claude 3.5 Sonnet)
 - **✅ Phase 4**: Video Generation (FAL.AI multi-model integration with intelligent selection)
 
