@@ -61,7 +61,7 @@ class ReelAgents:
         # Initialize LLM for the agent
         llm = ChatOpenAI(
             temperature=0.3,
-            model="gpt-4",
+            model="gpt-3.5-turbo",
             api_key=config("OPENAI_API_KEY")
         )
         
@@ -117,7 +117,7 @@ class ReelAgents:
         # Initialize LLM for the agent
         llm = ChatOpenAI(
             temperature=0.2,
-            model="gpt-4",
+            model="gpt-3.5-turbo",
             api_key=config("OPENAI_API_KEY")
         )
         

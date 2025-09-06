@@ -424,7 +424,7 @@ reels/
 - ✅ Integration with main.py option 3
 
 ### Implementation Details Completed:
-- ✅ **Enhanced Content Planning Agent**: GPT-4 powered agent with professional content strategy expertise
+- ✅ **Enhanced Content Planning Agent**: GPT-3.5-turbo powered agent with professional content strategy expertise
 - ✅ **Smart Mode Selection**: Intelligent Music vs Narration recommendation based on content analysis
 - ✅ **Content Analysis Utilities**: `analyze_content_category()`, `suggest_content_mode()`, `calculate_scene_timing()`
 - ✅ **Comprehensive Storyboard Generation**: Dynamic scene breakdown with timing, visual elements, and key messaging
@@ -449,7 +449,7 @@ reels/
 ### Files Implemented:
 - ✅ `reels/claude_refinement.py` → Complete Claude 3.5 Sonnet integration
 - ✅ `reels/claude_refinement_tool.py` → CrewAI tool integration
-- ✅ `reels/agents.py` → `claude_refinement_agent()` with GPT-4
+- ✅ `reels/agents.py` → `claude_refinement_agent()` with GPT-3.5-turbo
 - ✅ `reels/tasks.py` → `prompt_refinement_task()` with comprehensive workflow
 
 ### Key Features Implemented:

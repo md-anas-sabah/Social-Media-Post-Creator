@@ -475,8 +475,8 @@ class HashtagRefinementTool(BaseTool):
 class SocialMediaAgents:
     def __init__(self):
         self.OpenAIGPT35 = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.7)
-        self.OpenAIGPT4 = ChatOpenAI(model_name="gpt-4-mini", temperature=0.7)
-        self.creative_llm = ChatOpenAI(model_name="gpt-4-mini", temperature=0.9)
+        self.OpenAIGPT4 = ChatOpenAI(model_name="gpt-4o-mini", temperature=0.7)
+        self.creative_llm = ChatOpenAI(model_name="gpt-4o-mini", temperature=0.9)
 
     def script_agent(self):
         return Agent(
