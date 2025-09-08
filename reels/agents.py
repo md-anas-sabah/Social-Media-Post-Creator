@@ -191,10 +191,14 @@ class ReelAgents:
     
     def audio_generation_agent(self):
         """Advanced FAL AI F5 TTS and music generation specialist"""
+        from langchain_openai import ChatOpenAI
+        from decouple import config
+        
         llm = ChatOpenAI(
             model="gpt-3.5-turbo",
             temperature=0.1,
-            max_tokens=4000
+            max_tokens=4000,
+            api_key=config("OPENAI_API_KEY")
         )
         
         # Initialize audio generation tool

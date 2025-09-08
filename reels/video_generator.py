@@ -48,7 +48,7 @@ class VideoGenerator:
         # Model configurations - Updated with correct FAL.AI endpoints (2025)
         self.models = {
             'hailuo-02': {
-                'endpoint': 'fal-ai/minimax/hailuo-02',  # Try basic endpoint
+                'endpoint': 'fal-ai/minimax/hailuo-02/pro/text-to-video',  # Correct endpoint from FAL.AI website
                 'max_duration': 10,
                 'cost_per_clip': 0.50,
                 'strengths': ['realistic_motion', 'human_activities', 'high_quality'],
@@ -255,32 +255,55 @@ class VideoGenerator:
                         
                         while attempt < max_attempts and not final_result:
                             try:
-                                # Check status
+                                # Check status - FAL client returns objects, not dicts
                                 status = fal_client.status(model_config['endpoint'], result.request_id)
-                                status_state = status.get('status', 'UNKNOWN')
+                                
+                                # Handle different status object types
+                                if hasattr(status, 'status'):
+                                    status_state = status.status
+                                elif hasattr(status, '__class__'):
+                                    status_state = status.__class__.__name__
+                                else:
+                                    status_state = str(status)
                                 
                                 print(f"   📊 Check {attempt + 1}/30: {status_state}")
                                 
-                                if status_state == 'COMPLETED':
-                                    final_result = result.get()
-                                    print(f"   ✅ Status-based completion after {attempt + 1} checks")
-                                    break
-                                elif status_state == 'FAILED':
-                                    error_msg = status.get('error', 'Generation failed')
+                                # If status indicates completion, try to get result
+                                if status_state in ['COMPLETED', 'Completed', 'completed']:
+                                    try:
+                                        final_result = result.get()  # Use original result object, not status
+                                        print(f"   ✅ Status-based completion after {attempt + 1} checks")
+                                        break
+                                    except Exception as get_error:
+                                        print(f"   ⚠️  Get failed despite completion status: {get_error}")
+                                        # Continue trying
+                                        
+                                elif status_state in ['FAILED', 'Failed', 'failed']:
+                                    error_msg = getattr(status, 'error', 'Generation failed')
                                     raise Exception(f"FAL.AI reported failure: {error_msg}")
-                                elif attempt >= 20:  # After 20 attempts (3+ minutes), be more aggressive
+                                    
+                                # After many attempts, try direct get regardless of status
+                                elif attempt >= 20:
                                     print(f"   ⏰ Extended wait, trying direct get() again...")
                                     try:
                                         final_result = result.get()
                                         break
-                                    except:
-                                        pass
+                                    except Exception as late_get_error:
+                                        print(f"   ⚠️  Late get() failed: {late_get_error}")
                                 
                                 time.sleep(10)
                                 attempt += 1
                                 
                             except Exception as status_error:
-                                print(f"   ⚠️  Status error: {str(status_error)}")
+                                print(f"   ⚠️  Status check error: {str(status_error)}")
+                                # If status checking fails, try direct get
+                                try:
+                                    final_result = result.get()
+                                    print(f"   ✅ Direct get() succeeded despite status error")
+                                    break
+                                except Exception as direct_get_error:
+                                    print(f"   ⚠️  Direct get() also failed: {direct_get_error}")
+                                
                                 attempt += 1
                                 if attempt < max_attempts:
                                     time.sleep(10)
