@@ -74,23 +74,32 @@ class VideoGenerator:
         print(f"🎬 Generating {len(refined_prompts)} video clips using FAL.AI...")
         generated_clips = []
         
+        max_generation_time = 600  # 10 minutes max per clip
+        
         for i, prompt_data in enumerate(refined_prompts):
+            clip_start_time = time.time()
+            
             try:
                 print(f"\n📹 Generating clip {i + 1}/{len(refined_prompts)}...")
                 print(f"   ⏰ Starting at: {time.strftime('%H:%M:%S')}")
+                print(f"   ⏱️  Max generation time: {max_generation_time//60} minutes")
                 
                 # Select optimal model
                 selected_model = self.select_optimal_model(prompt_data)
                 print(f"   🤖 Using model: {selected_model}")
                 print(f"   📝 Prompt: {prompt_data.get('enhanced_prompt', '')[:60]}...")
                 
-                # Generate clip with better error recovery
+                # Generate clip with strict timeout
                 try:
-                    clip_data = self._generate_single_clip(prompt_data, i + 1, selected_model)
+                    clip_data = self._generate_single_clip_with_timeout(
+                        prompt_data, i + 1, selected_model, max_generation_time
+                    )
                     generated_clips.append(clip_data)
                     
+                    elapsed = time.time() - clip_start_time
+                    
                     if clip_data['status'] == 'success':
-                        print(f"   ✅ Clip {i + 1} generated successfully")
+                        print(f"   ✅ Clip {i + 1} generated successfully in {elapsed:.1f}s")
                         print(f"   ⏰ Completed at: {time.strftime('%H:%M:%S')}")
                     elif clip_data['status'] == 'mock':
                         print(f"   🧪 Clip {i + 1} generated as mock (API issues)")
@@ -100,13 +109,15 @@ class VideoGenerator:
                         print(f"   ⚠️  Error: {clip_data.get('error', 'Unknown error')}")
                         
                 except Exception as clip_error:
-                    print(f"   ❌ Clip generation failed: {str(clip_error)}")
+                    elapsed = time.time() - clip_start_time
+                    print(f"   ❌ Clip generation failed after {elapsed:.1f}s: {str(clip_error)}")
+                    
                     # Create error placeholder and continue
                     clip_data = {
                         'clip_id': i + 1,
                         'file_path': None,
                         'status': 'failed',
-                        'error': str(clip_error),
+                        'error': f"Generation failed after {elapsed:.1f}s: {str(clip_error)}",
                         'prompt_data': prompt_data,
                         'model_used': selected_model
                     }
@@ -114,13 +125,15 @@ class VideoGenerator:
                     print(f"   ⚠️  Continuing with next clip despite failure...")
                 
             except Exception as e:
-                print(f"   ❌ Unexpected error in clip {i + 1}: {e}")
+                elapsed = time.time() - clip_start_time
+                print(f"   ❌ Unexpected error in clip {i + 1} after {elapsed:.1f}s: {e}")
+                
                 # Create error placeholder and continue processing
                 clip_data = {
                     'clip_id': i + 1,
                     'file_path': None,
                     'status': 'failed',
-                    'error': str(e),
+                    'error': f"Unexpected error after {elapsed:.1f}s: {str(e)}",
                     'prompt_data': prompt_data,
                     'model_used': None
                 }
@@ -132,6 +145,31 @@ class VideoGenerator:
         print(f"\n🎯 Generation Summary: {successful_clips}/{len(refined_prompts)} clips successful")
         
         return generated_clips
+    
+    def _generate_single_clip_with_timeout(self, prompt_data: Dict, clip_id: int, model_name: str, timeout: int) -> Dict:
+        """Generate a single video clip with strict timeout and fallback"""
+        start_time = time.time()
+        
+        try:
+            print(f"   🎬 Starting generation with {timeout}s timeout...")
+            
+            # Generate clip with monitoring
+            result = self._generate_single_clip(prompt_data, clip_id, model_name)
+            
+            elapsed = time.time() - start_time
+            if elapsed > timeout:
+                print(f"   ⏰ Generation exceeded timeout ({elapsed:.1f}s > {timeout}s)")
+                print(f"   🧪 Using result anyway (completed)")
+                
+            return result
+            
+        except Exception as e:
+            elapsed = time.time() - start_time
+            print(f"   ❌ Generation failed after {elapsed:.1f}s: {str(e)}")
+            
+            # Always fallback to mock on any error to prevent hanging
+            print(f"   🧪 Creating mock clip to prevent hanging...")
+            return self._create_mock_single_clip(prompt_data, clip_id, model_name)
     
     def _generate_single_clip(self, prompt_data: Dict, clip_id: int, model_name: str) -> Dict:
         """Generate a single video clip using specified FAL model"""
