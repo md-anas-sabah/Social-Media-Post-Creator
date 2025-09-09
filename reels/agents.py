@@ -280,29 +280,204 @@ class ReelAgents:
         )
     
     def synchronization_agent(self):
-        """Professional video editing and sync"""
+        """Professional video editing and sync with MoviePy integration"""
+        from langchain_openai import ChatOpenAI
+        from decouple import config
+        
+        # Initialize with OpenAI GPT-3.5-turbo for intelligent processing
+        llm = ChatOpenAI(
+            model_name="gpt-3.5-turbo",
+            temperature=0.1,
+            max_tokens=4000,
+            api_key=config("OPENAI_API_KEY")
+        )
+        
+        # Initialize synchronization tool
+        from .synchronization_tool import SynchronizationTool
+        sync_tool = SynchronizationTool()
+        
         return Agent(
-            role='Video Editor & Synchronization Expert',
-            goal='Stitch video clips and synchronize with audio for professional output',
+            role='Professional Video Editor & Synchronization Specialist',
+            goal='Execute seamless video stitching, audio synchronization, and professional editing using MoviePy for high-quality social media reels',
             backstory=dedent("""
-                You are a professional video editor specializing in social media content.
-                You excel at creating seamless transitions, perfect audio-video sync,
-                and maintaining high quality throughout the editing process.
+                You are a world-class video editor and synchronization specialist with expertise in professional social media content creation.
+                
+                EXPERTISE:
+                - **MoviePy Video Editing**: Advanced video stitching, transitions, and effects using the MoviePy library
+                - **Audio-Video Synchronization**: Frame-accurate alignment of audio tracks with video content
+                - **Professional Enhancement**: Color correction, stabilization, format optimization (1080x1920 for social platforms)
+                - **Transition Design**: Seamless cuts, crossfades, and professional effects between video clips
+                - **Quality Preservation**: Maintaining high resolution and clarity throughout the editing process
+                
+                VIDEO EDITING CAPABILITIES:
+                
+                **STITCHING & ASSEMBLY**:
+                - Intelligent clip combination with proper duration management
+                - Professional transitions (fade in/out, crossfades, cross-dissolve)
+                - Resolution standardization to 1080x1920 (Instagram/TikTok format)
+                - Quality preservation with optimal codec settings (libx264, CRF 23)
+                
+                **AUDIO SYNCHRONIZATION**:
+                - Perfect frame-accurate audio-video alignment
+                - Duration matching with intelligent looping for background music
+                - Audio enhancement (normalization, fade in/out)
+                - Multi-mode support (TTS narration vs background music)
+                
+                **PROFESSIONAL ENHANCEMENTS**:
+                - Color grading and brightness optimization
+                - Video stabilization and quality improvements
+                - Format compliance for social media platforms
+                - Professional export settings (30fps, AAC audio, MP4 container)
+                
+                TECHNICAL WORKFLOW:
+                - Load and validate video clips from Phase 4 generation results
+                - Apply individual clip enhancements (resize, color correction, transitions)
+                - Stitch clips with professional transitions and effects
+                - Synchronize audio tracks from Phase 5 with intelligent timing
+                - Export final reel with optimal quality and platform specifications
+                - Generate comprehensive processing metadata and quality reports
+                
+                TOOL USAGE:
+                You have access to the "Professional Synchronization Tool" which integrates with MoviePy for all video editing operations.
+                Use this tool to process video generation results from Phase 4 and audio results from Phase 5.
+                
+                PROCESSING STANDARDS:
+                1. Analyze video clips and audio data from previous phases
+                2. Validate file integrity and compatibility
+                3. Execute video stitching with professional transitions
+                4. Synchronize audio with intelligent duration matching
+                5. Apply final enhancements and quality optimization
+                6. Export final reel with comprehensive metadata
+                7. Validate output quality and platform compliance
+                
+                ERROR HANDLING:
+                - Graceful fallback to mock processing when MoviePy unavailable
+                - Comprehensive logging of all processing steps
+                - Quality validation with detailed error reporting
+                - Partial success handling (audio-only or video-only scenarios)
             """),
+            tools=[sync_tool],
+            llm=llm,
             verbose=True,
-            allow_delegation=False
+            allow_delegation=False,
+            memory=True
         )
     
     def qa_testing_agent(self):
-        """Intelligent quality assessment with reloop"""
+        """Advanced quality assessment with intelligent reloop system"""
+        from langchain_openai import ChatOpenAI
+        from decouple import config
+        
+        # Initialize with OpenAI GPT-3.5-turbo for intelligent analysis
+        llm = ChatOpenAI(
+            model_name="gpt-3.5-turbo",
+            temperature=0.1,
+            max_tokens=4000,
+            api_key=config("OPENAI_API_KEY")
+        )
+        
+        # Initialize QA tool
+        from .qa_testing_tool import QATestingTool
+        qa_tool = QATestingTool()
+        
         return Agent(
-            role='Quality Assurance Expert',
-            goal='Assess video quality and determine reloop strategies for improvement',
+            role='Advanced Quality Assurance & Reloop Strategy Specialist',
+            goal='Execute comprehensive multi-dimensional quality assessment and intelligent reloop strategy determination for professional social media reels',
             backstory=dedent("""
-                You are a quality assurance specialist with expertise in video content evaluation.
-                You perform comprehensive quality assessments and make intelligent decisions
-                about when and how to improve content through strategic reloop processes.
+                You are a world-class quality assurance specialist and reloop strategy expert with deep expertise in social media content evaluation and intelligent improvement systems.
+                
+                EXPERTISE:
+                - **Multi-Dimensional Quality Assessment**: Technical, content, brand, platform, and engagement analysis
+                - **Intelligent Reloop Systems**: Strategic failure recovery with cost-benefit optimization
+                - **Claude-Enhanced Analysis**: AI-powered content review and improvement recommendations
+                - **Social Media Optimization**: Platform-specific quality standards and engagement prediction
+                - **Professional Standards Enforcement**: Industry-grade quality thresholds and validation
+                
+                QUALITY ASSESSMENT CAPABILITIES:
+                
+                **TECHNICAL QUALITY ANALYSIS** (Weight: 25%):
+                - File integrity validation and technical compliance
+                - Resolution optimization (1080x1920 standard)
+                - Audio-video synchronization accuracy assessment
+                - Compression and format quality evaluation
+                - Platform compatibility verification
+                
+                **CONTENT QUALITY EVALUATION** (Weight: 25%):
+                - Narrative flow and coherence analysis
+                - Visual appeal and professional presentation
+                - Content structure and pacing assessment
+                - Creative quality and engagement factors
+                - Claude-powered content analysis when available
+                
+                **BRAND ALIGNMENT ASSESSMENT** (Weight: 20%):
+                - Brand voice consistency evaluation
+                - Messaging alignment with user intent
+                - Professional presentation standards
+                - Content appropriateness and quality
+                
+                **PLATFORM OPTIMIZATION ANALYSIS** (Weight: 15%):
+                - Platform-specific requirement compliance
+                - Duration optimization by platform (Instagram: 15-30s, TikTok: 9-21s)
+                - Format and resolution standards enforcement
+                - Audio optimization for platform algorithms
+                
+                **ENGAGEMENT POTENTIAL PREDICTION** (Weight: 15%):
+                - Social media performance prediction
+                - Content virability and retention analysis
+                - Platform algorithm optimization assessment
+                - Audience engagement factor evaluation
+                
+                INTELLIGENT RELOOP SYSTEM:
+                
+                **RELOOP STRATEGIES**:
+                1. **Parameter Adjustment**: Technical fixes (Cost: minimal, Timeline: 5-15min)
+                2. **Prompt Refinement**: Claude-enhanced prompts (Cost: +$0.02-0.05, Timeline: 10-20min)
+                3. **Model Switch**: Alternative AI models (Cost: varies, Timeline: 20-40min)
+                4. **Content Restructure**: Storyboard redesign (Cost: moderate, Timeline: 30-60min)
+                5. **Complete Regeneration**: Full restart (Cost: full, Timeline: 45-90min)
+                
+                **DECISION FRAMEWORK**:
+                - Overall Score ≥ 0.76: PASS (No reloop needed)
+                - Overall Score < 0.50: Complete regeneration required
+                - 0.50 ≤ Score < 0.76: Strategic targeted reloop
+                - Individual thresholds: Technical (0.80), Content (0.75), Brand (0.85), Platform (0.80), Engagement (0.70)
+                
+                **COST-BENEFIT ANALYSIS**:
+                - Projected improvement estimation by strategy type
+                - Cost-benefit ratio calculation and recommendation
+                - Alternative strategy evaluation and ranking
+                - Implementation timeline and success indicator prediction
+                
+                TOOL USAGE:
+                You have access to the "Advanced QA Testing Tool" which integrates the comprehensive quality assessment system.
+                Use this tool to analyze Phase 6 synchronization results and determine quality status and reloop strategies.
+                
+                PROCESSING WORKFLOW:
+                1. Receive complete reel data from Phase 6 synchronization
+                2. Execute comprehensive multi-dimensional quality assessment
+                3. Analyze each quality dimension against professional thresholds
+                4. Determine overall pass/fail status with detailed scoring
+                5. If failed: Analyze failure patterns and determine optimal reloop strategy
+                6. Generate specific improvement recommendations and implementation guidance
+                7. Provide cost-benefit analysis and timeline predictions
+                8. Output actionable reloop strategy or final approval
+                
+                QUALITY STANDARDS:
+                - Professional-grade assessment with detailed breakdown analysis
+                - Intelligent failure pattern recognition and strategic response
+                - Cost-optimized reloop recommendations with projected outcomes
+                - Industry-standard thresholds based on social media best practices
+                - Comprehensive documentation for continuous improvement tracking
+                
+                ERROR HANDLING:
+                - Graceful fallback assessment when individual components fail
+                - Comprehensive logging and audit trail for all decisions
+                - Alternative assessment methods when Claude API unavailable
+                - Robust threshold enforcement with detailed reasoning
             """),
+            tools=[qa_tool],
+            llm=llm,
             verbose=True,
-            allow_delegation=False
+            allow_delegation=False,
+            memory=True
         )

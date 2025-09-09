@@ -718,18 +718,35 @@ class VideoReelCreator:
         self.platform = platform
     
     def run(self):
+        # Initialize performance monitoring for reel generation
+        from reels.performance_optimizer import optimize_reel_generation_performance
+        
         print(f"\n🎬 Creating {self.duration}s {self.content_mode} reel for: '{self.user_prompt}'")
         print(f"📱 Platform: {self.platform}")
         print(f"🎵 Mode: {self.content_mode}")
         print("=" * 50)
         
+        # Show enhanced progress indicator
+        show_progress_indicator("Optimizing system resources for reel generation", 2)
+        
         # Create output folder
         reel_folder, timestamp = create_unique_reel_folder(self.user_prompt, self.platform)
         print(f"\n📁 Created output folder: {os.path.basename(reel_folder)}")
         
+        # Initialize performance optimization for this specific reel
+        perf_optimization = optimize_reel_generation_performance(reel_folder)
+        perf_monitor = perf_optimization['monitor']
+        perf_monitor.start_monitoring()
+        
         # PHASE 2: Content Planning Agent Implementation
+        show_progress_indicator("Starting Phase 2: Content Planning & Storyboard Generation")
         print("\n🧠 PHASE 2: Content Planning & Storyboard Generation")
         print("-" * 50)
+        perf_monitor.record_phase_start(2, "Content Planning & Storyboard Generation")
+        
+        # Initialize error handling system
+        from reels.error_handling import ReelGenerationErrorHandler, handle_phase_errors
+        error_handler = ReelGenerationErrorHandler(reel_folder)
         
         try:
             # Initialize reel-specific agents and tasks
@@ -755,6 +772,9 @@ class VideoReelCreator:
             )
             
             planning_result = planning_crew.kickoff()
+            
+            # Record phase completion
+            perf_monitor.record_phase_end(2)
             
             print("\n" + "="*60)
             print("🎯 CONTENT PLANNING COMPLETE!")
@@ -851,8 +871,10 @@ class VideoReelCreator:
             print(f"   🌐 Preview: reel_preview.html")
             
             # PHASE 3: Claude Prompt Refinement
+            show_progress_indicator("Starting Phase 3: Claude Prompt Refinement")
             print("\n🔍 PHASE 3: Claude Prompt Refinement")
             print("-" * 50)
+            perf_monitor.record_phase_start(3, "Claude Prompt Refinement")
             
             # Step 2: Claude Prompt Refinement
             print("\n📝 STEP 2: Enhancing prompts with Claude AI...")
@@ -881,6 +903,9 @@ class VideoReelCreator:
             )
             
             refinement_result = refinement_crew.kickoff()
+            
+            # Record phase completion
+            perf_monitor.record_phase_end(3)
             
             print("\n" + "="*60)
             print("🎯 CLAUDE REFINEMENT COMPLETE!")
@@ -964,8 +989,10 @@ class VideoReelCreator:
             print(f"   🌐 Preview: reel_preview.html (updated)")
             
             # PHASE 4: Video Generation
+            show_progress_indicator("Starting Phase 4: Professional Video Generation")
             print("\n🎬 PHASE 4: Video Generation")
             print("-" * 50)
+            perf_monitor.record_phase_start(4, "Professional Video Generation")
             
             # Step 3: Video Generation using FAL.AI
             print("\n📹 STEP 3: Generating video clips with FAL.AI...")
@@ -995,6 +1022,9 @@ class VideoReelCreator:
             )
             
             video_result = video_crew.kickoff()
+            
+            # Record phase completion
+            perf_monitor.record_phase_end(4)
             
             print("\n" + "="*60)
             print("🎬 VIDEO GENERATION COMPLETE!")
@@ -1093,6 +1123,10 @@ class VideoReelCreator:
             print("🚀 Starting Phase 5 - Audio Generation")
             print("="*60)
             
+            # PHASE 5: Audio Generation
+            show_progress_indicator("Starting Phase 5: Professional Audio Generation")
+            perf_monitor.record_phase_start(5, "Professional Audio Generation")
+            
             # Step 4: Audio Generation using FAL AI F5 TTS
             print("\n🎵 STEP 4: Generating audio with FAL AI F5 TTS...")
             audio_generator = agents.audio_generation_agent()
@@ -1121,6 +1155,9 @@ class VideoReelCreator:
             )
             
             audio_result = audio_crew.kickoff()
+            
+            # Record phase completion
+            perf_monitor.record_phase_end(5)
             
             print("\n" + "="*60)
             print("🎵 AUDIO GENERATION COMPLETE!")
@@ -1188,145 +1225,893 @@ class VideoReelCreator:
             print(f"\n📂 Complete folder path: {reel_folder}")
             print("\n" + "="*60)
             print("✨ PHASE 5 COMPLETE! Audio Generation Done!")
-            print("🚀 Next: Phase 6 - Video-Audio Synchronization")
+            print("🚀 Starting Phase 6 - Video-Audio Synchronization")
             print("="*60)
             
-            return phase5_result
+            # PHASE 6: Video-Audio Synchronization
+            show_progress_indicator("Starting Phase 6: Video-Audio Synchronization & Editing")
+            print("\n🎬 PHASE 6: Video-Audio Synchronization & Editing")
+            print("-" * 50)
+            perf_monitor.record_phase_start(6, "Video-Audio Synchronization & Editing")
             
-        except Exception as e:
-            print(f"\n❌ Error in Phase 2: {str(e)}")
-            print("💡 Make sure all API keys are configured correctly")
+            # Step 5: Video-Audio Synchronization using MoviePy
+            print("\n⚡ STEP 5: Synchronizing video and audio with MoviePy...")
+            sync_agent = agents.synchronization_agent()
             
-            # Fallback result
-            error_result = {
+            # Create synchronization context
+            sync_context = {
+                'platform': self.platform,
+                'duration': self.duration,
+                'content_mode': self.content_mode,
+                'user_prompt': self.user_prompt,
+                'timestamp': datetime.now().isoformat(),
+                'reel_folder': reel_folder
+            }
+            
+            sync_task = tasks.synchronization_task(
+                sync_agent,
+                video_result,
+                audio_result
+            )
+            
+            # Execute synchronization
+            sync_crew = Crew(
+                agents=[sync_agent],
+                tasks=[sync_task],
+                verbose=True
+            )
+            
+            sync_result = sync_crew.kickoff()
+            
+            # Record phase completion
+            perf_monitor.record_phase_end(6)
+            
+            print("\n" + "="*60)
+            print("⚡ SYNCHRONIZATION COMPLETE!")
+            print("="*60)
+            print(f"\n🎬 SYNCHRONIZATION RESULT:")
+            print("-" * 30)
+            print(str(sync_result))
+            
+            # Parse synchronization result
+            sync_data = {}
+            try:
+                # Extract text from CrewOutput object
+                if hasattr(sync_result, 'raw'):
+                    result_text = str(sync_result.raw)
+                else:
+                    result_text = str(sync_result)
+                
+                # Try to find JSON in the result
+                import re
+                json_match = re.search(r'\{.*\}', result_text, re.DOTALL)
+                if json_match:
+                    import json
+                    sync_data = json.loads(json_match.group())
+                else:
+                    sync_data = {
+                        'raw_result': result_text,
+                        'status': 'parsed_as_text'
+                    }
+                
+                # Display structured synchronization results
+                if isinstance(sync_data, dict):
+                    print(f"\n🎬 SYNCHRONIZATION STATUS:")
+                    print(f"   Status: {sync_data.get('status', 'N/A')}")
+                    print(f"   Final Reel: {sync_data.get('final_reel_path', 'N/A')}")
+                    
+                    if 'video_stitching' in sync_data:
+                        video_info = sync_data['video_stitching']
+                        print(f"   Clips Used: {video_info.get('clips_used', 'N/A')}")
+                        print(f"   Total Duration: {video_info.get('total_duration', 'N/A')}s")
+                        print(f"   Quality: {video_info.get('quality', 'N/A')}")
+                    
+                    if 'audio_synchronization' in sync_data:
+                        audio_info = sync_data['audio_synchronization']
+                        print(f"   Audio Sync: {audio_info.get('sync_quality', 'N/A')}")
+                        print(f"   Audio Mode: {audio_info.get('audio_mode', 'N/A')}")
+                
+            except (json.JSONDecodeError, ValueError, TypeError) as e:
+                print(f"\n⚠️  Could not parse synchronization data: {e}")
+                sync_data = {
+                    'raw_result': str(sync_result),
+                    'parse_error': str(e)
+                }
+            
+            # Create comprehensive Phase 6 result
+            phase6_result = {
                 'timestamp': datetime.now().isoformat(),
                 'user_prompt': self.user_prompt,
                 'platform': self.platform,
                 'duration': self.duration,
                 'content_mode': self.content_mode,
-                'status': 'phase_2_error',
-                'error': str(e),
+                'status': 'phase_6_complete',
                 'folder_path': reel_folder,
-                'phase': 2
+                'phase': 6,
+                'content_planning': planning_data,
+                'claude_refinement': refined_data,
+                'video_generation': video_data,
+                'audio_generation': audio_data,
+                'synchronization': sync_data,
+                'next_phase': 'qa_testing',
+                'message': 'Video-audio synchronization complete - ready for quality assessment!'
             }
             
-            save_reel_metadata(reel_folder, error_result)
-            return error_result
+            # Save comprehensive metadata
+            save_reel_metadata(reel_folder, phase6_result)
+            create_reel_summary(reel_folder, phase6_result)
+            create_reel_preview_html(reel_folder, phase6_result)
+            
+            print(f"\n💾 OUTPUT FILES UPDATED:")
+            print(f"   📁 Folder: {os.path.basename(reel_folder)}")
+            print(f"   📄 Metadata: reel_metadata.json (updated)")
+            print(f"   📝 Summary: reel_summary.md (updated)")
+            print(f"   🌐 Preview: reel_preview.html (updated)")
+            print(f"   🎬 Video Clips: {video_data.get('generation_summary', {}).get('successful_clips', 0)} clips in /raw_clips/")
+            print(f"   🎵 Audio Files: Generated in /audio/ folder")
+            print(f"   ⚡ Final Reel: {sync_data.get('final_reel_path', 'final_reel.mp4')}")
+            
+            print(f"\n📂 Complete folder path: {reel_folder}")
+            print("\n" + "="*60)
+            print("✨ PHASE 6 COMPLETE! Video-Audio Synchronization Done!")
+            print("🚀 Starting Phase 7 - Quality Assessment & Reloop System")
+            print("="*60)
+            
+            # PHASE 7: Quality Assessment & Reloop System
+            show_progress_indicator("Starting Phase 7: Quality Assessment & Intelligent Reloop System")
+            print("\n🛡️ PHASE 7: Quality Assessment & Intelligent Reloop System")
+            print("-" * 50)
+            perf_monitor.record_phase_start(7, "Quality Assessment & Intelligent Reloop System")
+            
+            # Step 6: Quality Assessment with Intelligent Reloop
+            print("\n🔍 STEP 6: Comprehensive quality assessment...")
+            qa_agent = agents.qa_testing_agent()
+            
+            # Create QA context
+            qa_context = {
+                'platform': self.platform,
+                'duration': self.duration,
+                'content_mode': self.content_mode,
+                'user_prompt': self.user_prompt,
+                'timestamp': datetime.now().isoformat(),
+                'reel_folder': reel_folder
+            }
+            
+            qa_task = tasks.qa_testing_task(
+                qa_agent,
+                sync_result,
+                qa_context
+            )
+            
+            # Execute quality assessment
+            qa_crew = Crew(
+                agents=[qa_agent],
+                tasks=[qa_task],
+                verbose=True
+            )
+            
+            qa_result = qa_crew.kickoff()
+            
+            # Record phase completion
+            perf_monitor.record_phase_end(7)
+            
+            print("\n" + "="*60)
+            print("🛡️ QUALITY ASSESSMENT COMPLETE!")
+            print("="*60)
+            print(f"\n📊 QA ASSESSMENT RESULT:")
+            print("-" * 30)
+            print(str(qa_result))
+            
+            # Parse QA result
+            qa_data = {}
+            try:
+                # Extract text from CrewOutput object
+                if hasattr(qa_result, 'raw'):
+                    result_text = str(qa_result.raw)
+                else:
+                    result_text = str(qa_result)
+                
+                # Try to find JSON in the result
+                import re
+                json_match = re.search(r'\{.*\}', result_text, re.DOTALL)
+                if json_match:
+                    import json
+                    qa_data = json.loads(json_match.group())
+                else:
+                    qa_data = {
+                        'raw_result': result_text,
+                        'status': 'parsed_as_text'
+                    }
+                
+                # Display structured QA results
+                if isinstance(qa_data, dict):
+                    quality_assessment = qa_data.get('quality_assessment', {})
+                    reloop_strategy = qa_data.get('reloop_strategy', {})
+                    final_verdict = qa_data.get('final_verdict', {})
+                    
+                    print(f"\n📊 QUALITY ASSESSMENT:")
+                    print(f"   Overall Score: {quality_assessment.get('overall_score', 'N/A'):.3f}")
+                    print(f"   Pass Status: {quality_assessment.get('pass_status', 'N/A').upper()}")
+                    print(f"   Quality Grade: {quality_assessment.get('quality_grade', 'N/A').upper()}")
+                    print(f"   Failed Criteria: {len(quality_assessment.get('failed_criteria', []))}")
+                    
+                    if quality_assessment.get('dimension_scores'):
+                        dims = quality_assessment['dimension_scores']
+                        print(f"   📊 Dimension Breakdown:")
+                        print(f"      Technical: {dims.get('technical_quality', 0):.3f}")
+                        print(f"      Content: {dims.get('content_quality', 0):.3f}")
+                        print(f"      Brand: {dims.get('brand_alignment', 0):.3f}")
+                        print(f"      Platform: {dims.get('platform_optimization', 0):.3f}")
+                        print(f"      Engagement: {dims.get('engagement_potential', 0):.3f}")
+                    
+                    print(f"\n🔄 RELOOP STRATEGY:")
+                    print(f"   Reloop Needed: {reloop_strategy.get('reloop_needed', False)}")
+                    print(f"   Strategy: {reloop_strategy.get('strategy', 'none')}")
+                    print(f"   Confidence: {reloop_strategy.get('confidence', 0):.2f}")
+                    
+                    print(f"\n✅ FINAL VERDICT:")
+                    print(f"   Approved for Publication: {final_verdict.get('approved_for_publication', False)}")
+                    print(f"   Quality Certification: {final_verdict.get('quality_certification', 'N/A')}")
+                    print(f"   Platform Readiness: {final_verdict.get('platform_readiness', [])}")
+                    print(f"   Confidence Score: {final_verdict.get('confidence_score', 0):.2f}")
+                
+            except (json.JSONDecodeError, ValueError, TypeError) as e:
+                print(f"\n⚠️  Could not parse QA data: {e}")
+                qa_data = {
+                    'raw_result': str(qa_result),
+                    'parse_error': str(e)
+                }
+            
+            # Create comprehensive Phase 7 result
+            phase7_result = {
+                'timestamp': datetime.now().isoformat(),
+                'user_prompt': self.user_prompt,
+                'platform': self.platform,
+                'duration': self.duration,
+                'content_mode': self.content_mode,
+                'status': 'phase_7_complete',
+                'folder_path': reel_folder,
+                'phase': 7,
+                'content_planning': planning_data,
+                'claude_refinement': refined_data,
+                'video_generation': video_data,
+                'audio_generation': audio_data,
+                'synchronization': sync_data,
+                'quality_assessment': qa_data,
+                'next_phase': 'final_output',
+                'message': 'Quality assessment complete - reel ready for final output!'
+            }
+            
+            # Save comprehensive metadata
+            save_reel_metadata(reel_folder, phase7_result)
+            create_reel_summary(reel_folder, phase7_result)
+            create_reel_preview_html(reel_folder, phase7_result)
+            
+            print(f"\n💾 OUTPUT FILES UPDATED:")
+            print(f"   📁 Folder: {os.path.basename(reel_folder)}")
+            print(f"   📄 Metadata: reel_metadata.json (updated)")
+            print(f"   📝 Summary: reel_summary.md (updated)")
+            print(f"   🌐 Preview: reel_preview.html (updated)")
+            print(f"   🎬 Video Clips: {video_data.get('generation_summary', {}).get('successful_clips', 0)} clips in /raw_clips/")
+            print(f"   🎵 Audio Files: Generated in /audio/ folder")
+            print(f"   ⚡ Final Reel: {sync_data.get('final_reel_path', 'final_reel.mp4')}")
+            print(f"   🛡️ QA Report: {qa_data.get('qa_report_path', 'qa_report.json')}")
+            
+            # Final output summary
+            # Generate comprehensive performance summary
+            final_perf_summary = perf_monitor.get_performance_summary()
+            
+            print(f"\n📂 Complete folder path: {reel_folder}")
+            print("\n" + "="*60)
+            print("🎉 COMPLETE 8-LAYER REEL GENERATION FINISHED!")
+            print("="*60)
+            
+            # Display performance metrics
+            print(f"\n📊 PERFORMANCE SUMMARY:")
+            print("-" * 30)
+            print(f"⏱️  Total Processing Time: {final_perf_summary['total_duration_seconds']:.1f} seconds")
+            print(f"🎯 Phases Completed: {final_perf_summary['performance_metrics']['phases_completed']}/7")
+            print(f"🔧 System Efficiency: {final_perf_summary['resource_efficiency']['overall_rating'].title()}")
+            print(f"💾 Peak Memory Usage: {final_perf_summary['memory_usage']['peak_memory_mb']} MB")
+            
+            if final_perf_summary['performance_metrics']['slowest_phase']:
+                slowest_phase = final_perf_summary['performance_metrics']['slowest_phase']
+                phase_name = final_perf_summary['phase_timings'][slowest_phase]['name']
+                phase_duration = final_perf_summary['phase_timings'][slowest_phase]['duration']
+                print(f"🐌 Most Time-Intensive: Phase {slowest_phase} ({phase_name}) - {phase_duration:.1f}s")
+            
+            # Display final results based on QA verdict
+            final_verdict = qa_data.get('final_verdict', {})
+            if final_verdict.get('approved_for_publication', False):
+                print("✅ REEL APPROVED FOR PUBLICATION!")
+                print(f"🏆 Quality Grade: {qa_data.get('quality_assessment', {}).get('quality_grade', 'N/A').upper()}")
+                print(f"📊 Overall Score: {qa_data.get('quality_assessment', {}).get('overall_score', 0):.3f}")
+                print(f"📱 Platform Ready: {', '.join(final_verdict.get('platform_readiness', []))}")
+                print(f"🎯 Confidence: {final_verdict.get('confidence_score', 0):.1%}")
+            else:
+                reloop_strategy = qa_data.get('reloop_strategy', {})
+                print("⚠️ REEL REQUIRES IMPROVEMENT")
+                print(f"📊 Current Score: {qa_data.get('quality_assessment', {}).get('overall_score', 0):.3f}")
+                print(f"🔄 Recommended Strategy: {reloop_strategy.get('strategy', 'unknown')}")
+                print(f"💰 Estimated Cost: {reloop_strategy.get('estimated_cost', 'unknown')}")
+                print(f"⏱️ Expected Timeline: {reloop_strategy.get('implementation_guidance', {}).get('expected_timeline', 'unknown')}")
+            
+            print(f"\n📋 ALL GENERATED FILES:")
+            print("-" * 30)
+            print(f"📁 Main Folder: {os.path.basename(reel_folder)}")
+            print(f"📄 Metadata: reel_metadata.json")
+            print(f"📝 Summary: reel_summary.md")
+            print(f"🌐 Preview: reel_preview.html")
+            print(f"🎬 Final Reel: final_reel.mp4")
+            print(f"🛡️ QA Report: qa_report.json")
+            print(f"📊 Processing Logs: quality_assessment_log.json")
+            
+            print(f"\n🎯 WHAT'S NEXT:")
+            if final_verdict.get('approved_for_publication', False):
+                print("1. 📱 Upload your reel to social media platforms")
+                print("2. 📊 Monitor engagement and performance metrics")
+                print("3. 🎨 Create variations using the successful formula")
+                print("4. 📈 Analyze what worked for future content")
+            else:
+                improvement_recs = qa_data.get('improvement_recommendations', {})
+                priority_improvements = improvement_recs.get('priority_improvements', [])
+                if priority_improvements:
+                    print("1. 🔧 Implement priority improvements:")
+                    for i, improvement in enumerate(priority_improvements[:3], 1):
+                        print(f"   {i}. {improvement}")
+                print("2. 🔄 Re-run the generation with improvements")
+                print("3. 🛡️ Re-test with QA system for approval")
+            
+            print("\n" + "="*60)
+            print("✨ Professional Social Media Reel Generation Complete!")
+            print("🤖 Generated with 8-Layer AI Architecture")
+            print("🏆 Quality-Assured with Intelligent Reloop System")
+            print("="*60)
+            
+            return phase7_result
+            
+        except Exception as e:
+            print(f"\n❌ Critical Error in Reel Generation Pipeline: {str(e)}")
+            print("🛡️ Activating comprehensive error recovery system...")
+            
+            # Determine which phase failed
+            failed_phase = 2  # Default to Phase 2 if error occurs early
+            if 'claude_refinement' in locals():
+                failed_phase = 3
+            elif 'video_result' in locals():
+                failed_phase = 4
+            elif 'audio_result' in locals():
+                failed_phase = 5
+            elif 'sync_result' in locals():
+                failed_phase = 6
+            elif 'qa_result' in locals():
+                failed_phase = 7
+            
+            # Handle the error with comprehensive system
+            error_context = {
+                'user_prompt': self.user_prompt,
+                'platform': self.platform,
+                'duration': self.duration,
+                'content_mode': self.content_mode,
+                'reel_folder': reel_folder,
+                'failed_phase': failed_phase
+            }
+            
+            error_handling_result = error_handler.handle_phase_error(failed_phase, e, error_context)
+            
+            if error_handling_result['can_continue']:
+                print(f"✅ Error recovery successful! Continuing with fallback data...")
+                
+                # Create comprehensive fallback result
+                fallback_result = error_handler.create_fallback_result(failed_phase, error_context)
+                
+                # Enhance with error information
+                enhanced_result = {
+                    'timestamp': datetime.now().isoformat(),
+                    'user_prompt': self.user_prompt,
+                    'platform': self.platform,
+                    'duration': self.duration,
+                    'content_mode': self.content_mode,
+                    'status': f'phase_{failed_phase}_recovered',
+                    'folder_path': reel_folder,
+                    'phase': failed_phase,
+                    'error_recovery': {
+                        'error_handled': True,
+                        'recovery_strategy': error_handling_result['recovery_result'],
+                        'fallback_data': fallback_result,
+                        'original_error': str(e)
+                    },
+                    'fallback_active': True,
+                    'message': f'Phase {failed_phase} failed but recovered with fallback data'
+                }
+                
+                # Save error recovery metadata
+                save_reel_metadata(reel_folder, enhanced_result)
+                create_reel_summary(reel_folder, enhanced_result)
+                
+                print(f"\n🛡️ ERROR RECOVERY COMPLETE!")
+                print("-" * 40)
+                print(f"❌ Original Error: {str(e)[:100]}...")
+                print(f"✅ Recovery Strategy: {error_handling_result['recovery_result']['strategy_used']}")
+                print(f"📁 Fallback Data Generated: Phase {failed_phase}")
+                print(f"⚠️ Quality Notice: Using mock/fallback data for failed components")
+                
+                print(f"\n📋 RECOVERY ACTIONS TAKEN:")
+                actions = error_handling_result['recovery_result'].get('actions_taken', [])
+                for action in actions:
+                    print(f"   • {action}")
+                
+                print(f"\n💡 RECOMMENDATIONS:")
+                print("   • Check API keys and network connectivity")
+                print("   • Review error logs for detailed debugging")
+                print("   • Consider re-running with corrected configuration")
+                print("   • Mock data allows you to test the complete pipeline")
+                
+                print(f"\n📂 Error logs saved to: {error_handler.error_log_path}")
+                
+                return enhanced_result
+            
+            else:
+                print(f"❌ Critical error - cannot continue with generation")
+                print("💡 Check error logs and system requirements")
+                
+                # Create critical error result
+                critical_error_result = {
+                    'timestamp': datetime.now().isoformat(),
+                    'user_prompt': self.user_prompt,
+                    'platform': self.platform,
+                    'duration': self.duration,
+                    'content_mode': self.content_mode,
+                    'status': 'critical_error',
+                    'error': str(e),
+                    'folder_path': reel_folder,
+                    'phase': failed_phase,
+                    'error_handling': error_handling_result,
+                    'recovery_attempted': True,
+                    'recovery_successful': False
+                }
+                
+                save_reel_metadata(reel_folder, critical_error_result)
+                return critical_error_result
 
+
+def display_welcome_banner():
+    """Display enhanced welcome banner with improved visual design"""
+    print("\n" + "🌟" * 25)
+    print("✨ SOCIAL MEDIA CONTENT CREATOR AI ✨")
+    print("🌟" * 25)
+    print("")
+    print("🎯 CHOOSE YOUR CONTENT TYPE:")
+    print("┌" + "─" * 48 + "┐")
+    print("│  1️⃣  SINGLE POST - Individual creative posts    │")
+    print("│  2️⃣  CONTENT CALENDAR - Strategic planning     │") 
+    print("│  3️⃣  VIDEO REELS - Professional video content  │")
+    print("└" + "─" * 48 + "┘")
+    print("")
+
+def display_feature_details():
+    """Display detailed feature information with improved formatting"""
+    print("📋 DETAILED FEATURES:")
+    print("=" * 60)
+    
+    print("\n🎯 SINGLE POST (Option 1):")
+    print("   ✅ 3 AI-generated creative ideas to choose from")
+    print("   ✅ Professional captions with engaging hooks")
+    print("   ✅ High-quality custom images via Ideogram V2 AI")
+    print("   ✅ Strategic hashtag research (15-30 optimal tags)")
+    print("   ✅ Platform-optimized timing recommendations")
+    print("   ✅ Carousel & Story support with templates")
+    print("   ⏱️ Time: 3-5 minutes | 💰 Cost: ~$0.50-1.20")
+    
+    print("\n📅 CONTENT CALENDAR (Option 2):")
+    print("   ✅ Multi-week strategic content planning (1-12 weeks)")
+    print("   ✅ Cross-platform scheduling (Instagram, Facebook, etc.)")
+    print("   ✅ Content variety (posts, stories, carousels, reels)")
+    print("   ✅ Theme-based content organization")
+    print("   ✅ CSV/JSON export for scheduling tools")
+    print("   ✅ Daily posting strategy with performance goals")
+    print("   ⏱️ Time: 5-10 minutes | 💰 Cost: ~$2.00-4.00")
+    
+    print("\n🎬 VIDEO REELS (Option 3) - NEW!")
+    print("   ✅ Professional AI video generation (FAL.AI models)")
+    print("   ✅ Claude-enhanced prompt optimization")
+    print("   ✅ Dual mode: Background Music OR Voice Narration")
+    print("   ✅ Intelligent quality assessment & reloop system")
+    print("   ✅ Platform-optimized (Instagram, TikTok, Facebook)")
+    print("   ✅ 8-layer AI architecture for professional results")
+    print("   ⏱️ Time: 10-20 minutes | 💰 Cost: ~$1.55-5.08")
+    
+    print("\n🎨 SUPPORTED FORMATS:")
+    print("   📱 Instagram: Posts (1:1), Stories (9:16), Reels (9:16)")
+    print("   📘 Facebook: Posts, Stories, Video content")
+    print("   🐦 Twitter: Posts, Threads, Media content")
+    print("   💼 LinkedIn: Professional posts, Articles")
+    print("   🎵 TikTok: Short-form vertical videos")
+    
+    print("=" * 60)
+
+def get_user_choice():
+    """Get user choice with enhanced input validation and help"""
+    while True:
+        try:
+            print("\n" + "💡 QUICK TIPS:" + " " * 43)
+            print("   • Press Ctrl+C anytime to exit")
+            print("   • All outputs saved to organized folders")
+            print("   • Check .env file for API keys if errors occur")
+            print("")
+            
+            choice = input("🎯 Enter your choice (1/2/3) or 'help' for details: ").strip().lower()
+            
+            if choice == 'help':
+                print("\n" + "📖 HELP REQUESTED")
+                display_feature_details()
+                print("\n🔙 Back to main menu...")
+                continue
+            elif choice in ['1', '2', '3']:
+                return choice
+            elif choice in ['exit', 'quit', 'q']:
+                raise KeyboardInterrupt
+            else:
+                print("❌ Please enter 1, 2, 3, or 'help'")
+                
+        except KeyboardInterrupt:
+            print("\n👋 Thanks for using Social Media Content Creator AI!")
+            exit()
+
+def show_progress_indicator(message, duration=1):
+    """Show enhanced progress indicator"""
+    import time
+    print(f"\n⚡ {message}")
+    for i in range(3):
+        print("   " + "●" * (i+1) + "○" * (2-i) + " Processing...", end="\r")
+        time.sleep(duration/3)
+    print("   " + "●" * 3 + " Complete!   ")
+
+def get_enhanced_single_post_input():
+    """Enhanced input collection for single posts"""
+    print("\n🎯 SINGLE POST CREATION")
+    print("=" * 40)
+    print("✨ Let's create an amazing social media post!")
+    
+    # Get user prompt with examples
+    print("\n💭 CONTENT IDEAS (examples):")
+    print("   • 'Eid Mubarak post for my fashion brand'")
+    print("   • 'Motivational Monday quote for entrepreneurs'")
+    print("   • '5 healthy breakfast recipes for busy moms'")
+    print("   • 'Behind the scenes at our coffee shop'")
+    
+    while True:
+        user_prompt = input("\n🗣️ What content do you want to create? ").strip()
+        if user_prompt:
+            break
+        print("❌ Please provide a content description!")
+    
+    # Platform selection with improved UI
+    print("\n📱 PLATFORM SELECTION:")
+    platforms = {
+        '1': 'instagram',
+        '2': 'facebook', 
+        '3': 'twitter',
+        '4': 'linkedin'
+    }
+    
+    print("   1️⃣  Instagram (recommended)")
+    print("   2️⃣  Facebook")
+    print("   3️⃣  Twitter")
+    print("   4️⃣  LinkedIn")
+    
+    platform_choice = input("\nSelect platform (1-4) [default: Instagram]: ").strip()
+    platform = platforms.get(platform_choice, 'instagram')
+    
+    # Content type with enhanced descriptions
+    print(f"\n📸 CONTENT TYPE for {platform.title()}:")
+    if platform == 'instagram':
+        print("   1️⃣  Post - Single image or carousel (square/portrait)")
+        print("   2️⃣  Story - Vertical format, 24-hour duration")
+        content_choice = input("\nSelect type (1-2) [default: Post]: ").strip()
+        content_type = 'story' if content_choice == '2' else 'post'
+    else:
+        content_type = 'post'
+        print(f"   📌 Using standard post format for {platform.title()}")
+    
+    return user_prompt, platform, content_type
+
+def get_enhanced_calendar_input():
+    """Enhanced input collection for content calendars"""
+    print("\n📅 CONTENT CALENDAR CREATION")
+    print("=" * 40)
+    print("📈 Let's plan your strategic content!")
+    
+    # Get user prompt with examples
+    print("\n🎨 CALENDAR THEMES (examples):")
+    print("   • 'Holiday season content for fashion boutique'")
+    print("   • 'Tech startup thought leadership content'")
+    print("   • 'Fitness coach motivational content'")
+    print("   • 'Restaurant seasonal menu promotion'")
+    
+    while True:
+        user_prompt = input("\n📝 Describe your content calendar theme: ").strip()
+        if user_prompt:
+            break
+        print("❌ Please provide a calendar theme!")
+    
+    # Platform selection with checkboxes style
+    print("\n📱 PLATFORM SELECTION (multi-select):")
+    print("   ✅ Instagram - Visual storytelling")
+    print("   ✅ Facebook - Community engagement") 
+    print("   ✅ Twitter - Real-time updates")
+    print("   ✅ LinkedIn - Professional networking")
+    
+    platforms_input = input("\nPlatforms (comma-separated) [default: all]: ").strip().lower()
+    if platforms_input:
+        available_platforms = ["instagram", "facebook", "twitter", "linkedin"]
+        platforms = [p.strip() for p in platforms_input.split(",") if p.strip() in available_platforms]
+        if not platforms:
+            platforms = available_platforms
+    else:
+        platforms = ["instagram", "facebook", "twitter", "linkedin"]
+    
+    # Duration with recommendations
+    print("\n📆 PLANNING DURATION:")
+    print("   💡 Recommended:")
+    print("      • 2-3 weeks: Testing new themes")
+    print("      • 4-6 weeks: Seasonal campaigns")
+    print("      • 8-12 weeks: Long-term strategy")
+    
+    duration_input = input("\nHow many weeks to plan? (1-12) [default: 4]: ").strip()
+    try:
+        duration_weeks = int(duration_input) if duration_input else 4
+        if duration_weeks < 1 or duration_weeks > 12:
+            duration_weeks = 4
+    except ValueError:
+        duration_weeks = 4
+    
+    return user_prompt, platforms, duration_weeks
+
+def get_enhanced_reel_input():
+    """Enhanced input collection for video reels"""
+    print("\n🎬 VIDEO REEL CREATION")
+    print("=" * 40)
+    print("🚀 Let's create a professional video reel!")
+    
+    # Get user prompt with examples
+    print("\n🎭 REEL IDEAS (examples):")
+    print("   • 'Fashion brand showcase with trending styles'")
+    print("   • 'Quick cooking tutorial for pasta dish'")
+    print("   • 'Fitness transformation motivation'")
+    print("   • 'Behind the scenes at coffee roastery'")
+    print("   • 'Tech product demo in 30 seconds'")
+    
+    while True:
+        user_prompt = input("\n🎬 What reel do you want to create? ").strip()
+        if user_prompt:
+            break
+        print("❌ Please provide a reel description!")
+    
+    # Duration selection with cost estimates
+    print("\n⏱️ DURATION SELECTION:")
+    print("   1️⃣  15 seconds - Quick & punchy (Cost: $1.55-2.55)")
+    print("   2️⃣  20 seconds - Balanced content (Cost: $2.02-3.55)")
+    print("   3️⃣  30 seconds - Detailed story (Cost: $3.03-5.08)")
+    
+    duration_choice = input("\nSelect duration (1-3) [default: 20s]: ").strip()
+    duration_map = {'1': '15s', '2': '20s', '3': '30s'}
+    duration = duration_map.get(duration_choice, '20s')
+    
+    # Content mode with detailed explanations
+    print("\n🎵 CONTENT MODE:")
+    print("   1️⃣  Music Mode - Visual storytelling")
+    print("       • Perfect for: Showcases, transformations, aesthetic content")
+    print("       • Background music enhances visual appeal")
+    print("       • Cost: Same as above (no extra audio charges)")
+    print("")
+    print("   2️⃣  Narration Mode - Educational content")
+    print("       • Perfect for: Tutorials, explanations, tips")
+    print("       • AI-generated voice narration with F5 TTS")
+    print("       • Cost: +$0.02-0.08 for professional narration")
+    
+    mode_choice = input("\nSelect mode (1-2) [default: Music]: ").strip()
+    content_mode = '2' if mode_choice == '2' else '1'
+    
+    # Platform with optimization notes
+    print("\n📱 PLATFORM OPTIMIZATION:")
+    print("   1️⃣  Instagram - 1080x1920, 15-30s optimal")
+    print("   2️⃣  TikTok - Fast-paced, 9-21s optimal")  
+    print("   3️⃣  Facebook - Algorithm optimized")
+    print("   4️⃣  All platforms - Universal format")
+    
+    platform_choice = input("\nSelect platform (1-4) [default: Instagram]: ").strip()
+    platform_map = {'1': 'instagram', '2': 'tiktok', '3': 'facebook', '4': 'all'}
+    platform = platform_map.get(platform_choice, 'instagram')
+    
+    return user_prompt, duration, content_mode, platform
+
+def display_completion_message(mode, result_data=None):
+    """Display enhanced completion message with actionable next steps"""
+    print("\n" + "🎉" * 20)
+    print("✨ CONTENT CREATION COMPLETE! ✨")
+    print("🎉" * 20)
+    
+    if mode == "1":
+        print("\n📱 YOUR SINGLE POST IS READY!")
+        print("🎯 What's included:")
+        print("   ✅ Polished caption with hooks")
+        print("   ✅ High-quality custom images")
+        print("   ✅ Strategic hashtags")
+        print("   ✅ Optimal posting time")
+        
+        print("\n📋 NEXT STEPS:")
+        print("   1. 📖 Review the content in your output folder")
+        print("   2. 🎨 Download images and customize if needed")
+        print("   3. 📱 Schedule or post to your social platform")
+        print("   4. 📊 Track engagement and performance")
+        
+    elif mode == "2":
+        print("\n📅 YOUR CONTENT CALENDAR IS READY!")
+        print("🎯 What's included:")
+        print("   ✅ Multi-week strategic planning")
+        print("   ✅ Platform-specific content")
+        print("   ✅ Daily scheduling recommendations")
+        print("   ✅ CSV export for scheduling tools")
+        
+        print("\n📋 NEXT STEPS:")
+        print("   1. 📊 Import CSV into Buffer/Hootsuite/Later")
+        print("   2. 🎨 Begin creating visuals for Week 1")
+        print("   3. 📅 Schedule your first batch of posts")
+        print("   4. 📈 Monitor performance and adjust strategy")
+        
+    elif mode == "3":
+        if result_data and isinstance(result_data, dict):
+            qa_data = result_data.get('quality_assessment', {})
+            final_verdict = qa_data.get('final_verdict', {}) if isinstance(qa_data, dict) else {}
+            approved = final_verdict.get('approved_for_publication', False)
+            
+            if approved:
+                print("\n🎬 YOUR PROFESSIONAL REEL IS READY!")
+                print("✅ QUALITY APPROVED FOR PUBLICATION!")
+                score = qa_data.get('quality_assessment', {}).get('overall_score', 0) if isinstance(qa_data, dict) else 0
+                print(f"🏆 Quality Score: {score:.1%}" if isinstance(score, (int, float)) else "🏆 Quality: Professional Grade")
+                
+                print("\n📋 NEXT STEPS:")
+                print("   1. 📱 Upload to Instagram/TikTok/Facebook")
+                print("   2. 📊 Monitor engagement in first hour")
+                print("   3. 🎨 Create variations using successful elements")
+                print("   4. 📈 Analyze performance for future content")
+            else:
+                print("\n🎬 YOUR REEL NEEDS IMPROVEMENT")
+                print("⚠️ Quality assessment suggests enhancements")
+                
+                print("\n📋 NEXT STEPS:")
+                print("   1. 📊 Review QA report in output folder")
+                print("   2. 🔧 Implement suggested improvements")
+                print("   3. 🔄 Re-run generation with updates")
+                print("   4. 🛡️ Re-test with quality system")
+        else:
+            print("\n🎬 YOUR REEL GENERATION IS COMPLETE!")
+            print("🎯 Professional 8-layer AI architecture used")
+            
+    print(f"\n📁 All files saved to organized output folder")
+    print("💡 Check the generated files for complete details")
 
 if __name__ == "__main__":
-    print("🎨 Welcome to Social Media Content Creator AI!")
-    print("=" * 50)
-    print("💡 Choose what you want to create:")
-    print("   🎯 SINGLE POST: Create individual social media posts")
-    print("   📅 CONTENT CALENDAR: Plan and organize your content strategy")
-    print("   🎬 REELS GENERATION: Create professional video reels")
-    print("")
-    print("🎯 SINGLE POST FEATURES:")
-    print("   • 3 creative ideas for you to choose from")
-    print("   • A polished caption")
-    print("   • Premium-quality visuals (single, carousel, or stories)")
-    print("   • Strategic hashtags")
-    print("   • Optimal posting times")
-    print("")
-    print("📅 CONTENT CALENDAR FEATURES:")
-    print("   • Multi-week content planning")
-    print("   • Platform-specific scheduling")
-    print("   • Content type variety (posts, stories, carousels)")
-    print("   • Strategic theme alignment")
-    print("   • Organized output files")
-    print("")
-    print("🎬 REELS GENERATION FEATURES:")
-    print("   • AI-powered video generation")
-    print("   • Professional narration or background music")
-    print("   • Claude-enhanced prompt optimization")
-    print("   • Quality assessment and reloop system")
-    print("   • Platform-optimized output (Instagram, TikTok, etc.)")
-    print("")
-    print("🎠 SUPPORTED FORMATS:")
-    print("   • Carousel posts for lists (e.g., '5 ways to...', '10 tips for...')")
-    print("   • Story templates with 9:16 vertical format (1080×1920px)")
-    print("   • Story series for multi-part content")
-    print("=" * 50)
+    # Initialize performance optimization for the main interface
+    from reels.performance_optimizer import optimize_reel_generation_performance
+    import os
+    
+    # Set up performance optimization
+    temp_output = os.path.join(os.getcwd(), 'temp_interface')
+    os.makedirs(temp_output, exist_ok=True)
+    perf_config = optimize_reel_generation_performance(temp_output)
+    
+    # Display enhanced welcome banner
+    display_welcome_banner()
+    
+    # Get user choice with enhanced interface
+    mode = get_user_choice()
     
     try:
-        # Choose mode
-        mode = input("\n🎯 What would you like to create?\n   (1) Single Post\n   (2) Content Calendar\n   (3) Video Reels\n   Enter 1, 2, or 3: ").strip()
-        
         if mode == "1":
-            # Single post creation workflow
-            user_prompt = input("\n🗣️  What kind of social media content do you want to create?\n   (e.g., 'Eid Mubarak post for my fashion brand'): ").strip()
+            # Enhanced single post creation workflow
+            show_progress_indicator("Initializing Single Post Creator")
+            user_prompt, platform, content_type = get_enhanced_single_post_input()
             
-            if not user_prompt:
-                print("❌ Please provide a prompt!")
-                exit()
-            
-            platform = input("\n📱 Which platform? (instagram/facebook/twitter/linkedin) [default: instagram]: ").strip().lower()
-            if not platform or platform not in ["instagram", "facebook", "twitter", "linkedin"]:
-                platform = "instagram"
-            
-            content_type = input("\n📸 Content type? (post/story) [default: post]: ").strip().lower()
-            if not content_type or content_type not in ["post", "story"]:
-                content_type = "post"
+            print(f"\n🎯 Creating {content_type} for {platform.title()}...")
+            print(f"📝 Content: {user_prompt[:60]}{'...' if len(user_prompt) > 60 else ''}")
             
             creator = SocialMediaPostCreator(user_prompt, platform, content_type)
             result = creator.run()
             
+            # Display completion message
+            display_completion_message(mode)
+            
         elif mode == "2":
-            # Content calendar creation workflow
-            user_prompt = input("\n📅 What kind of content calendar do you want to create?\n   (e.g., 'Fashion brand content for holiday season', 'Tech startup social media strategy'): ").strip()
+            # Enhanced content calendar creation workflow
+            show_progress_indicator("Initializing Content Calendar Planner")
+            user_prompt, platforms, duration_weeks = get_enhanced_calendar_input()
             
-            if not user_prompt:
-                print("❌ Please provide a prompt!")
-                exit()
-            
-            # Platform selection
-            print("\n📱 Select platforms (separate with commas):")
-            print("   Available: instagram, facebook, twitter, linkedin")
-            platforms_input = input("   Platforms [default: instagram,facebook,twitter,linkedin]: ").strip().lower()
-            
-            if platforms_input:
-                platforms = [p.strip() for p in platforms_input.split(",") if p.strip() in ["instagram", "facebook", "twitter", "linkedin"]]
-                if not platforms:
-                    platforms = ["instagram", "facebook", "twitter", "linkedin"]
-            else:
-                platforms = ["instagram", "facebook", "twitter", "linkedin"]
-            
-            # Duration selection
-            duration_input = input("\n📆 How many weeks? [default: 4]: ").strip()
-            try:
-                duration_weeks = int(duration_input) if duration_input else 4
-                if duration_weeks < 1 or duration_weeks > 12:
-                    duration_weeks = 4
-            except ValueError:
-                duration_weeks = 4
+            print(f"\n📅 Creating {duration_weeks}-week calendar...")
+            print(f"📱 Platforms: {', '.join(platforms)}")
+            print(f"🎨 Theme: {user_prompt[:60]}{'...' if len(user_prompt) > 60 else ''}")
             
             planner = ContentCalendarPlanner(user_prompt, platforms, duration_weeks)
             result = planner.run()
             
-        elif mode == "3":
-            # NEW: Video reels generation workflow
-            user_prompt = input("\n🎬 What kind of reel do you want to create?\n   (e.g., 'Fashion brand showcase', 'Cooking tutorial', 'Fitness motivation'): ").strip()
+            # Display completion message
+            display_completion_message(mode)
             
-            if not user_prompt:
-                print("❌ Please provide a prompt!")
+        elif mode == "3":
+            # Enhanced video reels generation workflow
+            show_progress_indicator("Initializing Professional Reel Creator")
+            user_prompt, duration, content_mode, platform = get_enhanced_reel_input()
+            
+            # Show reel creation preview
+            mode_text = "🎵 Music Mode" if content_mode == "1" else "🎙️ Narration Mode"
+            print(f"\n🎬 Creating {duration} reel with {mode_text}")
+            print(f"📱 Platform: {platform.title()}")
+            print(f"🎭 Content: {user_prompt[:60]}{'...' if len(user_prompt) > 60 else ''}")
+            
+            # Estimate cost and time
+            cost_estimates = {
+                '15s': ('$1.55-2.55', '8-15 minutes'),
+                '20s': ('$2.02-3.55', '10-20 minutes'), 
+                '30s': ('$3.03-5.08', '12-25 minutes')
+            }
+            cost_range, time_range = cost_estimates.get(duration, ('$2.02-3.55', '10-20 minutes'))
+            
+            if content_mode == "2":  # Narration mode
+                print(f"💰 Estimated cost: {cost_range} + $0.02-0.08 (narration)")
+            else:
+                print(f"💰 Estimated cost: {cost_range}")
+            print(f"⏱️ Estimated time: {time_range}")
+            
+            # Confirmation before proceeding
+            confirm = input("\n🚀 Ready to create your professional reel? (y/n) [default: y]: ").strip().lower()
+            if confirm in ['n', 'no']:
+                print("👋 No problem! Run the program again when you're ready.")
                 exit()
             
-            duration = input("\n⏱️ Duration? (15s/20s/30s) [default: 20s]: ").strip() or "20s"
-            
-            content_mode = input("\n🎵 Content mode?\n   (1) Music Mode - Visual storytelling with background music\n   (2) Narration Mode - Educational with voice explanation\n   Enter 1 or 2 [default: 1]: ").strip() or "1"
-            
-            platform = input("\n📱 Primary platform? (instagram/tiktok/facebook/all) [default: instagram]: ").strip() or "instagram"
+            print("\n🎬 Starting professional reel generation...")
+            print("📊 Using 8-layer AI architecture with quality assurance...")
             
             reel_creator = VideoReelCreator(user_prompt, duration, content_mode, platform)
             result = reel_creator.run()
             
+            # Display completion message with result data
+            display_completion_message(mode, result)
+            
         else:
-            print("❌ Please enter 1, 2, or 3!")
+            print("❌ Invalid choice. Please run the program again!")
             exit()
+            
+        # Performance summary
+        if hasattr(perf_config, 'monitor'):
+            perf_summary = perf_config['monitor'].get_performance_summary()
+            if perf_summary['total_duration_seconds'] > 5:  # Only show for longer operations
+                print(f"\n📊 PERFORMANCE SUMMARY:")
+                print(f"   ⏱️ Total time: {perf_summary['total_duration_seconds']:.1f}s")
+                print(f"   🔧 Efficiency: {perf_summary['resource_efficiency']['overall_rating']}")
         
     except KeyboardInterrupt:
-        print("\n\n👋 Goodbye! Come back anytime to create amazing social media content!")
+        print("\n\n👋 Thanks for using Social Media Content Creator AI!")
+        print("💡 Your content creation journey continues anytime!")
     except Exception as e:
-        print(f"\n❌ An error occurred: {str(e)}")
-        print("💡 Make sure you have set your OPENAI_API_KEY in the .env file!")
+        print(f"\n❌ Unexpected error: {str(e)}")
+        print("🔧 TROUBLESHOOTING TIPS:")
+        print("   • Check your .env file contains all required API keys")
+        print("   • Ensure stable internet connection")
+        print("   • Try running the program again")
+        print("   • Check the error logs in output folders for details")
+        print(f"\n🆘 If issues persist, check: https://docs.anthropic.com/claude-code")
+        
+    finally:
+        # Clean up performance optimization resources
+        if hasattr(perf_config, 'resource_manager'):
+            perf_config['resource_manager']._cleanup_all_temp_files()
+        
+        # Clean up temp interface folder
+        import shutil
+        try:
+            if os.path.exists(temp_output):
+                shutil.rmtree(temp_output)
+        except:
+            pass  # Ignore cleanup errors

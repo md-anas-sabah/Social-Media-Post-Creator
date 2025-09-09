@@ -477,40 +477,362 @@ class ReelTasks:
             expected_output="Professional audio content with FAL AI F5 TTS narration or background music, perfectly synchronized and ready for Phase 6 video integration"
         )
     
-    def synchronization_task(self, agent, video_clips, audio):
-        """Stitch videos and sync audio"""
+    def synchronization_task(self, agent, video_generation_result, audio_generation_result):
+        """Professional video stitching and audio synchronization using MoviePy"""
+        
+        # Extract video clips from Phase 4 results
+        if isinstance(video_generation_result, str):
+            try:
+                import json
+                video_data = json.loads(video_generation_result)
+            except:
+                video_data = {"video_clips": []}
+        else:
+            video_data = video_generation_result
+        
+        video_clips = video_data.get('video_clips', [])
+        
+        # Extract audio data from Phase 5 results  
+        if isinstance(audio_generation_result, str):
+            try:
+                import json
+                audio_data = json.loads(audio_generation_result)
+            except:
+                audio_data = {}
+        else:
+            audio_data = audio_generation_result or {}
+        
         return Task(
-            description=dedent("""
-                Combine video clips and audio into final reel.
+            description=dedent(f"""
+                PHASE 6: PROFESSIONAL VIDEO SYNCHRONIZATION & EDITING MISSION
+                Execute professional video synchronization and editing using MoviePy to create a high-quality social media reel.
                 
-                Process:
-                1. Stitch video clips with professional transitions
-                2. Synchronize audio with video timeline
-                3. Apply final quality optimizations
-                4. Export final reel in appropriate format
+                **INPUT DATA ANALYSIS:**
+                - Video clips from Phase 4: {len(video_clips)} clips generated
+                - Audio data from Phase 5: {audio_data.get('mode', 'unknown')} mode, {audio_data.get('duration', 0):.1f}s duration
+                - Target platform: Instagram/TikTok (1080x1920 resolution)
+                - Quality standard: Professional (libx264, CRF 23, 30fps)
                 
-                Output format: Final reel file path with complete metadata
+                **PROCESSING WORKFLOW:**
+                
+                **STEP 1: VIDEO STITCHING**
+                Use the Professional Synchronization Tool with action="stitch_and_sync" to:
+                - Load and validate all video clips from Phase 4 generation results
+                - Apply professional enhancements (resize to 1080x1920, color correction, stabilization)
+                - Stitch clips with seamless transitions (fade in/out, crossfades, cross-dissolve)
+                - Optimize quality settings for social media platforms
+                
+                **STEP 2: AUDIO SYNCHRONIZATION**
+                Synchronize audio from Phase 5 with the stitched video:
+                - Load audio file and analyze duration vs video duration
+                - Apply intelligent duration matching:
+                  * For background music: Loop seamlessly to match video duration
+                  * For narration: Maintain original timing and pacing
+                - Apply audio enhancements (normalization, fade in/out)
+                - Achieve frame-accurate audio-video alignment
+                
+                **STEP 3: FINAL OPTIMIZATION**
+                - Apply professional video effects and color grading
+                - Ensure platform compliance (Instagram/TikTok specifications)
+                - Export with optimal codec settings (libx264, AAC audio, MP4 container)
+                - Generate comprehensive processing metadata
+                
+                **MANDATORY TOOL USAGE:**
+                YOU MUST use the "Professional Synchronization Tool" to execute all synchronization operations.
+                
+                Required Tool Parameters:
+                {{
+                    "action": "stitch_and_sync",
+                    "video_clips": {video_clips},
+                    "audio_data": {audio_data},
+                    "output_folder": "[auto-detected from context]",
+                    "platform": "instagram",
+                    "quality": "professional"
+                }}
+                
+                **ERROR HANDLING:**
+                - Graceful fallback when MoviePy unavailable (mock processing)
+                - Comprehensive logging of all processing steps
+                - Partial success scenarios (video-only if audio fails)
+                - Quality validation with detailed error reporting
+                
+                **SUCCESS CRITERIA:**
+                - Final reel exported as MP4 with professional quality
+                - Perfect audio-video synchronization achieved
+                - All transitions and effects applied successfully
+                - Processing metadata generated for quality assessment
+                - Platform-optimized output ready for Phase 7 QA testing
+                
+                PHASE 4 VIDEO GENERATION INPUT:
+                {video_generation_result}
+                
+                PHASE 5 AUDIO GENERATION INPUT:
+                {audio_generation_result}
             """),
             agent=agent,
-            expected_output="Final synchronized reel with professional quality"
+            expected_output=dedent("""
+                Complete professional reel synchronization results in JSON format:
+                
+                {{
+                    "status": "completed",
+                    "final_reel_path": "/path/to/final_reel.mp4",
+                    "video_stitching": {{
+                        "clips_used": 3,
+                        "total_duration": 20.5,
+                        "resolution": "1080x1920",
+                        "transitions_applied": true,
+                        "quality": "professional"
+                    }},
+                    "audio_synchronization": {{
+                        "sync_quality": "perfect",
+                        "audio_mode": "narration",
+                        "duration_matched": true,
+                        "enhancements_applied": true
+                    }},
+                    "processing_summary": {{
+                        "total_processing_steps": 6,
+                        "files_created_count": 2,
+                        "professional_grade": true
+                    }},
+                    "metadata_path": "/path/to/synchronization_metadata.json"
+                }}
+                
+                Key deliverables:
+                - High-quality MP4 reel file ready for social media platforms
+                - Perfect audio-video synchronization with professional transitions
+                - Comprehensive processing metadata for quality assessment
+                - Platform-optimized output (1080x1920, 30fps, optimal compression)
+            """)
         )
     
-    def qa_testing_task(self, agent, final_reel):
-        """Quality assessment with reloop capability"""
+    def qa_testing_task(self, agent, synchronization_result, context):
+        """Comprehensive quality assessment with intelligent reloop system"""
+        
+        # Extract synchronization data for QA analysis
+        if isinstance(synchronization_result, str):
+            try:
+                import json
+                sync_data = json.loads(synchronization_result)
+            except:
+                sync_data = {"status": "unknown"}
+        else:
+            sync_data = synchronization_result
+        
         return Task(
-            description=dedent("""
-                Perform comprehensive quality assessment of the final reel.
+            description=dedent(f"""
+                PHASE 7: COMPREHENSIVE QUALITY ASSESSMENT & INTELLIGENT RELOOP SYSTEM
+                Execute advanced multi-dimensional quality assessment and determine strategic reloop requirements for professional social media reels.
                 
-                Assessment areas:
-                1. Technical quality (resolution, sync, compression)
-                2. Content quality (narrative flow, visual appeal)
-                3. Brand alignment and platform optimization
-                4. Engagement potential prediction
+                **SYNCHRONIZATION INPUT DATA**:
+                Phase 6 Results: {sync_data.get('status', 'unknown')} status
+                Final Reel: {sync_data.get('final_reel_path', 'unknown')}
+                Processing Quality: {sync_data.get('video_stitching', {}).get('quality', 'unknown')}
+                Audio Sync: {sync_data.get('audio_synchronization', {}).get('sync_quality', 'unknown')}
                 
-                If quality thresholds not met, recommend reloop strategy.
+                **CONTEXT DATA**:
+                - Platform: {context.get('platform', 'instagram')}
+                - Duration: {context.get('duration', 20)} seconds
+                - Content Mode: {context.get('content_mode', 'music')}
+                - User Prompt: {context.get('user_prompt', '')}
                 
-                Output format: QA report with scores and improvement recommendations
+                **COMPREHENSIVE QUALITY ASSESSMENT FRAMEWORK**:
+                
+                **DIMENSION 1: TECHNICAL QUALITY ANALYSIS** (Weight: 25%, Threshold: ≥0.80)
+                - File integrity validation and technical compliance assessment
+                - Resolution optimization verification (1080x1920 standard for Instagram/TikTok)
+                - Audio-video synchronization accuracy evaluation
+                - Compression quality and format compliance validation
+                - Platform compatibility and technical requirements verification
+                
+                **DIMENSION 2: CONTENT QUALITY EVALUATION** (Weight: 25%, Threshold: ≥0.75)
+                - Narrative flow and coherence analysis with Claude enhancement when available
+                - Visual appeal and professional presentation assessment
+                - Content structure and pacing evaluation
+                - Creative quality and engagement factor analysis
+                - Scene transitions and visual continuity validation
+                
+                **DIMENSION 3: BRAND ALIGNMENT ASSESSMENT** (Weight: 20%, Threshold: ≥0.85)
+                - Brand voice consistency evaluation based on user prompt analysis
+                - Messaging alignment with intended brand communication
+                - Professional presentation standards enforcement
+                - Content appropriateness and brand safety validation
+                
+                **DIMENSION 4: PLATFORM OPTIMIZATION** (Weight: 15%, Threshold: ≥0.80)
+                - Platform-specific requirement compliance (Instagram: 15-30s, TikTok: 9-21s)
+                - Format and resolution standards enforcement
+                - Audio optimization for platform algorithms
+                - Engagement-optimized duration and pacing validation
+                
+                **DIMENSION 5: ENGAGEMENT POTENTIAL PREDICTION** (Weight: 15%, Threshold: ≥0.70)
+                - Social media performance prediction based on content analysis
+                - Platform algorithm optimization assessment
+                - Audience retention and engagement factor evaluation
+                - Virability and shareability potential analysis
+                
+                **INTELLIGENT RELOOP DECISION SYSTEM**:
+                
+                **PASS CRITERIA**: Overall weighted score ≥ 0.76 AND no individual dimension below critical thresholds
+                
+                **RELOOP STRATEGIES** (Executed if quality assessment fails):
+                
+                1. **Parameter Adjustment Reloop** (Score: 0.65-0.76, Technical Issues):
+                   - Focus: File integrity, resolution compliance, sync optimization
+                   - Cost: Minimal processing time
+                   - Timeline: 5-15 minutes
+                   - Success Indicators: Technical score > 0.80, File integrity resolved
+                
+                2. **Prompt Refinement Reloop** (Score: 0.60-0.76, Content Issues):
+                   - Focus: Claude-enhanced prompts, narrative improvement
+                   - Cost: +$0.02-0.05 for Claude API calls
+                   - Timeline: 10-20 minutes
+                   - Success Indicators: Content quality > 0.75, Visual appeal improved
+                
+                3. **Model Switch Reloop** (Score: 0.55-0.75, Multiple Failures):
+                   - Focus: Alternative AI model selection, quality comparison
+                   - Cost: Varies by model selection (Runway Gen3, Pika Labs, Veo-2)
+                   - Timeline: 20-40 minutes
+                   - Success Indicators: Overall score improvement, Multiple criteria passing
+                
+                4. **Content Restructure Reloop** (Score: 0.50-0.70, Engagement/Structure Issues):
+                   - Focus: Storyboard redesign, content flow optimization
+                   - Cost: Moderate (partial regeneration)
+                   - Timeline: 30-60 minutes
+                   - Success Indicators: Engagement > 0.70, Improved narrative structure
+                
+                5. **Complete Regeneration Reloop** (Score: <0.50, Critical Failure):
+                   - Focus: Full pipeline restart with lessons learned
+                   - Cost: Full regeneration cost
+                   - Timeline: 45-90 minutes
+                   - Success Indicators: All quality criteria passing
+                
+                **MANDATORY TOOL USAGE**:
+                YOU MUST use the "Advanced QA Testing Tool" to execute the comprehensive assessment.
+                
+                Required Tool Parameters:
+                {{
+                    "action": "comprehensive_assessment",
+                    "reel_data": {sync_data},
+                    "context": {context},
+                    "output_folder": "[auto-detected from context]",
+                    "claude_api_key": "[auto-detected from environment]"
+                }}
+                
+                **COST-BENEFIT ANALYSIS REQUIREMENTS**:
+                For each reloop recommendation, provide:
+                - Projected quality improvement estimation
+                - Cost-benefit ratio calculation and recommendation
+                - Alternative strategy evaluation and ranking
+                - Implementation timeline and resource requirements
+                - Success probability and risk assessment
+                
+                **PROCESSING WORKFLOW**:
+                1. Receive complete reel data from Phase 6 synchronization results
+                2. Execute comprehensive multi-dimensional quality assessment using QA tool
+                3. Analyze each quality dimension against professional thresholds
+                4. Calculate weighted overall score and determine pass/fail status
+                5. If failed: Analyze failure patterns and determine optimal reloop strategy
+                6. Generate specific improvement recommendations with implementation guidance
+                7. Provide cost-benefit analysis and projected outcomes
+                8. Output final quality verdict or actionable reloop strategy
+                
+                **SUCCESS METRICS**:
+                - Technical Quality ≥ 0.80 (file integrity, resolution, sync)
+                - Content Quality ≥ 0.75 (narrative, visual appeal, coherence)
+                - Brand Alignment ≥ 0.85 (voice consistency, messaging)
+                - Platform Optimization ≥ 0.80 (requirements, duration, format)
+                - Engagement Potential ≥ 0.70 (social media performance prediction)
+                - Overall Weighted Score ≥ 0.76 (professional grade threshold)
+                
+                PHASE 6 SYNCHRONIZATION INPUT:
+                {synchronization_result}
+                
+                CONTEXT INPUT:
+                {context}
             """),
             agent=agent,
-            expected_output="Quality assessment report with pass/fail status and improvement recommendations"
+            expected_output=dedent("""
+                Comprehensive Quality Assessment and Reloop Strategy Report in JSON format:
+                
+                {{
+                    "quality_assessment": {{
+                        "overall_score": 0.823,
+                        "pass_status": "pass",
+                        "quality_grade": "good",
+                        "dimension_scores": {{
+                            "technical_quality": 0.87,
+                            "content_quality": 0.79,
+                            "brand_alignment": 0.85,
+                            "platform_optimization": 0.82,
+                            "engagement_potential": 0.74
+                        }},
+                        "failed_criteria": [],
+                        "detailed_breakdown": {{
+                            "technical_details": {{"file_integrity": {{"score": 0.9}}, "resolution": {{"score": 1.0}}}},
+                            "content_details": {{"narrative_flow": {{"score": 0.8}}, "visual_appeal": {{"score": 0.78}}}},
+                            "threshold_comparison": {{"all_criteria_passed": true}}
+                        }},
+                        "processing_time": 2.34,
+                        "claude_analysis_available": true
+                    }},
+                    "reloop_strategy": {{
+                        "reloop_needed": false,
+                        "strategy": "none",
+                        "confidence": 1.0,
+                        "reasoning": "Quality assessment passed all professional thresholds"
+                    }},
+                    "improvement_recommendations": {{
+                        "priority_improvements": [],
+                        "optional_enhancements": ["Consider adding subtle color grading for visual pop"],
+                        "estimated_effort": "low"
+                    }},
+                    "final_verdict": {{
+                        "approved_for_publication": true,
+                        "quality_certification": "professional_grade",
+                        "platform_readiness": ["instagram", "tiktok", "facebook"],
+                        "confidence_score": 0.95
+                    }},
+                    "qa_report_path": "/path/to/comprehensive_qa_report.json"
+                }}
+                
+                **FOR FAILED ASSESSMENTS** (when overall_score < 0.76):
+                {{
+                    "quality_assessment": {{
+                        "overall_score": 0.658,
+                        "pass_status": "fail",
+                        "quality_grade": "needs_improvement",
+                        "failed_criteria": ["technical_quality", "content_quality"],
+                        // ... detailed breakdown
+                    }},
+                    "reloop_strategy": {{
+                        "reloop_needed": true,
+                        "strategy": "prompt_refinement",
+                        "confidence": 0.85,
+                        "focus_areas": ["narrative_flow", "visual_appeal", "content_coherence"],
+                        "estimated_cost": "+$0.02-0.05",
+                        "cost_benefit_analysis": {{
+                            "projected_score": 0.768,
+                            "estimated_improvement": 0.10,
+                            "cost_benefit_ratio": 2.3,
+                            "recommendation": "proceed"
+                        }},
+                        "implementation_guidance": {{
+                            "priority_order": ["content_enhancement", "claude_optimization"],
+                            "specific_actions": ["Use Claude to enhance prompts", "Improve narrative flow"],
+                            "expected_timeline": "10-20 minutes",
+                            "success_indicators": ["Content quality score > 0.75"]
+                        }}
+                    }},
+                    "final_verdict": {{
+                        "approved_for_publication": false,
+                        "reloop_required": true,
+                        "recommended_action": "Execute prompt_refinement reloop strategy"
+                    }}
+                }}
+                
+                Key deliverables:
+                - Professional-grade quality assessment with detailed scoring
+                - Strategic reloop recommendations with cost-benefit analysis
+                - Specific improvement guidance and implementation timeline
+                - Final publication approval or reloop execution plan
+            """)
         )

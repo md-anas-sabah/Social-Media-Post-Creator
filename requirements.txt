@@ -9,3 +9,4 @@ anthropic>=0.34.0
 requests>=2.31.0
 moviepy>=1.0.3
 pydub>=0.25.1
+psutil>=5.9.0
