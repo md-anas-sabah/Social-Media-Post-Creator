@@ -33,10 +33,16 @@ class VideoGenerator:
         if self.fal_key:
             print(f"🔑 FAL_KEY prefix: {self.fal_key[:8]}...")
         
-        # Ensure raw_clips folder exists
+        # Validate and ensure raw_clips folder exists
+        if not output_folder or not os.path.exists(output_folder):
+            raise ValueError(f"Output folder does not exist or is invalid: {output_folder}")
+        
         self.clips_folder = os.path.join(output_folder, 'raw_clips')
-        os.makedirs(self.clips_folder, exist_ok=True)
-        print(f"📁 Created clips folder: {self.clips_folder}")
+        try:
+            os.makedirs(self.clips_folder, exist_ok=True)
+            print(f"📁 Created clips folder: {self.clips_folder}")
+        except (PermissionError, OSError) as e:
+            raise ValueError(f"Cannot create clips folder {self.clips_folder}: {e}")
         
         # Initialize FAL client
         if self.fal_key:
@@ -54,15 +60,85 @@ class VideoGenerator:
                 'strengths': ['realistic_motion', 'human_activities', 'high_quality'],
                 'best_for': ['all_content_types', 'professional_quality', 'versatile'],
                 'supports_aspect_ratio': True
+            },
+            'runway-gen3': {
+                'endpoint': 'fal-ai/runway/gen3/turbo/text-to-video',
+                'max_duration': 10,
+                'cost_per_clip': 1.20,
+                'strengths': ['creative_transitions', 'dynamic_scenes', 'artistic_content'],
+                'best_for': ['creative_content', 'artistic_effects', 'stylized_videos'],
+                'supports_aspect_ratio': True
+            },
+            'pika-labs': {
+                'endpoint': 'fal-ai/pika-labs/text-to-video',
+                'max_duration': 8,
+                'cost_per_clip': 0.80,
+                'strengths': ['artistic_effects', 'engaging_visuals', 'stylized_content'],
+                'best_for': ['social_media', 'stylized_content', 'engaging_videos'],
+                'supports_aspect_ratio': True
+            },
+            'veo-2': {
+                'endpoint': 'fal-ai/google/veo-2',
+                'max_duration': 5,
+                'cost_per_clip': 2.50,
+                'strengths': ['premium_quality', 'image_animation', 'product_enhancement'],
+                'best_for': ['premium_content', 'product_showcases', 'high_quality'],
+                'supports_aspect_ratio': True
             }
         }
         
-        # Default fallback order - only hailuo-02 now
-        self.fallback_order = ['hailuo-02']
+        # Default fallback order - intelligent order based on cost-quality balance
+        self.fallback_order = ['hailuo-02', 'pika-labs', 'runway-gen3', 'veo-2']
     
     def select_optimal_model(self, prompt_data: Dict) -> str:
-        """Always use hailuo-02 as it's our only model now"""
-        return 'hailuo-02'
+        """Select optimal model based on Claude recommendations and content requirements"""
+        
+        # Check if Claude recommended a specific model
+        recommended_model = prompt_data.get('recommended_model', '').lower()
+        
+        # Map Claude recommendations to available models
+        model_mapping = {
+            'hailuo-02': 'hailuo-02',
+            'hailuo02': 'hailuo-02', 
+            'hailuo_02': 'hailuo-02',
+            'runway-gen3': 'runway-gen3',
+            'runway_gen3': 'runway-gen3',
+            'runwaygen3': 'runway-gen3',
+            'pika-labs': 'pika-labs',
+            'pika_labs': 'pika-labs',
+            'pikalabs': 'pika-labs',
+            'veo-2': 'veo-2',
+            'veo2': 'veo-2',
+            'veo_2': 'veo-2'
+        }
+        
+        # If Claude recommended a model and it's available, use it
+        if recommended_model in model_mapping:
+            selected_model = model_mapping[recommended_model]
+            if selected_model in self.models:
+                print(f"   🎯 Using Claude-recommended model: {selected_model}")
+                return selected_model
+        
+        # Fallback to content-based selection
+        content_analysis = prompt_data.get('content_analysis', {})
+        content_category = content_analysis.get('category', '').lower()
+        
+        # Content-based model selection logic
+        if 'education' in content_category or 'tutorial' in content_category:
+            # Educational content - prioritize clarity and realism
+            return 'hailuo-02'
+        elif 'artistic' in content_category or 'creative' in content_category:
+            # Artistic content - prioritize creative effects
+            return 'pika-labs'
+        elif 'premium' in content_category or 'product' in content_category:
+            # Premium content - use highest quality if budget allows
+            return 'veo-2'
+        elif 'dynamic' in content_category or 'action' in content_category:
+            # Dynamic content - use runway for transitions
+            return 'runway-gen3'
+        else:
+            # Default to most reliable and cost-effective
+            return 'hailuo-02'
     
     def generate_video_clips(self, refined_prompts: List[Dict]) -> List[Dict]:
         """Generate video clips using FAL.AI models with intelligent model selection"""
@@ -175,10 +251,28 @@ class VideoGenerator:
         """Generate a single video clip using specified FAL model"""
         
         try:
-            # Extract prompt and parameters
+            # Validate input data
+            if not prompt_data:
+                raise ValueError("prompt_data is None or empty")
+            
+            if not isinstance(prompt_data, dict):
+                raise ValueError(f"prompt_data must be a dict, got {type(prompt_data)}")
+            
+            # Extract prompt and parameters with validation
             enhanced_prompt = prompt_data.get('enhanced_prompt', '')
+            if not enhanced_prompt:
+                # Fallback to basic description
+                enhanced_prompt = prompt_data.get('description', '')
+                if not enhanced_prompt:
+                    raise ValueError("No enhanced_prompt or description found in prompt_data")
+            
             technical_params = prompt_data.get('technical_params', {})
             duration = technical_params.get('duration', 7)
+            
+            # Validate duration
+            if not isinstance(duration, (int, float)) or duration <= 0:
+                print(f"⚠️  Invalid duration {duration}, using default 7s")
+                duration = 7
             
             # Get model configuration
             model_config = self.models[model_name]

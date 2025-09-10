@@ -37,10 +37,16 @@ class AudioGenerator:
         if self.fal_key:
             print(f"🔑 FAL_KEY prefix: {self.fal_key[:8]}...")
         
-        # Ensure audio folder exists
+        # Validate and ensure audio folder exists
+        if not output_folder or not os.path.exists(output_folder):
+            raise ValueError(f"Output folder does not exist or is invalid: {output_folder}")
+        
         self.audio_folder = os.path.join(output_folder, 'audio')
-        os.makedirs(self.audio_folder, exist_ok=True)
-        print(f"📁 Created audio folder: {self.audio_folder}")
+        try:
+            os.makedirs(self.audio_folder, exist_ok=True)
+            print(f"📁 Created audio folder: {self.audio_folder}")
+        except (PermissionError, OSError) as e:
+            raise ValueError(f"Cannot create audio folder {self.audio_folder}: {e}")
         
         # Initialize FAL client
         if self.fal_key:

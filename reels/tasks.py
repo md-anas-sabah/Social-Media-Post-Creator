@@ -485,20 +485,22 @@ class ReelTasks:
             try:
                 import json
                 video_data = json.loads(video_generation_result)
-            except:
-                video_data = {"video_clips": []}
+            except (json.JSONDecodeError, TypeError, ValueError) as e:
+                print(f"⚠️  Failed to parse video_generation_result JSON: {e}")
+                video_data = {"generated_clips": [], "video_clips": []}
         else:
             video_data = video_generation_result
         
-        video_clips = video_data.get('video_clips', [])
+        video_clips = video_data.get('generated_clips', video_data.get('video_clips', []))
         
         # Extract audio data from Phase 5 results  
         if isinstance(audio_generation_result, str):
             try:
                 import json
                 audio_data = json.loads(audio_generation_result)
-            except:
-                audio_data = {}
+            except (json.JSONDecodeError, TypeError, ValueError) as e:
+                print(f"⚠️  Failed to parse audio_generation_result JSON: {e}")
+                audio_data = {"audio_generation_status": "parse_error", "generated_audio": {}}
         else:
             audio_data = audio_generation_result or {}
         
@@ -613,10 +615,11 @@ class ReelTasks:
             try:
                 import json
                 sync_data = json.loads(synchronization_result)
-            except:
-                sync_data = {"status": "unknown"}
+            except (json.JSONDecodeError, TypeError, ValueError) as e:
+                print(f"⚠️  Failed to parse synchronization_result JSON: {e}")
+                sync_data = {"status": "parse_error", "error": str(e)}
         else:
-            sync_data = synchronization_result
+            sync_data = synchronization_result or {"status": "unknown"}
         
         return Task(
             description=dedent(f"""
