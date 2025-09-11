@@ -199,150 +199,17 @@ class ReelTasks:
         """Generate professional video clips using enhanced prompts from Phase 3"""
         return Task(
             description=dedent(f"""
-                PHASE 4: ADVANCED VIDEO GENERATION MISSION
-                Transform Claude-enhanced prompts into professional video clips using multi-model FAL.AI integration.
+                USE THE ADVANCED VIDEO GENERATION TOOL NOW.
                 
-                PHASE 3 INPUT (CLAUDE REFINEMENT RESULT):
-                {claude_refinement_result}
+                Input data: {claude_refinement_result}
                 
-                CONTEXT DATA:
-                - Platform: {context.get('platform', 'instagram')}
-                - Duration: {context.get('duration', 20)} seconds total
-                - Content Mode: {context.get('content_mode', 'music')}
-                - User Prompt: {context.get('user_prompt', '')}
-                - Output Folder: Available in agent configuration
+                Call the tool with parameter:
+                refined_prompts_data = "{claude_refinement_result}"
                 
-                STEP 1: EXTRACT REFINED PROMPTS
-                Extract the refined_prompts array from Claude refinement result:
-                - Parse Claude enhancement data structure
-                - Validate prompt quality and technical parameters
-                - Confirm model recommendations and fallback options
-                
-                STEP 2: INTELLIGENT MODEL SELECTION
-                For each refined prompt:
-                - Use Claude's model recommendation as primary choice
-                - Validate model capabilities vs requirements (duration, style, etc.)
-                - Apply intelligent fallback if constraints not met
-                - Consider cost-quality optimization
-                
-                STEP 3: PROFESSIONAL VIDEO GENERATION
-                Execute video generation using the Advanced Video Generation Tool:
-                
-                SIMPLIFIED USAGE: The tool now auto-detects the output folder and has smart defaults.
-                You only need to provide the refined_prompts_data parameter as a JSON string.
-                
-                REQUIRED PARAMETER:
-                - refined_prompts_data: Convert claude_refinement_result to JSON string
-                
-                OPTIONAL PARAMETERS (auto-detected if not provided):
-                - output_folder: Will auto-detect current reel folder and use raw_clips/ subdirectory
-                - context: Will use smart defaults for platform, duration, content_mode
-                
-                MANDATORY TOOL USAGE:
-                YOU MUST use the "Advanced Video Generation Tool" to generate the video clips. 
-                Call the tool with the refined prompts data as a JSON string parameter.
-                
-                Example tool usage:
-                Use the Advanced Video Generation Tool with:
-                - refined_prompts_data: The complete claude_refinement_result as a JSON string
-                
-                STEP 4: MULTI-MODEL VIDEO GENERATION
-                For each clip, execute:
-                - Model Selection: Use optimal model based on Claude recommendations
-                - Parameter Configuration: Apply model-specific settings for maximum quality
-                - Generation Execution: Submit to FAL.AI with proper error handling
-                - Quality Validation: Validate generated video meets technical standards
-                - File Management: Download and save with organized naming
-                
-                MODEL-SPECIFIC OPTIMIZATIONS:
-                - **Hailuo 02**: 24fps, high quality, realistic motion optimization
-                - **Runway Gen3**: 30fps, motion intensity 0.7, creative transitions
-                - **Pika Labs**: Guidance scale 7.5, artistic visual effects
-                - **Veo 2**: Premium quality, image animation enhancement
-                
-                STEP 5: QUALITY ASSURANCE
-                For each generated clip:
-                - File Integrity: Verify successful download and proper file size
-                - Technical Validation: Check resolution, duration, format compliance
-                - Visual Quality: Basic quality assessment and scoring
-                - Metadata Recording: Complete generation data and model information
-                
-                STEP 6: COMPREHENSIVE REPORTING
-                Generate detailed generation report including:
-                - Success/failure status for each clip
-                - Model usage breakdown and performance analysis
-                - Quality assessment scores and validation results
-                - Cost analysis with per-clip and total estimates
-                - File organization with complete paths and metadata
-                
-                REQUIRED OUTPUT STRUCTURE:
-                {{
-                    "video_generation_status": "success|partial|failed",
-                    "generated_clips": [
-                        {{
-                            "clip_id": 1,
-                            "file_path": "/path/to/clip_1_hailuo-02.mp4",
-                            "filename": "clip_1_hailuo-02.mp4",
-                            "status": "success|mock|failed",
-                            "model_used": "hailuo-02",
-                            "duration": 7,
-                            "resolution": "1080x1920",
-                            "quality_check": {{
-                                "valid": true,
-                                "file_size": 1048576,
-                                "estimated_quality": "good"
-                            }},
-                            "cost_estimate": 0.49,
-                            "prompt_data": "original refined prompt data"
-                        }}
-                    ],
-                    "generation_summary": {{
-                        "total_clips": 3,
-                        "successful_clips": 3,
-                        "failed_clips": 0,
-                        "total_cost": 1.47,
-                        "average_cost_per_clip": 0.49,
-                        "model_usage": {{
-                            "hailuo-02": {{"clips": 2, "cost": 0.98}},
-                            "runway-gen3": {{"clips": 1, "cost": 1.20}}
-                        }}
-                    }},
-                    "quality_assessment": {{
-                        "overall_quality_score": 0.85,
-                        "technical_compliance": true,
-                        "all_clips_valid": true,
-                        "ready_for_synchronization": true
-                    }},
-                    "next_phase_data": {{
-                        "clips_folder": "/path/to/raw_clips/",
-                        "clip_files": ["clip_1.mp4", "clip_2.mp4", "clip_3.mp4"],
-                        "total_duration": 20,
-                        "ready_for_phase_5": true
-                    }}
-                }}
-                
-                CRITICAL REQUIREMENTS:
-                1. All video clips must be successfully generated or have proper fallbacks
-                2. Quality validation must pass for all clips
-                3. Complete metadata must be preserved for Phase 5 synchronization
-                4. Cost tracking must be accurate and comprehensive
-                5. File organization must be systematic and accessible
-                
-                SUCCESS METRICS:
-                - Video generation success rate ≥ 90%
-                - All clips meet minimum quality thresholds
-                - Total generation time < 15 minutes for standard 3-clip reel
-                - Cost estimates accurate within 10% margin
-                - Files properly organized and metadata complete
-                
-                ERROR HANDLING:
-                - Implement intelligent fallback to alternative models
-                - Provide clear error messages and recovery suggestions
-                - Maintain partial success capability (generate available clips)
-                - Ensure no data loss during generation failures
+                DO NOT WRITE EXPLANATIONS. CALL THE TOOL IMMEDIATELY.
             """),
             agent=agent,
-            expected_output="Professional video clips generated with complete quality validation, cost analysis, and metadata ready for Phase 5 synchronization"
+            expected_output="Video clips generated using the Advanced Video Generation Tool"
         )
     
     def audio_generation_task(self, agent, video_generation_result, context):

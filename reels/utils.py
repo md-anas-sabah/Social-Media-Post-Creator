@@ -24,14 +24,18 @@ def parse_duration(duration_str: str) -> int:
 
 
 def create_unique_reel_folder(user_prompt: str, platform: str = 'instagram') -> tuple:
-    """Create unique folder for reel output"""
+    """Create unique folder for reel output with complete directory structure"""
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     prompt_slug = re.sub(r'[^\w\s-]', '', user_prompt.lower())
     prompt_slug = re.sub(r'\s+', '_', prompt_slug)[:20]
     
     folder_name = f"reel_{platform}_{prompt_slug}_{timestamp}"
     reel_folder = os.path.join(os.getcwd(), "reels", folder_name)
+    
+    # Create main folder and all required subdirectories
     os.makedirs(reel_folder, exist_ok=True)
+    os.makedirs(os.path.join(reel_folder, 'raw_clips'), exist_ok=True)
+    os.makedirs(os.path.join(reel_folder, 'audio'), exist_ok=True)
     
     return reel_folder, timestamp
 

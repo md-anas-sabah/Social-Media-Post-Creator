@@ -61,84 +61,14 @@ class VideoGenerator:
                 'best_for': ['all_content_types', 'professional_quality', 'versatile'],
                 'supports_aspect_ratio': True
             },
-            'runway-gen3': {
-                'endpoint': 'fal-ai/runway/gen3/turbo/text-to-video',
-                'max_duration': 10,
-                'cost_per_clip': 1.20,
-                'strengths': ['creative_transitions', 'dynamic_scenes', 'artistic_content'],
-                'best_for': ['creative_content', 'artistic_effects', 'stylized_videos'],
-                'supports_aspect_ratio': True
-            },
-            'pika-labs': {
-                'endpoint': 'fal-ai/pika-labs/text-to-video',
-                'max_duration': 8,
-                'cost_per_clip': 0.80,
-                'strengths': ['artistic_effects', 'engaging_visuals', 'stylized_content'],
-                'best_for': ['social_media', 'stylized_content', 'engaging_videos'],
-                'supports_aspect_ratio': True
-            },
-            'veo-2': {
-                'endpoint': 'fal-ai/google/veo-2',
-                'max_duration': 5,
-                'cost_per_clip': 2.50,
-                'strengths': ['premium_quality', 'image_animation', 'product_enhancement'],
-                'best_for': ['premium_content', 'product_showcases', 'high_quality'],
-                'supports_aspect_ratio': True
-            }
         }
         
-        # Default fallback order - intelligent order based on cost-quality balance
-        self.fallback_order = ['hailuo-02', 'pika-labs', 'runway-gen3', 'veo-2']
+        # Only use hailuo-02 for all clips
+        self.fallback_order = ['hailuo-02']
     
     def select_optimal_model(self, prompt_data: Dict) -> str:
-        """Select optimal model based on Claude recommendations and content requirements"""
-        
-        # Check if Claude recommended a specific model
-        recommended_model = prompt_data.get('recommended_model', '').lower()
-        
-        # Map Claude recommendations to available models
-        model_mapping = {
-            'hailuo-02': 'hailuo-02',
-            'hailuo02': 'hailuo-02', 
-            'hailuo_02': 'hailuo-02',
-            'runway-gen3': 'runway-gen3',
-            'runway_gen3': 'runway-gen3',
-            'runwaygen3': 'runway-gen3',
-            'pika-labs': 'pika-labs',
-            'pika_labs': 'pika-labs',
-            'pikalabs': 'pika-labs',
-            'veo-2': 'veo-2',
-            'veo2': 'veo-2',
-            'veo_2': 'veo-2'
-        }
-        
-        # If Claude recommended a model and it's available, use it
-        if recommended_model in model_mapping:
-            selected_model = model_mapping[recommended_model]
-            if selected_model in self.models:
-                print(f"   🎯 Using Claude-recommended model: {selected_model}")
-                return selected_model
-        
-        # Fallback to content-based selection
-        content_analysis = prompt_data.get('content_analysis', {})
-        content_category = content_analysis.get('category', '').lower()
-        
-        # Content-based model selection logic
-        if 'education' in content_category or 'tutorial' in content_category:
-            # Educational content - prioritize clarity and realism
-            return 'hailuo-02'
-        elif 'artistic' in content_category or 'creative' in content_category:
-            # Artistic content - prioritize creative effects
-            return 'pika-labs'
-        elif 'premium' in content_category or 'product' in content_category:
-            # Premium content - use highest quality if budget allows
-            return 'veo-2'
-        elif 'dynamic' in content_category or 'action' in content_category:
-            # Dynamic content - use runway for transitions
-            return 'runway-gen3'
-        else:
-            # Default to most reliable and cost-effective
-            return 'hailuo-02'
+        """Always use hailuo-02 for all clips"""
+        return 'hailuo-02'
     
     def generate_video_clips(self, refined_prompts: List[Dict]) -> List[Dict]:
         """Generate video clips using FAL.AI models with intelligent model selection"""
@@ -293,14 +223,6 @@ class VideoGenerator:
                 generation_args.update({
                     'aspect_ratio': '9:16'  # Force vertical - this is critical!
                 })
-            elif model_name == 'runway-gen3':
-                generation_args.update({
-                    'aspect_ratio': '9:16'  # Force vertical
-                })
-            elif model_name == 'pika-labs':
-                generation_args.update({
-                    'aspect_ratio': '9:16'  # Force vertical
-                })
             
             # Generate video using FAL.AI
             print(f"   🚀 Submitting to {model_config['endpoint']}...")
@@ -324,19 +246,38 @@ class VideoGenerator:
                 if not result.request_id:
                     raise Exception("FAL.AI request_id is empty")
                 
-                # Wait for result with proper timeout handling
+                # Wait for result with strict timeout handling
                 print(f"   ⏳ Waiting for generation with request_id: {result.request_id}")
                 
                 try:
-                    # Try simple approach first - direct get() with shorter wait
-                    print(f"   ⚡ Attempting direct result retrieval...")
-                    start_time = time.time()
+                    # Direct result retrieval with timeout
+                    print(f"   ⚡ Attempting direct result retrieval with 120s timeout...")
                     
-                    # First, try a simple get() call with reasonable expectations
-                    try:
-                        final_result = result.get()
-                        elapsed = time.time() - start_time
-                        print(f"   ✅ Generation completed in {elapsed:.1f} seconds")
+                    # Use threading to enforce timeout
+                    import threading
+                    
+                    result_container = {}
+                    
+                    def get_result():
+                        try:
+                            result_container['result'] = result.get()
+                            result_container['success'] = True
+                        except Exception as e:
+                            result_container['error'] = str(e)
+                            result_container['success'] = False
+                    
+                    thread = threading.Thread(target=get_result)
+                    thread.daemon = True
+                    thread.start()
+                    thread.join(timeout=120)  # 2 minute timeout
+                    
+                    if thread.is_alive():
+                        print(f"   ❌ FAL API timeout after 120 seconds - falling back to mock")
+                        return self._create_mock_single_clip(prompt_data, clip_id, model_name)
+                    
+                    if result_container.get('success'):
+                        final_result = result_container['result']
+                        print(f"   ✅ Generation completed successfully")
                         
                     except Exception as direct_error:
                         print(f"   ⚠️  Direct get() failed: {str(direct_error)}")
